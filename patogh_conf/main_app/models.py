@@ -63,7 +63,7 @@ class Users(models.Model):
 
 class Patogh(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Patogh")
-    creator_id = models.CharField(primary_key=True,unique=True, max_length=50)
+    creator_id = models.CharField(primary_key=True, max_length=50)
     name = models.CharField(max_length=100)
     state = (
         ('1','public'),
@@ -87,3 +87,25 @@ class Patogh(models.Model):
     class Meta:
         ordering = ['name']
 
+class PendingVerify(models.Model):
+    receptor = models.CharField(primary_key=True, max_length=50)
+    otp = models.IntegerField()
+    send_time = models.DateTimeField(null = True)
+    allowed_try = models.SmallIntegerField(default=5)
+
+    class Meta:
+        ordering = ['send_time']
+
+class UsersHavePermisions(models.Model):
+    username = models.CharField(primary_key=True)
+    permision_id = models.IntegerField(null = True)
+
+    class Meta:
+        ordering = ['username']
+
+class UsersPermision(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this User Permision")
+    title = models.CharField(max_length=30,null=True)
+
+    class Meta:
+        ordering = ['title']
