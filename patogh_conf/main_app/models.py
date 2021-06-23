@@ -1,5 +1,3 @@
-from _typeshed import OpenBinaryModeReading
-from typing import OrderedDict, Sized
 from django.db import models
 import uuid
 from datetime import date
@@ -8,7 +6,10 @@ from django.db.models import indexes
 from django.db.models.base import Model
 from django.db.models.deletion import PROTECT
 from django.db.models.fields import CharField
+from django.contrib.auth.models import AbstractUser
 
+class User(AbstractUser):
+    pass
 
 
 class LocationTypes(models.Model):
@@ -16,7 +17,7 @@ class LocationTypes(models.Model):
     label = models.CharField(max_length=20 , unique=True)
 
     class Meta:
-        Ordering = ['id']
+        ordering = ['id']
 
 
 class Tags(models.Model):
@@ -24,38 +25,38 @@ class Tags(models.Model):
     tag = models.CharField(unique=True,max_length=40)
 
     class Meta:
-        Ordering = ['id']
+        ordering = ['id']
         unique_together = ('id','tag')
 
 class City(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
     city_status = (
-        ('Tehran'),
-        ('Qom'),
-        ('Sistan'),
-        ('Khozestan'),
-        ('Gorgan'),
-        ('Golestan'),
-        ('Alborz'),
-        ('Kerman'),
-        ('Ardebil'),
-        ('Markazi'),
-        ('Khorasan razavi'),
-        ('Khorasan shomali'),
-        ('Khorasan jonobi'),
-        ('Boshehr'),
-        ('Esfahan'),
-        ('Hamedan'),
-        ('Kermanshah'),
-        ('Azarbaijan gharbi'),
-        ('Azarbaijan sharhgi'),
-        ('Fars'),
-        ('Yazd'),
-        ('Hormozgan'),
-        ('Semnan'),
-        ('Qazvin')
+        ('0','Tehran'),
+        ('1','Qom'),
+        ('2','Sistan'),
+        ('3','Khozestan'),
+        ('4','Gorgan'),
+        ('5','Golestan'),
+        ('6','Alborz'),
+        ('7','Kerman'),
+        ('8','Ardebil'),
+        ('9','Markazi'),
+        ('10','Khorasan razavi'),
+        ('11','Khorasan shomali'),
+        ('12','Khorasan jonobi'),
+        ('13','Boshehr'),
+        ('14','Esfahan'),
+        ('15','Hamedan'),
+        ('16','Kermanshah'),
+        ('17','Azarbaijan gharbi'),
+        ('18','Azarbaijan sharhgi'),
+        ('19','Fars'),
+        ('20','Yazd'),
+        ('21','Hormozgan'),
+        ('22','Semnan'),
+        ('23','Qazvin')
     )
-    name = models.CharField(max_length=40,choices=city_status,help_text="Where do you live?",null = True , blank = True)
+    name = models.CharField(max_length=40,choices=city_status,help_text="Where do you live?")
     
     class Meta:
         ordering = ['name']
@@ -82,7 +83,7 @@ class Users(models.Model):
         return self.fullname
 
     class Meta:
-        Ordering = ['username']
+        ordering = ['username']
 
 class Patogh(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Patogh")
@@ -122,11 +123,11 @@ class PendingVerify(models.Model):
 
 
 class UsersPermision(models.Model):
-    id = models.ForeignKey(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this User Permision")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this User Permision")
     label = models.CharField(unique = True ,max_length=30,null=True)
 
     class Meta:
-        ordering = ['title']
+        ordering = ['id']
 
 class GatheringHaveMember(models.Model):
     g_id = models.ForeignKey(Patogh , on_delete= models.CASCADE)
@@ -138,7 +139,7 @@ class GatheringHaveMember(models.Model):
     )
     status = models.SmallIntegerField(default=0, choices=permission)
     class Meta:
-        Ordering = ['username']
+        ordering = ['username']
         unique_together = ('g_id','username')
 
 class Gathering(models.Model):
@@ -166,7 +167,7 @@ class Gathering(models.Model):
     tags_id = models.ForeignKey(Tags ,on_delete=models.PROTECT , null = True)
 
     class Meta:
-        Ordering = ['id']
+        ordering = ['id']
 
 class JoinGatheringRequest(models.Model):
     g_id = models.ForeignKey(Gathering , on_delete= models.CASCADE)
@@ -179,7 +180,7 @@ class JoinGatheringRequest(models.Model):
     status = models.SmallIntegerField(choices=state)
 
     class Meta:
-        Ordering = ['g_id']
+        ordering = ['g_id']
         unique_together = ('g_id','username')
 
 class PatoghsComments(models.Model):
@@ -191,7 +192,7 @@ class PatoghsComments(models.Model):
     comment = models.CharField(max_length=1000)
 
     class Meta:
-        Ordering = ['id']
+        ordering = ['id']
 
 class reportedPatogh(models.Model):
     patogh_id = models.ForeignKey(Patogh  , on_delete= models.PROTECT)
@@ -202,7 +203,7 @@ class reportedPatogh(models.Model):
     def __str__(self):
         return self.patogh_id
     class Meta:
-        Ordering = ['patogh_id']
+        ordering = ['patogh_id']
         unique_together = ('patogh_id','username')
 
 class PatoghHaveImages(models.Model):
@@ -218,7 +219,7 @@ class PatoghHaveImages(models.Model):
     send_time = models.DateTimeField(auto_now_add=True , null = True , blank= True)
 
     class Meta:
-        Ordering = ['patogh_id']
+        ordering = ['patogh_id']
 
 
 class UsersHavePermisions(models.Model):
@@ -234,7 +235,7 @@ class UsersHavePermisions(models.Model):
 class GatheringScheduall(models.Model):
     g_id = models.ForeignKey(Gathering, on_delete=models.CASCADE )
     status = (
-        ('0','default')
+        ('0','default'),
         ('1','repeat')
     )
     Sa = models.SmallIntegerField(choices=status)
@@ -246,4 +247,4 @@ class GatheringScheduall(models.Model):
     Fr = models.SmallIntegerField(choices=status)
 
     class Meta: 
-        Ordering = ['g_id']
+        ordering = ['g_id']
