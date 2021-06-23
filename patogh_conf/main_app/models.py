@@ -10,23 +10,6 @@ from django.db.models.deletion import PROTECT
 from django.db.models.fields import CharField
 
 
-class GatheringScheduall(models.Model):
-    g_id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Tag")
-    status = (
-        ('0','default')
-        ('1','repeat')
-    )
-    Sa = models.SmallIntegerField(choices=status)
-    Su = models.SmallIntegerField(choices=status)
-    Mo = models.SmallIntegerField(choices=status)
-    Tu = models.SmallIntegerField(choices=status)
-    We = models.SmallIntegerField(choices=status)
-    Th = models.SmallIntegerField(choices=status)
-    Fr = models.SmallIntegerField(choices=status)
-
-    class Meta: 
-        Ordering = ['g_id']
-
 
 class LocationTypes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Location")
@@ -42,6 +25,7 @@ class Tags(models.Model):
 
     class Meta:
         Ordering = ['id']
+        unique_together = ('id','tag')
 
 class City(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
@@ -75,6 +59,7 @@ class City(models.Model):
     
     class Meta:
         ordering = ['name']
+        unique_together = ('id','name')
    
 class Users(models.Model):
     username = models.CharField(primary_key=True,max_length=100,unique=True)
@@ -124,6 +109,7 @@ class Patogh(models.Model):
     tags_id = models.ForeignKey(Tags , on_delete=models.CASCADE )
     class Meta:
         ordering = ['name']
+        unique_together = ('id','creator_id')
 
 class PendingVerify(models.Model):
     receptor = models.CharField(primary_key=True, max_length=50)
@@ -153,6 +139,7 @@ class GatheringHaveMember(models.Model):
     status = models.SmallIntegerField(default=0, choices=permission)
     class Meta:
         Ordering = ['username']
+        unique_together = ('g_id','username')
 
 class Gathering(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this gathering")
@@ -193,6 +180,7 @@ class JoinGatheringRequest(models.Model):
 
     class Meta:
         Ordering = ['g_id']
+        unique_together = ('g_id','username')
 
 class PatoghsComments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this patogh Commments")
@@ -215,6 +203,7 @@ class reportedPatogh(models.Model):
         return self.patogh_id
     class Meta:
         Ordering = ['patogh_id']
+        unique_together = ('patogh_id','username')
 
 class PatoghHaveImages(models.Model):
     patogh_id = models.ForeignKey(Patogh , on_delete= models.CASCADE)
@@ -238,6 +227,23 @@ class UsersHavePermisions(models.Model):
 
     class Meta:
         ordering = ['username']
+        unique_together = ('username','permision_id')
 
 
 
+class GatheringScheduall(models.Model):
+    g_id = models.ForeignKey(Gathering, on_delete=models.CASCADE )
+    status = (
+        ('0','default')
+        ('1','repeat')
+    )
+    Sa = models.SmallIntegerField(choices=status)
+    Su = models.SmallIntegerField(choices=status)
+    Mo = models.SmallIntegerField(choices=status)
+    Tu = models.SmallIntegerField(choices=status)
+    We = models.SmallIntegerField(choices=status)
+    Th = models.SmallIntegerField(choices=status)
+    Fr = models.SmallIntegerField(choices=status)
+
+    class Meta: 
+        Ordering = ['g_id']
