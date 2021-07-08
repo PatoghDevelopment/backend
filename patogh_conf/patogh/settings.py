@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     
 ]
 
+AUTH_USER_MODEL = 'main_app.User'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'patogh.urls'
 
@@ -77,8 +80,10 @@ WSGI_APPLICATION = 'patogh.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'patogh_db',
+        'USER': 'user',
+        'PASSWORD': '123',
     }
 }
 

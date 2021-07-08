@@ -30,33 +30,7 @@ class Tags(models.Model):
 
 class City(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
-    city_status = (
-        ('0','Tehran'),
-        ('1','Qom'),
-        ('2','Sistan'),
-        ('3','Khozestan'),
-        ('4','Gorgan'),
-        ('5','Golestan'),
-        ('6','Alborz'),
-        ('7','Kerman'),
-        ('8','Ardebil'),
-        ('9','Markazi'),
-        ('10','Khorasan razavi'),
-        ('11','Khorasan shomali'),
-        ('12','Khorasan jonobi'),
-        ('13','Boshehr'),
-        ('14','Esfahan'),
-        ('15','Hamedan'),
-        ('16','Kermanshah'),
-        ('17','Azarbaijan gharbi'),
-        ('18','Azarbaijan sharhgi'),
-        ('19','Fars'),
-        ('20','Yazd'),
-        ('21','Hormozgan'),
-        ('22','Semnan'),
-        ('23','Qazvin')
-    )
-    name = models.CharField(max_length=40,choices=city_status,help_text="Where do you live?")
+    name = models.CharField(max_length=40,help_text="Where do you live?")
     
     class Meta:
         ordering = ['name']
