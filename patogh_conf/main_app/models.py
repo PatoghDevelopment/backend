@@ -31,11 +31,14 @@ class Tags(models.Model):
 class City(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
     name = models.CharField(max_length=40,help_text="Where do you live?")
-    
+
     class Meta:
         ordering = ['name']
         unique_together = ('id','name')
-   
+       
+    def __str__(self):
+        return self.name
+
 class Users(models.Model):
     username = models.CharField(primary_key=True,max_length=100,unique=True)
     fullname = models.CharField(max_length=100)
