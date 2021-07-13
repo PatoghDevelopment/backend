@@ -47,7 +47,7 @@ class UsersAdmin(admin.ModelAdmin):
     ordering = ['username']
     list_display = ('username','fullname','email','phone','gender')
     search_fields = ['username','fullname','email']
-    list_filter = []
+    list_filter = ['gender']
     inlines = [UserCommentInline]
     autocomplete_fields = ['city']
     fieldsets = (
@@ -60,7 +60,7 @@ class PatoghAdmin(admin.ModelAdmin):
     ordering = ['name']
     list_display = ('name','status','city','creator_id')
     search_fields = ['creator_id','name','city']
-    list_filter = []
+    list_filter = ['status','is_telephone_verified']
     autocomplete_fields = ['city','creator_id','location_type','tags_id']
     fieldsets = (
         (None, {'fields': ('id','creator_id','name','status')}),
@@ -71,6 +71,7 @@ class PatoghAdmin(admin.ModelAdmin):
 class PendingVerifyAdmin(admin.ModelAdmin):
     ordering = ['send_time']
     list_display = ('send_time','receptor','allowed_try')
+    list_filter = ['allowed_try']
     search_fields = ['receptor']
     list_filter = []
 
@@ -84,14 +85,14 @@ class GatheringHaveMemberAdmin(admin.ModelAdmin):
     ordering = ['username']
     list_display = ('username','status','g_id')
     search_fields = ['username']
-    list_filter = []
+    list_filter = ['status']
     autocomplete_fields = ['g_id','username']
 
 class GatheringAdmin(admin.ModelAdmin):
     ordering = ['name','id']
     list_display = ('name','patogh_id','creator_id','members_count')
     search_fields = ['username']
-    list_filter = []
+    list_filter = ['status','gender_filter']
     autocomplete_fields = ['creator_id','patogh_id','tags_id']
     fieldsets = (
         (None, {'fields': ('id','creator_id','patogh_id','name','status')}),
@@ -102,7 +103,7 @@ class JoinGatheringRequestAdmin(admin.ModelAdmin):
     ordering = ['username','g_id']
     list_display = ('username','status','g_id')
     search_fields = ['username','g_id']
-    list_filter = []
+    list_filter = ['status']
     autocomplete_fields = ['g_id','username']
 
 class PatoghsCommentsAdmin(admin.ModelAdmin):
@@ -123,7 +124,7 @@ class PatoghHaveImagesAdmin(admin.ModelAdmin):
     ordering = ['patogh_id']
     list_display = ('patogh_id','status','send_time')
     search_fields = ['patogh_id']
-    list_filter = []
+    list_filter = ['status']
     autocomplete_fields = ['patogh_id']
 
 class UsersHavePermisionsAdmin(admin.ModelAdmin):
@@ -137,7 +138,7 @@ class GatheringScheduallAdmin(admin.ModelAdmin):
     ordering = ['g_id']
     list_display = ('g_id','Sa','Su','Mo','Tu','We','Th','Fr')
     search_fields = ['g_id']
-    list_filter = []
+    list_filter = ['Sa','Su','Mo','Tu','We','Th','Fr']
     autocomplete_fields = ['g_id']
 
 
