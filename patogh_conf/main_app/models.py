@@ -1,3 +1,4 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.core import validators
 from django.db import models
 import uuid
@@ -8,11 +9,47 @@ from django.db.models.aggregates import Max
 from django.db.models.base import Model
 from django.db.models.deletion import PROTECT
 from django.db.models.fields import CharField
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import validate_slug, MaxValueValidator, MinValueValidator, FileExtensionValidator, ValidationError
 from django.template.defaultfilters import filesizeformat 
+from django.contrib.auth.hashers import make_password
+from django.apps import apps
 
+
+class UserManager(BaseUserManager):
+    
+    def create_user(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, password, **extra_fields)
+
+    def create_superuser(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(username, password, **extra_fields)
+    
+    def _create_user(self, username, password, **extra_fields):
+        """
+        Create and save a user with the given username, and password.
+        """
+        if not username:
+            raise ValueError('The given username must be set')
+        # Lookup the real model class from the global app registry so this
+        # manager method can be used in migrations. This is fine because
+        # managers are by definition working on the real model.
+        GlobalUserModel = apps.get_model(self.model._meta.app_label, self.model._meta.object_name)
+        username = GlobalUserModel.normalize_username(username)
+        user = self.model(username=username, **extra_fields)
+        user.password = make_password(password)
+        user.save(using=self._db)
+        return user
 
 def validate_image_size(image):
     if image.size > 2097152:
@@ -29,8 +66,6 @@ def dorhami_image_profile_directory_path(instance, filename):
 def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.email)[0:str(instance.email).index('@')], filename)
 
-class User(AbstractUser):
-    pass
 
 class LocationTypes(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه") ,primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Location")
@@ -56,6 +91,7 @@ class Tags(models.Model):
         unique_together = ('id','tag')
         verbose_name = _('برچست')
         verbose_name_plural = _('برچسب ها')
+        
 class City(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
     name = models.CharField(verbose_name=_("نام شهر"),max_length=40,help_text="Where do you live?")
@@ -69,27 +105,31 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
-class Users(models.Model):
+class User(AbstractUser):
     username = models.CharField(verbose_name=_("نام کاربری"),primary_key=True,max_length=100,unique=True)
-    fullname = models.CharField(verbose_name=_("نام کامل"),max_length=100)
-    email = models.EmailField(verbose_name=_("ایمیل"),unique=True, max_length=50)
+    fullname = models.CharField(verbose_name=_("نام کامل"),max_length=100,null = True , blank = True)
+    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50)
     phone = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
-    password = hashlib.sha256('Password'.encode("UTF-8")) 
-    birthdate = models.DateField(verbose_name=_("تاریخ تولد"))
-    city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"),)
+    birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
+    city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"), blank = True)
     gender_status = (
         ('0','female'),
         ('1','male')
     )
-    gender = models.CharField(verbose_name=_("جنسیت"),max_length=6,choices=gender_status,blank=True)
+    gender = models.CharField(verbose_name=_("جنسیت"),max_length=6,choices=gender_status,default='0',null = True ,blank=True)
     profile_image_url = models.ImageField(verbose_name=_("عکس پروفایل"),upload_to = user_image_profile_directory_path
                                           ,null = True , blank = True ,help_text =_("JPG, JPEG or PNG is validate"),
                                           validators=[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size]
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
     
+    objects = UserManager()
+
     def __str__(self):
-        return self.fullname
+        if self.fullname:
+            return self.fullname
+        else:
+            return self.username
 
     class Meta:
         ordering = ['username']
@@ -98,7 +138,7 @@ class Users(models.Model):
 
 class Patogh(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Patogh")
-    creator_id = models.ForeignKey(Users , verbose_name=_("شناسه پدید آورنده"),on_delete= models.CASCADE)
+    creator_id = models.ForeignKey(User , verbose_name=_("شناسه پدید آورنده"),on_delete= models.CASCADE)
     name = models.CharField(verbose_name=_("نام"),max_length=100)
     state = (
         ('1','public'),
@@ -159,7 +199,7 @@ class UsersPermision(models.Model):
 
 class GatheringHaveMember(models.Model):
     g_id = models.ForeignKey(Patogh ,verbose_name=_("شناسه پاتوق"), on_delete= models.CASCADE)
-    username = models.ForeignKey(Users , verbose_name=_("نام کاربری"),on_delete=models.CASCADE, max_length=30)
+    username = models.ForeignKey(User , verbose_name=_("نام کاربری"),on_delete=models.CASCADE, max_length=30)
     permission=(
         ('0','normal member'),
         ('1','deleted'),
@@ -178,7 +218,7 @@ class GatheringHaveMember(models.Model):
 
 class Gathering(models.Model):
     id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
-    creator_id = models.ForeignKey(Users,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True )
+    creator_id = models.ForeignKey(User,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True )
     patogh_id = models.ForeignKey(Patogh , verbose_name=_("شناسه پاتوق"),on_delete=models.PROTECT , null = True)
     name = models.CharField(verbose_name=_("نام"),max_length=50 , null = True , blank=True)
     state = (
@@ -210,7 +250,7 @@ class Gathering(models.Model):
 
 class JoinGatheringRequest(models.Model):
     g_id = models.ForeignKey(Gathering , verbose_name=_("شناسه دورهمی"),on_delete= models.CASCADE)
-    username = models.ForeignKey(Users , verbose_name=_("نام کاربری"),on_delete= models.CASCADE)
+    username = models.ForeignKey(User , verbose_name=_("نام کاربری"),on_delete= models.CASCADE)
     state = (
         ('0','requested'),
         ('1','accepted'),
@@ -229,7 +269,7 @@ class JoinGatheringRequest(models.Model):
 
 class PatoghsComments(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this patogh Commments")
-    sender = models.ForeignKey(Users, verbose_name=_("فرستنده"),on_delete=models.PROTECT, null = True)
+    sender = models.ForeignKey(User, verbose_name=_("فرستنده"),on_delete=models.PROTECT, null = True)
     patogh_id = models.ForeignKey(Patogh , verbose_name=_("شناسه پاتوق"),on_delete=models.PROTECT, null = True)
     reply_to = models.ForeignKey('self' ,verbose_name=_("بازخورد به"), on_delete=models.CASCADE )
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),auto_now_add=True, blank= True)
@@ -245,7 +285,7 @@ class PatoghsComments(models.Model):
 
 class reportedPatogh(models.Model):
     patogh_id = models.ForeignKey(Patogh  ,verbose_name=_("شناسه پاتوق"), on_delete= models.PROTECT)
-    username = models.ForeignKey(Users ,verbose_name=_("نام کاربری"), on_delete= models.PROTECT )
+    username = models.ForeignKey(User ,verbose_name=_("نام کاربری"), on_delete= models.PROTECT )
     massage = models.CharField(verbose_name=_("پیام"),max_length=1000)
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),auto_now_add=True, blank= True)
 
@@ -282,7 +322,7 @@ class PatoghHaveImages(models.Model):
 
 
 class UsersHavePermisions(models.Model):
-    username = models.ForeignKey(Users ,verbose_name=_("نام کاربری"), on_delete= models.CASCADE)
+    username = models.ForeignKey(User ,verbose_name=_("نام کاربری"), on_delete= models.CASCADE)
     permision_id = models.ForeignKey(UsersPermision , verbose_name=_("شناسه تاییدیه"),on_delete= models.CASCADE)
 
     def __str__(self):

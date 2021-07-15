@@ -43,7 +43,7 @@ class TagsAdmin(admin.ModelAdmin):
     list_filter = []
 
     
-class UsersAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     ordering = ['username']
     list_display = ('username','fullname','email','phone','gender')
     search_fields = ['username','fullname','email']
@@ -147,7 +147,6 @@ admin.site.register(User, UserAdmin)
 admin.site.register(City ,CityAdmin)
 admin.site.register(LocationTypes, LocationTypesAdmin)
 admin.site.register(Tags, TagsAdmin)
-admin.site.register(Users, UsersAdmin)
 admin.site.register(Patogh, PatoghAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
 admin.site.register(UsersPermision, UsersPermisionAdmin)

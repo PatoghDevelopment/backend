@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_spectacular',
+    'drf_multiple_model',
     
 ]
 
@@ -86,6 +90,29 @@ DATABASES = {
         'PASSWORD': '123',
     }
 }
+
+
+REST_FRAMEWORK = {
+    
+    'DEFAULT_RENDERER_CLASSES': [
+    'rest_framework.renderers.JSONRenderer',
+    'rest_framework.renderers.BrowsableAPIRenderer'
+        ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.SessionAuthentication'
+        ],
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Patogh',
+    'DESCRIPTION': 'this is for find friends and have good time',
+    'VERSION': '1.0.0',
+}
+
 
 
 # Password validation
