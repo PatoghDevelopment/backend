@@ -2,7 +2,7 @@ from http.client import responses
 from django.http import response
 from django.shortcuts import render
 from rest_framework import permissions , generics, serializers, status
-from main_app.serializers import SignupSerializer, SigninSerializer
+from main_app.serializers import SignupSerializer, SigninSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
@@ -55,3 +55,10 @@ class SigninApiView(generics.GenericAPIView):
         }
 
         return Response(data)
+
+class UserInfoApiView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user

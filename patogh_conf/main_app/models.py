@@ -58,13 +58,13 @@ def validate_image_size(image):
 VALID_IMAGE_FORMAT = ['png','jpg','jpeg']
 
 def user_image_profile_directory_path(instance, filename):
-    return 'user/{0}/prof_image/{1}'.format(str(instance.email)[0:str(instance.email).index('@')], filename)
+    return 'user/{0}/prof_image/{1}'.format(str(instance.username), filename)
 
 def dorhami_image_profile_directory_path(instance, filename):
     return 'dorhami/{0}/prof_image/{1}'.format(str(instance.patogh_id), filename)
 
 def patogh_image_directory_path(instance, filename):
-    return 'patogh/{0}/patogh_image/{1}'.format(str(instance.email)[0:str(instance.email).index('@')], filename)
+    return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
 
 class LocationTypes(models.Model):
@@ -173,7 +173,7 @@ class Patogh(models.Model):
         verbose_name_plural = _('پاتوق ها')
 
 class PendingVerify(models.Model):
-    receptor = models.CharField(verbose_name=_("دریافت کننده"),primary_key=True, max_length=50)
+    receptor = models.ForeignKey(verbose_name=_("دریافت کننده"),primary_key=True, max_length=50)
     otp = models.IntegerField(verbose_name=_("OTP کد"))
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),null = True)
     allowed_try = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5

@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db.models import fields
 from rest_framework import serializers
 from main_app.models import User, validate_image_size
 from django.utils.translation import gettext_lazy as _
@@ -87,3 +88,13 @@ class SigninSerializer(serializers.Serializer):
         attrs['user'] = user
 
         return attrs
+
+class UserSerializer(serializers.ModelSerializer):
+    is_identified = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = []
+    
+    def get_is_identified(slef , obj):
+        return obj.
