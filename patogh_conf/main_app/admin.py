@@ -74,6 +74,7 @@ class PendingVerifyAdmin(admin.ModelAdmin):
     list_filter = ['allowed_try']
     search_fields = ['receptor']
     list_filter = []
+    autocomplete_fields = ['receptor']
 
 class UsersPermisionAdmin(admin.ModelAdmin):
     ordering = ['label']
