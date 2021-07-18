@@ -7,49 +7,24 @@ import hashlib
 from django.db.models import indexes
 from django.db.models.aggregates import Max 
 from django.db.models.base import Model
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import CharField
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import validate_slug, MaxValueValidator, MinValueValidator, FileExtensionValidator, ValidationError
+from django.core.validators import MaxLengthValidator, validate_slug, MaxValueValidator, MinValueValidator, FileExtensionValidator, ValidationError
 from django.template.defaultfilters import filesizeformat 
 from django.contrib.auth.hashers import make_password
 from django.apps import apps
 
+UNIDENTIFIED = '-1'
+IDENTIFIED = '1'
+REQUESTED = '0'
 
-class UserManager(BaseUserManager):
-    
-    def create_user(self, username, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(username, password, **extra_fields)
-
-    def create_superuser(self, username, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(username, password, **extra_fields)
-    
-    def _create_user(self, username, password, **extra_fields):
-        """
-        Create and save a user with the given username, and password.
-        """
-        if not username:
-            raise ValueError('The given username must be set')
-        # Lookup the real model class from the global app registry so this
-        # manager method can be used in migrations. This is fine because
-        # managers are by definition working on the real model.
-        GlobalUserModel = apps.get_model(self.model._meta.app_label, self.model._meta.object_name)
-        username = GlobalUserModel.normalize_username(username)
-        user = self.model(username=username, **extra_fields)
-        user.password = make_password(password)
-        user.save(using=self._db)
-        return user
+verify_state = (
+        (REQUESTED,'registered'),
+        (IDENTIFIED,'verified'),
+        (UNIDENTIFIED,'unverified'),        
+    )
 
 def validate_image_size(image):
     if image.size > 2097152:
@@ -108,7 +83,7 @@ class City(models.Model):
 class User(AbstractUser):
     username = models.CharField(verbose_name=_("نام کاربری"),primary_key=True,max_length=100,unique=True)
     fullname = models.CharField(verbose_name=_("نام کامل"),max_length=100,null = True , blank = True)
-    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50)
+    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, unique=True)
     phone = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
     birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
     city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"), blank = True)
@@ -116,13 +91,13 @@ class User(AbstractUser):
         ('0','female'),
         ('1','male')
     )
-    gender = models.CharField(verbose_name=_("جنسیت"),max_length=6,choices=gender_status,default='0',null = True ,blank=True)
+    gender = models.CharField(verbose_name=_("جنسیت"),max_length=6,choices=gender_status,default='1',null = True ,blank=True)
     profile_image_url = models.ImageField(verbose_name=_("عکس پروفایل"),upload_to = user_image_profile_directory_path
                                           ,null = True , blank = True ,help_text =_("JPG, JPEG or PNG is validate"),
                                           validators=[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size]
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
-    
+    identity_state = models.CharField(verbose_name=_("وضعیت احراض هویت"),max_length=3, null=True,blank=True,choices=verify_state,default='-1')
     objects = UserManager()
 
     def __str__(self):
@@ -146,22 +121,18 @@ class Patogh(models.Model):
     )
     status = models.CharField(verbose_name=_("حالت دورهمی"),choices=state , max_length=10 )
     telephone = models.CharField(verbose_name=_("شماره تلفن"),max_length=12)
-    verify_state = (
-        ('0','registered'),
-        ('1','verified')
-    )
-    is_telephone_verified = models.CharField(verbose_name=_("صحت شماره تلفن"),choices= verify_state,max_length=10)
+    is_telephone_verified = models.CharField(verbose_name=_("صحت شماره تلفن"),choices= verify_state,max_length=10,default='-1')
     address = models.CharField(verbose_name=_("آدرس"),max_length=1000)
-    longitude = models.FloatField(verbose_name=_("عرض جغرافیایی"))
-    latitude = models.FloatField(verbose_name=_("طول جغرافیایی"))
-    city = models.ForeignKey(City , verbose_name=_("شهر"),on_delete=models.PROTECT , null = True)
+    longitude = models.FloatField(verbose_name=_("عرض جغرافیایی"),null=True,blank=True)
+    latitude = models.FloatField(verbose_name=_("طول جغرافیایی"),null=True,blank=True)
+    city = models.ForeignKey(City , verbose_name=_("شهر"),on_delete=models.PROTECT , null = True,blank=True)
     location_type = models.ForeignKey(LocationTypes ,verbose_name=_("مکان"), on_delete=PROTECT , null=True, blank=True)
     description = models.CharField(verbose_name=_("توضیحات"),max_length=1000,null = True , blank = True)
     profile_image_url = models.ImageField(verbose_name=_("عکس پروفایل"),
                                            upload_to = patogh_image_directory_path ,
                                            null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
                                            validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
-    tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچست"), on_delete=models.CASCADE )
+    tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچست"), on_delete=models.CASCADE ,null=True,blank=True)
 
     def __str__(self):
         return self.name
@@ -173,7 +144,7 @@ class Patogh(models.Model):
         verbose_name_plural = _('پاتوق ها')
 
 class PendingVerify(models.Model):
-    receptor = models.ForeignKey(verbose_name=_("دریافت کننده"),primary_key=True, max_length=50)
+    receptor = models.OneToOneField(User,verbose_name=_("دریافت کننده"),primary_key=True, max_length=50,on_delete=CASCADE)
     otp = models.IntegerField(verbose_name=_("OTP کد"))
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),null = True)
     allowed_try = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5
