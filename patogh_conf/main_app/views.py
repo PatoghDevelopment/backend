@@ -1,13 +1,17 @@
 from http.client import responses
 from django.http import response
 from django.shortcuts import render
-from rest_framework import permissions , generics, serializers, status
+from rest_framework import permissions, generics, serializers, status, viewsets
 from main_app.serializers import SignupSerializer, SigninSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from main_app.models import User
+
+from patogh_conf.main_app.models import Gathering
+from patogh_conf.main_app.serializers import UserProfileSerializer, GhatheringListSerializer
+
 
 class SignupApiView(generics.CreateAPIView):
     serializer_class = SignupSerializer
@@ -20,7 +24,6 @@ class SignupApiView(generics.CreateAPIView):
                                     description='Created.'),
             400: OpenApiResponse(description="bad request, user exist or you have to make sure you fill the necessary fields correctly."),
         },
-
     )
     
     def post(self, request, *args, **kwargs):
@@ -62,3 +65,14 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserProfile(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    http_method_names = ['get']
+    serializer_class = UserProfileSerializer
+
+class GatheringList(viewsets.ModelViewSet):
+    queryset = Gathering.objects.all()
+    http_method_names = ['get']
+    serializer_class = GhatheringListSerializer

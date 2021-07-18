@@ -3,6 +3,10 @@ from django.db.models import fields
 from rest_framework import serializers
 from main_app.models import IDENTIFIED, User
 from django.utils.translation import gettext_lazy as _
+
+from patogh_conf.main_app.models import Gathering
+
+
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
         label=_("نام کاربری"),
@@ -113,3 +117,13 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_is_identified(slef , obj):
         return obj.identity_state == IDENTIFIED
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class GhatheringListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gathering
+        fields = '__all__'
+        depth = 1
