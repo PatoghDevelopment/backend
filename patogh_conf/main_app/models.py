@@ -1,3 +1,4 @@
+from enum import auto
 from django.contrib.auth.base_user import BaseUserManager
 from django.core import validators
 from django.db import models
@@ -15,6 +16,55 @@ from django.core.validators import MaxLengthValidator, validate_slug, MaxValueVa
 from django.template.defaultfilters import filesizeformat 
 from django.contrib.auth.hashers import make_password
 from django.apps import apps
+
+class UserManager(BaseUserManager):
+
+    def create_user(self,username, email, password=None, fullname=None,otp = None ,**kwargs):
+
+        if fullname is None:
+            raise TypeError(_('Users must have a Name'))
+
+        if email is None:
+            raise TypeError(_('Users must have an email address.'))
+
+        user = self.model(fullname = fullname,otp = otp, username = username, email=self.normalize_email(email),**kwargs)
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(username, email, password,'admin','1' , **extra_fields)
+
+    def _create_user(self, username, email, password,fullname,otp, **extra_fields):
+        """
+        Create and save a user with the given username, email, and password.
+        """
+        if not username:
+            raise ValueError('The given username must be set')
+        email = self.normalize_email(email)
+        # Lookup the real model class from the global app registry so this
+        # manager method can be used in migrations. This is fine because
+        # managers are by definition working on the real model.
+        GlobalUserModel = apps.get_model(self.model._meta.app_label, self.model._meta.object_name)
+        username = GlobalUserModel.normalize_username(username)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.password = make_password(password)
+        user.fullname = fullname
+        user.otp = otp
+        user.save(using=self._db)
+        return user
+
+
+
 
 UNIDENTIFIED = '-1'
 IDENTIFIED = '1'
@@ -97,7 +147,9 @@ class User(AbstractUser):
                                           validators=[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size]
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
-    identity_state = models.CharField(verbose_name=_("وضعیت احراض هویت"),max_length=3, null=True,blank=True,choices=verify_state,default='-1')
+    otp = models.CharField(max_length=20,null=True,blank=True) 
+    expire_time = models.DateTimeField(verbose_name=_("زمان ابطال"), null = True , blank= True)
+    is_confirmed = models.BooleanField(default=False)
     objects = UserManager()
 
     def __str__(self):
@@ -133,6 +185,7 @@ class Patogh(models.Model):
                                            null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
                                            validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
     tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچست"), on_delete=models.CASCADE ,null=True,blank=True)
+
 
     def __str__(self):
         return self.name

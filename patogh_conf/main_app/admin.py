@@ -53,7 +53,8 @@ class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('username','email','phone','password')}),
         (_("اصل"), {'fields': ('birthdate','fullname','city')}),
-        (_("اطلاعت دیگر"),{'fields': ('gender','profile_image_url','bio')})
+        (_("اطلاعت دیگر"),{'fields': ('gender','profile_image_url','bio')}),
+        (_("اطلاعات امنیتی"), {'fields': ('otp','is_used','is_confirmed')}),
     )
 
 class PatoghAdmin(admin.ModelAdmin):
