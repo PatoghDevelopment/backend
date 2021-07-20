@@ -7,18 +7,19 @@ from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import SignupSerializer,SigninSerializer,UserSerializer,VerifyOTPSerializer
-from main_app.serializers import UserSerializer,VerifyOTPSerializer,ForgotPasswordSerializer
+from main_app.serializers import SignupSerializer,SigninSerializer,VerifyOTPSerializer
+from main_app.serializers import UserSerializer,ForgotPasswordSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
-from main_app.models import User,City
+from main_app.models import User,City,Gathering
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import random
+from rest_framework import viewsets
 from passlib.hash import django_pbkdf2_sha256 as handler
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
@@ -28,6 +29,7 @@ import jwt
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 import pyotp
 import socket
+from main_app.serializers import UserProfileSerializer, GhatheringListSerializer
 socket.getaddrinfo('127.0.0.1', 8080)
 
 otp_code = 0
@@ -49,6 +51,8 @@ def verifyOTP(one_time, user):
     else:
         return False
 
+
+
 class SignupApiView(generics.CreateAPIView):
     serializer_class = SignupSerializer
     permission_classes = [permissions.AllowAny]
@@ -60,7 +64,6 @@ class SignupApiView(generics.CreateAPIView):
                                     description='Created.'),
             400: OpenApiResponse(description="bad request, user exist or you have to make sure you fill the necessary fields correctly."),
         },
-
     )
     
 
@@ -232,3 +235,4 @@ class ChangePasswordView(generics.UpdateAPIView):
                 return Response(response)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

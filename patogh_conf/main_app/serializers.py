@@ -1,13 +1,14 @@
 from django.contrib.auth import authenticate
 from django.db.models import fields
 from rest_framework import serializers
-from main_app.models import City, User
+from main_app.models import City, User,Gathering
 from django.utils.translation import gettext_lazy as _
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = ['id','name']
+
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
@@ -155,3 +156,15 @@ class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
     
+    fields = ['username','fullname','email','phone','birthdate','city','gender','profile_image_url','bio']
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class GhatheringListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gathering
+        fields = '__all__'
+        depth = 1
