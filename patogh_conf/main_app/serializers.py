@@ -115,8 +115,7 @@ class SigninSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    city = serializers.PrimaryKeyRelatedField(source='supporters', queryset=City.objects.all(),
-                                                        many=True, required=False)
+    city = serializers.PrimaryKeyRelatedField( queryset=City.objects.all(), many=True, required=False)
 
     class Meta:
         model = User
@@ -146,17 +145,12 @@ class ChangePasswordSerializer(serializers.Serializer):
     
 
 
-class GhatheringListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Gathering
-        fields = ['id','creator_id','patogh_id','name','status','start_time','end_time','description','gender_filter','members_count','min_age','max_age','tags_id']
-        depth = 1
+# class TopUsersSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = GatheringHaveMember
+#         fields = ['username']
+#         read_only_fields = ['username']  
 
-class TopUsersSerializer(serializers.Serializer):
-    class Meta:
-        model = GatheringHaveMember
-        fields = ['username']
-    
 class CityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = City

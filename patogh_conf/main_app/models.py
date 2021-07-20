@@ -238,7 +238,7 @@ class GatheringHaveMember(models.Model):
         ('1','deleted'),
         ('2','quit')
     )
-    status = models.SmallIntegerField(verbose_name=_("حالت دورهمی"),default=0, choices=permission)
+    status = models.SmallIntegerField(verbose_name=_("حالت پذیرش کاربر"),default=0, choices=permission)
     class Meta:
         ordering = ['username']
         unique_together = ('g_id','username')

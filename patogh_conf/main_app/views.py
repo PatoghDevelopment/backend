@@ -8,8 +8,8 @@ from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import CityListSerializer, GhatheringListSerializer, SignupSerializer,SigninSerializer,VerifyOTPSerializer
-from main_app.serializers import UserSerializer,ForgotPasswordSerializer,TopUsersSerializer
+from main_app.serializers import CityListSerializer, SignupSerializer,SigninSerializer,VerifyOTPSerializer
+from main_app.serializers import UserSerializer,ForgotPasswordSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -248,15 +248,11 @@ class ChangePasswordView(generics.UpdateAPIView):
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GatheringList(generics.ListAPIView):
-    queryset = Gathering.objects.all()
-    http_method_names = ['get']
-    serializer_class = GhatheringListSerializer
 
-class TopUsersApiView(generics.ListAPIView):
-    serializer_class = TopUsersSerializer
-    permission_classes = (permissions.AllowAny)
+# class TopUsersApiView(generics.ListAPIView):
+#     serializer_class = TopUsersSerializer
+#     permission_classes = (permissions.AllowAny)
 
-    def get_queryset(self):
-        result = GatheringHaveMember.objects.all().values('username').annotate(total=Count('username')).order_by('total')
-        return result
+#     def get_queryset(self):
+#         result = GatheringHaveMember.objects.all().values('username').annotate(total=Count('username')).order_by('total')
+#         return result
