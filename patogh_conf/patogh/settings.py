@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'patogh_db',
         'USER': 'user',
-        'PASSWORD': '1234',
+        'PASSWORD': '123',
     }
 }
 
