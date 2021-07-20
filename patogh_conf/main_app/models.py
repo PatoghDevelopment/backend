@@ -259,6 +259,7 @@ class Gathering(models.Model):
         ('1', 'commited')
     )
     status = models.SmallIntegerField(verbose_name=_("حالت دورهمی"),default=0, choices=state)
+    city = models.ForeignKey(City, verbose_name=_("شهر"), on_delete=models.PROTECT, null=True, blank=True)
     start_time = models.DateTimeField(verbose_name=_("زمان شروع"),help_text="Start time for the patogh",null = True)
     end_time = models.DateTimeField(verbose_name=_("زمان پایان"),help_text="end time for the patogh",null = True)
     description = models.CharField(verbose_name=_("توضیحات"),help_text="descripe your patogh", max_length=1000)
