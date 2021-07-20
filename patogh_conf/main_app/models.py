@@ -64,8 +64,6 @@ class UserManager(BaseUserManager):
         return user
 
 
-
-
 UNIDENTIFIED = '-1'
 IDENTIFIED = '1'
 REQUESTED = '0'
@@ -91,6 +89,15 @@ def dorhami_image_profile_directory_path(instance, filename):
 def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
+class PatoghCategory(models.Model):
+    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4)
+    category = models.CharField(max_length=50,verbose_name=_("کتگوری"))
+
+    class Meta: 
+        ordering = ['id']
+        verbose_name = _('کتگوری')
+        verbose_name_plural = _('کتگوری ها')
+        unique_together = ('id','category')
 
 class LocationTypes(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه") ,primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Location")
@@ -185,7 +192,9 @@ class Patogh(models.Model):
                                            null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
                                            validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
     tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچست"), on_delete=models.CASCADE ,null=True,blank=True)
-
+    category = models.ForeignKey(PatoghCategory, on_delete= models.CASCADE , verbose_name=_("کتگوری"), null=True, blank = True )
+    wifi = models.BooleanField(default=False,verbose_name=_("وای فای"), null=True, blank = True)
+    poz = models.BooleanField(default=False,verbose_name=_("دستگاه پوز"), null=True, blank = True)
 
     def __str__(self):
         return self.name
@@ -380,3 +389,4 @@ class GatheringScheduall(models.Model):
         ordering = ['g_id']
         verbose_name = _('برنامه زمانی')
         verbose_name_plural = _('برنامه های زمانی')
+

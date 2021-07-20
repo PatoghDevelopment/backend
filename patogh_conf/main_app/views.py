@@ -1,24 +1,26 @@
 import datetime
 from http.client import ImproperConnectionState, responses
 import inspect
+from django.db import models
 from django.http import response
 from django.shortcuts import render
 from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import SignupSerializer,SigninSerializer,VerifyOTPSerializer
-from main_app.serializers import UserSerializer,ForgotPasswordSerializer
+from main_app.serializers import CityListSerializer, GhatheringListSerializer, SignupSerializer,SigninSerializer,VerifyOTPSerializer
+from main_app.serializers import UserSerializer,ForgotPasswordSerializer,TopUsersSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
-from main_app.models import User,City,Gathering
+from main_app.models import GatheringHaveMember, User,City,Gathering
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import random
+from django.db.models import Count
 from rest_framework import viewsets
 from passlib.hash import django_pbkdf2_sha256 as handler
 from rest_framework_jwt.settings import api_settings
@@ -29,7 +31,7 @@ import jwt
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 import pyotp
 import socket
-from main_app.serializers import UserProfileSerializer, GhatheringListSerializer
+
 socket.getaddrinfo('127.0.0.1', 8080)
 
 otp_code = 0
@@ -131,10 +133,20 @@ class SigninApiView(generics.GenericAPIView):
 
         return Response(data)
 
+class CityListCreateApi(generics.ListCreateAPIView):
+    serializer_class = CityListSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    queryset = City.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save()
+        
+
 class UserInfoApiView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
+    
     def get_object(self):
         return self.request.user
 
@@ -236,3 +248,15 @@ class ChangePasswordView(generics.UpdateAPIView):
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class GatheringList(generics.ListAPIView):
+    queryset = Gathering.objects.all()
+    http_method_names = ['get']
+    serializer_class = GhatheringListSerializer
+
+class TopUsersApiView(generics.ListAPIView):
+    serializer_class = TopUsersSerializer
+    permission_classes = (permissions.AllowAny)
+
+    def get_queryset(self):
+        result = GatheringHaveMember.objects.all().values('username').annotate(total=Count('username')).order_by('total')
+        return result

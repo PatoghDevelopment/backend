@@ -1,14 +1,8 @@
 from django.contrib.auth import authenticate
-from django.db.models import fields
 from rest_framework import serializers
-from main_app.models import City, User,Gathering
+from main_app.models import City, User, Gathering,GatheringHaveMember
 from django.utils.translation import gettext_lazy as _
-
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = ['id','name']
-
+from rest_framework.generics import get_object_or_404
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
@@ -120,22 +114,14 @@ class SigninSerializer(serializers.Serializer):
         return attrs
 
 class UserSerializer(serializers.ModelSerializer):
-    is_confirmed = serializers.SerializerMethodField()
-    city = CitySerializer()
+
+    city = serializers.PrimaryKeyRelatedField(source='supporters', queryset=City.objects.all(),
+                                                        many=True, required=False)
 
     class Meta:
         model = User
-        fields = ['fullname','phone','birthdate','city','gender','profile_image_url','bio','is_confirmed']
-        read_only_fields = ['is_confirmed']
-
-    def get_is_confirmed(slef , obj):
-        return obj.is_confirmed
-
-    def update(self, instance, validated_data):
-        city = validated_data.pop('city')
-        instance.city = city.id
-        instance.save()
-        return instance
+        fields = ['fullname','phone','birthdate','city','gender','profile_image_url','bio']
+   
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
     class Meta:
@@ -147,24 +133,32 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email',)
+        fields = ['email']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    model = User
 
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
-    
-    fields = ['username','fullname','email','phone','birthdate','city','gender','profile_image_url','bio']
-    
-class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['username','fullname','email','phone','birthdate','city','gender','profile_image_url','bio']
+    
+
 
 class GhatheringListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gathering
-        fields = '__all__'
+        fields = ['id','creator_id','patogh_id','name','status','start_time','end_time','description','gender_filter','members_count','min_age','max_age','tags_id']
         depth = 1
+
+class TopUsersSerializer(serializers.Serializer):
+    class Meta:
+        model = GatheringHaveMember
+        fields = ['username']
+    
+class CityListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id','name']
+        read_only_fields = ['id']
