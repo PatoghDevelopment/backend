@@ -1,7 +1,8 @@
 
 from django.urls import path
-import views
 from django.urls.resolvers import URLPattern
+
+from . import views
 from .views import SignupApiView, SigninApiView, UserInfoApiView , SearchDorehami
 
 urlpatterns = [
@@ -10,5 +11,5 @@ urlpatterns = [
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
     path('searchGatherings/', views.SearchDorehami),
     path('addGathering/', views.AddDorehami),
-path('userprofile/', views.UserProfile)
+    path('userprofile/', views.UserProfile)
 ]
