@@ -145,11 +145,10 @@ class ChangePasswordSerializer(serializers.Serializer):
     
 
 
-# class TopUsersSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = GatheringHaveMember
-#         fields = ['username']
-#         read_only_fields = ['username']  
+class TopUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GatheringHaveMember
+        fields = ['username_id']
 
 class CityListSerializer(serializers.ModelSerializer):
     class Meta:

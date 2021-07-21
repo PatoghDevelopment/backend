@@ -8,7 +8,7 @@ from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import CityListSerializer, SignupSerializer,SigninSerializer,VerifyOTPSerializer
+from main_app.serializers import CityListSerializer, SignupSerializer,SigninSerializer, TopUsersSerializer,VerifyOTPSerializer
 from main_app.serializers import UserSerializer,ForgotPasswordSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
@@ -249,10 +249,10 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class TopUsersApiView(generics.ListAPIView):
-#     serializer_class = TopUsersSerializer
-#     permission_classes = (permissions.AllowAny)
+class TopUsersApiView(generics.ListAPIView):
+    serializer_class = TopUsersSerializer
+    permission_classes = (permissions.AllowAny,)
 
-#     def get_queryset(self):
-#         result = GatheringHaveMember.objects.all().values('username').annotate(total=Count('username')).order_by('total')
-#         return result
+    def get_queryset(self):
+        result = GatheringHaveMember.objects.all().values('username_id').annotate(total=Count('username_id')).order_by('-total')[0:3]
+        return result

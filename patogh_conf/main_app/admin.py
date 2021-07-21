@@ -89,7 +89,7 @@ class UsersPermisionAdmin(admin.ModelAdmin):
 
 class GatheringHaveMemberAdmin(admin.ModelAdmin):
     ordering = ['username']
-    list_display = ('username','status','g_id')
+    list_display = ('username_id','status','g_id')
     search_fields = ['username']
     list_filter = ['status']
     autocomplete_fields = ['g_id','username']

@@ -231,12 +231,13 @@ class UsersPermision(models.Model):
         verbose_name_plural = _('تایید کاربران')
 
 class GatheringHaveMember(models.Model):
+    id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
     g_id = models.ForeignKey(Patogh ,verbose_name=_("شناسه پاتوق"), on_delete= models.CASCADE)
     username = models.ForeignKey(User , verbose_name=_("نام کاربری"),on_delete=models.CASCADE, max_length=30)
     permission=(
-        ('0','normal member'),
-        ('1','deleted'),
-        ('2','quit')
+        (0,'normal member'),
+        (1,'deleted'),
+        (2,'quit')
     )
     status = models.SmallIntegerField(verbose_name=_("حالت پذیرش کاربر"),default=0, choices=permission)
     class Meta:
@@ -246,7 +247,7 @@ class GatheringHaveMember(models.Model):
         verbose_name_plural = _('اعضای دورهمی')
 
     def __str__(self):
-        return self.username + " state is " + self.status
+        return self.username.username 
 
 
 class Gathering(models.Model):
