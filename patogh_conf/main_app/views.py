@@ -17,19 +17,16 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from main_app.models import GatheringHaveMember, User,City,Gathering
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import random
 from django.db.models import Count
 from rest_framework import viewsets
 from passlib.hash import django_pbkdf2_sha256 as handler
-from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.conf import settings
 from django.core.mail import send_mail
 import jwt
-from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 import pyotp
 import socket
 
