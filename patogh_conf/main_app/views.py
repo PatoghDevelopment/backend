@@ -2,15 +2,17 @@ from http.client import responses
 from django.http import response
 from django.shortcuts import render
 from rest_framework import permissions, generics, serializers, status, viewsets
-from main_app.serializers import SignupSerializer, SigninSerializer, UserSerializer
+from rest_framework.decorators import api_view
+
+from .serializers import SignupSerializer, SigninSerializer, UserSerializer, AddDorehamiSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
-from main_app.models import User
+from .models import User, City
 
-from patogh_conf.main_app.models import Gathering
-from patogh_conf.main_app.serializers import UserProfileSerializer, GhatheringListSerializer
+from .models import Gathering
+from .serializers import UserProfileSerializer, GhatheringListSerializer
 
 
 class SignupApiView(generics.CreateAPIView):
@@ -66,13 +68,82 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+@api_view(['POST'])
+def AddDorehami(request):
+    data = {
+        'id': request.data['id'],
+        'creator_id': request.data['creator_id'],
+        'patogh_id': request.data['patogh_id'],
+        'name': request.data['name'],
+        'status': request.data['status'],
+        'start_time': request.data['start_time'],
+        'end_time': request.data['end_time'],
+        'description': request.data['description'],
+        'gender_filter ': request.data['gender_filter '],
+        'members_count': request.data['members_count'],
+        'min_age': request.data['min_age'],
+        'max_age': request.data['max_age'],
+        'tags_id': request.data['tags_id'],
+    }
+    ser = AddDorehamiSerializer(data=data)
+    if ser.is_valid():
+        ser.save()
+        return Response(ser.data, status.HTTP_201_CREATED)
+    else:
+        return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserProfile(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    http_method_names = ['get']
-    serializer_class = UserProfileSerializer
+@api_view(['GET'])
+def SearchDorehami(request):
+    dorehamiha = Gathering.objects.all()
+    try:
+        name = request.query_params['name']
+        if name:
+            dorehamiha = Gathering.objects.filter(name=name)
+    except:
+        pass
+    try:
+        Mcity = City.objects.get(name=request.query_params['name'])
+        city_id = Mcity.id
+        if Mcity:
+            dorehamiha = Gathering.objects.filter(city=city_id)
+    except:
+        pass
+    try:
+        gender_filter = request.query_params['gender_filter']
+        if gender_filter:
+            dorehamiha = Gathering.objects.filter(gender_filter=gender_filter)
+    except:
+        pass
+    try:
+        members_count = request.query_params['members_count']
+        if members_count:
+            dorehamiha = Gathering.objects.filter(members_count=members_count)
+    except:
+        pass
+    try:
+        start_time = request.query_params['start_time']
+        if start_time:
+            dorehamiha = Gathering.objects.filter(start_time=start_time)
+    except:
+        pass
+    if dorehamiha:
+        ser = AddDorehamiSerializer(dorehamiha,many=True)
+        return  Response(ser.data,status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-class GatheringList(viewsets.ModelViewSet):
-    queryset = Gathering.objects.all()
-    http_method_names = ['get']
-    serializer_class = GhatheringListSerializer
+@api_view(['GET'])
+def UserProfile(request):
+    SpecificUser = User.objects.all()
+    try:
+        id = request.query_params['id']
+        if id:
+            SpecificUser = User.objects.filter(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        ser = UserProfileSerializer(SpecificUser)
+        return Response(ser.data,status=status.HTTP_200_OK)
+    except:
+        pass

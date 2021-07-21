@@ -1,14 +1,14 @@
-from django.db import router
+
 from django.urls import path
-from main_app import views
+import views
 from django.urls.resolvers import URLPattern
-from main_app.views import SignupApiView, SigninApiView, UserInfoApiView
-router.register('userprofile',views.UserProfile)
-router.register('GatheringList',views.GatheringList)
+from .views import SignupApiView, SigninApiView, UserInfoApiView , SearchDorehami
 
 urlpatterns = [
     path('signup/', SignupApiView.as_view() , name = 'user_signup'),
     path('signin/', SigninApiView.as_view() , name = 'user_signin'),
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
+    path('searchGatherings/', views.SearchDorehami),
+    path('addGathering/', views.AddDorehami),
+path('userprofile/', views.UserProfile)
 ]
-urlpatterns += router.urls

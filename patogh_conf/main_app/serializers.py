@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate
 from django.db.models import fields
 from rest_framework import serializers
-from main_app.models import IDENTIFIED, User
+from .models import IDENTIFIED, User
 from django.utils.translation import gettext_lazy as _
 
-from patogh_conf.main_app.models import Gathering
+from .models import Gathering
 
 
 class SignupSerializer(serializers.Serializer):
@@ -120,9 +120,15 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['fullname','profile_image_url']
 
 class GhatheringListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gathering
+        fields = '__all__'
+        depth = 1
+
+class AddDorehamiSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gathering
         fields = '__all__'
