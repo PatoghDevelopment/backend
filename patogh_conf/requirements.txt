@@ -16,7 +16,7 @@ jsonschema==3.2.0
 mysqlclient==2.0.3
 passlib==1.7.4
 Pillow==8.3.1
-PyJWT==2.1.0
+PyJWT==1.5.2
 pyotp==2.6.0
 pyrsistent==0.18.0
 pytz==2021.1
