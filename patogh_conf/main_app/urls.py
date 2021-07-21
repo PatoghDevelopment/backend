@@ -1,6 +1,10 @@
 from django.urls import path
 from main_app.views import SignupApiView, SigninApiView,CityListCreateApi, TopUsersApiView
 from main_app.views import UserInfoApiView ,VerifyOTPView,ForgotPasswordView,ChangePasswordView
+from django.urls.resolvers import URLPattern
+
+from . import views
+from .views import SignupApiView, SigninApiView, UserInfoApiView , SearchDorehami
 
 urlpatterns = [
     path('signup/', SignupApiView.as_view() , name = 'user_signup'),
@@ -12,5 +16,10 @@ urlpatterns = [
     path('cityList/', CityListCreateApi.as_view(), name='city_list'),
     path('topuser/', TopUsersApiView.as_view(), name='top_user'),
 
-]
 
+
+    path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
+    path('searchGatherings/', views.SearchDorehami),
+    path('addGathering/', views.AddDorehami),
+    path('userprofile/', views.UserProfile)
+]

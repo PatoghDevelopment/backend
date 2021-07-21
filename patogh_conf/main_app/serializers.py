@@ -155,3 +155,20 @@ class CityListSerializer(serializers.ModelSerializer):
         model = City
         fields = ['id','name']
         read_only_fields = ['id']
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['fullname','profile_image_url']
+
+class GhatheringListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gathering
+        fields = '__all__'
+        depth = 1
+
+class AddDorehamiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gathering
+        fields = '__all__'
+        depth = 1
