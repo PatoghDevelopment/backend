@@ -25,8 +25,11 @@ class CityAdmin(admin.ModelAdmin):
     ordering = ['name']
     list_display = ('name','id')
     search_fields = ['name']
-    list_filter = []
-
+    
+class PatoghCategoryAdmin(admin.ModelAdmin):
+    ordering = ['category']
+    list_display = ('category','id')
+    search_fields = ['category']
 
 class LocationTypesAdmin(admin.ModelAdmin):
     ordering = ['label']
@@ -53,20 +56,22 @@ class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('username','email','phone','password')}),
         (_("اصل"), {'fields': ('birthdate','fullname','city')}),
-        (_("اطلاعت دیگر"),{'fields': ('gender','profile_image_url','bio')})
+        (_("اطلاعت دیگر"),{'fields': ('gender','profile_image_url','bio')}),
+        (_("اطلاعات امنیتی"), {'fields': ('otp','is_confirmed','expire_time')}),
     )
 
 class PatoghAdmin(admin.ModelAdmin):
     ordering = ['name']
     list_display = ('name','status','city','creator_id')
-    search_fields = ['creator_id','name','city']
-    list_filter = ['status','is_telephone_verified']
-    autocomplete_fields = ['city','creator_id','location_type','tags_id']
+    search_fields = ['creator_id','name','city','category']
+    list_filter = ['status','is_telephone_verified','wifi','poz']
+    autocomplete_fields = ['city','creator_id','location_type','tags_id','category']
     fieldsets = (
         (None, {'fields': ('id','creator_id','name','status')}),
         (_("اعتبارسنجی پاتوق"), {'fields': ('telephone','is_telephone_verified')}),
         (_("آدرس"),{'fields': ('address','longitude','latitude','city','location_type')}),
-        (_("اطلاعات دیگر"),{'fields': ('description','profile_image_url','tags_id')})
+        (_("امکانات پاتوق"),{'fields': ('wifi','poz')}),
+        (_("اطلاعات دیگر"),{'fields': ('category','description','profile_image_url','tags_id')})
     )
 class PendingVerifyAdmin(admin.ModelAdmin):
     ordering = ['send_time']
@@ -84,7 +89,7 @@ class UsersPermisionAdmin(admin.ModelAdmin):
 
 class GatheringHaveMemberAdmin(admin.ModelAdmin):
     ordering = ['username']
-    list_display = ('username','status','g_id')
+    list_display = ('username_id','status','g_id')
     search_fields = ['username']
     list_filter = ['status']
     autocomplete_fields = ['g_id','username']
@@ -146,6 +151,7 @@ class GatheringScheduallAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(City ,CityAdmin)
+admin.site.register(PatoghCategory ,PatoghCategoryAdmin)
 admin.site.register(LocationTypes, LocationTypesAdmin)
 admin.site.register(Tags, TagsAdmin)
 admin.site.register(Patogh, PatoghAdmin)
