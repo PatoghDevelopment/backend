@@ -11,9 +11,10 @@ from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import CharField
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.template import defaultfilters
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxLengthValidator, validate_slug, MaxValueValidator, MinValueValidator, FileExtensionValidator, ValidationError
-from django.template.defaultfilters import filesizeformat 
+from django.template.defaultfilters import default, filesizeformat 
 from django.contrib.auth.hashers import make_password
 from django.apps import apps
 
@@ -86,27 +87,30 @@ def user_image_profile_directory_path(instance, filename):
 def dorhami_image_profile_directory_path(instance, filename):
     return 'dorhami/{0}/prof_image/{1}'.format(str(instance.patogh_id), filename)
 
+def party_image_profile_directory_path(instance, filename):
+    return 'party/{0}/prof_image/{1}'.format(str(instance.id), filename)
+
 def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
 class PatoghCategory(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4)
-    category = models.CharField(max_length=50,verbose_name=_("کتگوری"))
+    keyword = models.TextChoices(_('ورزشی'), _('علمی'), _('تفریحی'), _('هنری'), _('مسافرتی'), _('خرید'),primary_key = True)
+    name = models.CharField( choices=keyword.choices, max_length=50,verbose_name=_("کتگوری"))
 
     class Meta: 
-        ordering = ['id']
+        ordering = ['keyword']
         verbose_name = _('کتگوری')
         verbose_name_plural = _('کتگوری ها')
-        unique_together = ('id','category')
 
-class LocationTypes(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه") ,primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Location")
-    label = models.CharField(verbose_name=_("برچسب"),max_length=20 , unique=True)
+class LocationTypes(models.Model):   
+    keyword = models.TextChoices(_('جنگل'), _('دریا'), _('رودخانه'), _('کافه'), _('رستوران'), _('پارک'), _('شهربازی'),
+                                 _('مکان ورزشی'), _('کوه'), _('سینما'), _('روستا'),primary_key = True,verbose_name=_("نوع مکان"))
+    name = models.CharField( choices=keyword.choices, max_length=30,verbose_name=_("نوع مکان"))
 
     def __str__(self):
-        return self.label
+        return self.name
     class Meta:
-        ordering = ['id']
+        ordering = ['keyword']
         verbose_name = _('مکان')
         verbose_name_plural = _('مکان ها')
 
@@ -125,12 +129,14 @@ class Tags(models.Model):
         verbose_name_plural = _('برچسب ها')
         
 class City(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this City")
-    name = models.CharField(verbose_name=_("نام شهر"),max_length=40,help_text="Where do you live?")
-
+    keyword = models.TextChoices(_('آذربایجان شرقی'), _('آذربایجان غربی'), _('اردبیل'), _('اصفهان'), _('البرز'), _('ایلام'),
+                                _('بوشهر'),_('تهران'),_('چهارمحال و بختیاری'),_('خراسان جنوبی'),_('خراسان رضوی'),_('خراسان شمالی'),
+                                 _('خوزستان'),_('زنجان'),_('سمنان'),_('سیستان و بلوچستان'),_('فارس'),_('قزوین'),_('قم'),_('کردستان'),
+                                _('کرمان'),_('کرمانشاه'),_('کهگیلویه و بویراحمد'),_('گلستان'),_('گیلان'),_('لرستان'),_('مازندران'),
+                                _('مرکزی'),_('هرمزگان'),_('همدان'),_('یزد'),primary_key = True, verbose_name=_("شهر"))
+    name = models.CharField( choices=keyword.choices, max_length=50,verbose_name=_("شهر"))
     class Meta:
-        ordering = ['name']
-        unique_together = ('id','name')
+        ordering = ['keyword']
         verbose_name = _('شهر')
         verbose_name_plural = _('شهر ها')
        
@@ -138,10 +144,12 @@ class City(models.Model):
         return self.name
 
 class User(AbstractUser):
-    username = models.CharField(verbose_name=_("نام کاربری"),primary_key=True,max_length=100,unique=True)
-    fullname = models.CharField(verbose_name=_("نام کامل"),max_length=100,null = True , blank = True)
-    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, unique=True)
-    phone = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
+    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
+    first_name = models.CharField(verbose_name=_("نام"),max_length=100,null = True , blank = True)
+    last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
+    password = models.CharField(widget=models.PasswordInput)
+    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
+    mobile_number = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
     birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
     city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"), blank = True)
     gender_status = (
@@ -149,14 +157,13 @@ class User(AbstractUser):
         ('1','male')
     )
     gender = models.CharField(verbose_name=_("جنسیت"),max_length=6,choices=gender_status,default='1',null = True ,blank=True)
-    profile_image_url = models.ImageField(verbose_name=_("عکس پروفایل"),upload_to = user_image_profile_directory_path
+    avatar = models.ImageField(verbose_name=_("عکس پروفایل"),upload_to = user_image_profile_directory_path
                                           ,null = True , blank = True ,help_text =_("JPG, JPEG or PNG is validate"),
                                           validators=[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size]
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
-    otp = models.CharField(max_length=20,null=True,blank=True) 
-    expire_time = models.DateTimeField(verbose_name=_("زمان ابطال"), null = True , blank= True)
-    is_confirmed = models.BooleanField(default=False)
+    score = models.IntegerField(verbose_name=_("امتیاز کاربر"), null= True , blank = True , default=0)
+    
     objects = UserManager()
 
     def __str__(self):
@@ -170,50 +177,16 @@ class User(AbstractUser):
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
 
-class Patogh(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Patogh")
-    creator_id = models.ForeignKey(User , verbose_name=_("شناسه پدید آورنده"),on_delete= models.CASCADE)
-    name = models.CharField(verbose_name=_("نام"),max_length=100)
-    state = (
-        ('1','public'),
-        ('2','private')
-    )
-    status = models.CharField(verbose_name=_("حالت دورهمی"),choices=state , max_length=10 )
-    telephone = models.CharField(verbose_name=_("شماره تلفن"),max_length=12)
-    is_telephone_verified = models.CharField(verbose_name=_("صحت شماره تلفن"),choices= verify_state,max_length=10,default='-1')
-    address = models.CharField(verbose_name=_("آدرس"),max_length=1000)
-    longitude = models.FloatField(verbose_name=_("عرض جغرافیایی"),null=True,blank=True)
-    latitude = models.FloatField(verbose_name=_("طول جغرافیایی"),null=True,blank=True)
-    city = models.ForeignKey(City , verbose_name=_("شهر"),on_delete=models.PROTECT , null = True,blank=True)
-    location_type = models.ForeignKey(LocationTypes ,verbose_name=_("مکان"), on_delete=PROTECT , null=True, blank=True)
-    description = models.CharField(verbose_name=_("توضیحات"),max_length=1000,null = True , blank = True)
-    profile_image_url = models.ImageField(verbose_name=_("عکس پروفایل"),
-                                           upload_to = patogh_image_directory_path ,
-                                           null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
-                                           validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
-    tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچست"), on_delete=models.CASCADE ,null=True,blank=True)
-    category = models.ForeignKey(PatoghCategory, on_delete= models.CASCADE , verbose_name=_("کتگوری"), null=True, blank = True )
-    wifi = models.BooleanField(default=False,verbose_name=_("وای فای"), null=True, blank = True)
-    poz = models.BooleanField(default=False,verbose_name=_("دستگاه پوز"), null=True, blank = True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-        unique_together = ('id','creator_id')
-        verbose_name = _('پاتوق')
-        verbose_name_plural = _('پاتوق ها')
 
 class PendingVerify(models.Model):
-    receptor = models.OneToOneField(User,verbose_name=_("دریافت کننده"),primary_key=True, max_length=50,on_delete=CASCADE)
-    otp = models.IntegerField(verbose_name=_("OTP کد"))
-    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),null = True)
-    allowed_try = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5
+    email = models.EmailField(verbose_name=_("ایمیل کاربر"), primary_key= True, max_length=50 )
+    otp = models.IntegerField(verbose_name=_("OTP کد"), max_length=6)
+    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add= True , null = True)
+    allowed_try_count = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5
                                            ,validators =[MinValueValidator(0),MaxValueValidator(5)])
 
     def __str__(self):
-        return self.receptor
+        return self.email
 
     class Meta:
         ordering = ['send_time']
@@ -221,59 +194,44 @@ class PendingVerify(models.Model):
         verbose_name_plural = _('تاییدیه ها')
 
 
-class UsersPermision(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this User Permision")
-    label = models.CharField(verbose_name=_("برچسب"),unique = True ,max_length=30,null=True)
+class Party(models.Model):
+    id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this party")
+    name = models.CharField(verbose_name=_("نام"),max_length=128 , null = True , blank=True)
+    avatar = models.ImageField(verbose_name=_("عکس اکیپ"),
+                                           upload_to = party_image_profile_directory_path ,
+                                           null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
+                                           validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
+    creator = models.ForeignKey(User,verbose_name=_("پدید آورنده"), on_delete=models.PROTECT , null= True )
+    description = models.CharField(verbose_name=_("توضیحات"),help_text="descripe your party", max_length=1000)
+    creation_time = models.DateTimeField(verbose_name=_("زمان ساخت اکیپ"),help_text="Creation time for the party",auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ['id']
-        verbose_name = _('تایید کاربر')
-        verbose_name_plural = _('تایید کاربران')
+        verbose_name = _('اکیپ')
+        verbose_name_plural = _('اکیپ ها')
 
-class GatheringHaveMember(models.Model):
+class PatoghInfo(models.Model):
     id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
-    g_id = models.ForeignKey(Patogh ,verbose_name=_("شناسه پاتوق"), on_delete= models.CASCADE)
-    username = models.ForeignKey(User , verbose_name=_("نام کاربری"),on_delete=models.CASCADE, max_length=30)
-    permission=(
-        (0,'normal member'),
-        (1,'deleted'),
-        (2,'quit')
-    )
-    status = models.SmallIntegerField(verbose_name=_("حالت پذیرش کاربر"),default=0, choices=permission)
-    class Meta:
-        ordering = ['username']
-        unique_together = ('g_id','username')
-        verbose_name = _('عضو دورهمی')
-        verbose_name_plural = _('اعضای دورهمی')
-
-    def __str__(self):
-        return self.username.username 
-
-
-class Gathering(models.Model):
-    id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
-    creator_id = models.ForeignKey(User,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True )
-    patogh_id = models.ForeignKey(Patogh , verbose_name=_("شناسه پاتوق"),on_delete=models.PROTECT , null = True)
+    creator = models.ForeignKey(User,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True )
     name = models.CharField(verbose_name=_("نام"),max_length=50 , null = True , blank=True)
-    state = (
-        ('0', 'uncommited'),
-        ('1', 'commited')
-    )
-    status = models.SmallIntegerField(verbose_name=_("حالت دورهمی"),default=0, choices=state)
+    profile_image = models.ImageField(verbose_name=_("عکس پاتوق"),
+                                           upload_to = patogh_image_directory_path ,
+                                           null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
+                                           validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
     city = models.ForeignKey(City, verbose_name=_("شهر"), on_delete=models.PROTECT, null=True, blank=True)
-    start_time = models.DateTimeField(verbose_name=_("زمان شروع"),help_text="Start time for the patogh",null = True)
-    end_time = models.DateTimeField(verbose_name=_("زمان پایان"),help_text="end time for the patogh",null = True)
     description = models.CharField(verbose_name=_("توضیحات"),help_text="descripe your patogh", max_length=1000)
-    gender = (
-        ('0', 'Female Only'),
-        ('1','Male Only'),
-        ('-1','No filter')
+    state = (
+        ('0', 'public'),
+        ('1', 'private')
     )
-    gender_filter = models.SmallIntegerField(verbose_name=_("جنسیت"),default= -1 , choices= gender)
-    members_count = models.IntegerField(verbose_name=_("تعداد اعضا"),default= -1 , help_text="-1 means no filter")
-    min_age = models.IntegerField(verbose_name=_("کمترین سن"),default= -1 , help_text="-1 means no filter")
-    max_age = models.IntegerField(verbose_name=_("بالاترین سن"),default= -1 , help_text="-1 means no filter")
-    tags_id = models.ForeignKey(Tags ,verbose_name=_("شناسه برچسب"),on_delete=models.PROTECT , null = True)
+    type = models.CharField(verbose_name=_("حالت دورهمی"),default='1', choices=state, max_length= 10)
+    creation_time = models.DateTimeField(verbose_name=_("زمان ساخت پاتوق"),help_text="Creation time for the patogh",auto_now_add=True)
+    category = models.ForeignKey(PatoghCategory,verbose_name=_("نوع پاتوق"), on_delete=models.PROTECT , null= True )
+    address = models.CharField(verbose_name=_("آدرس"), max_length=1000, null=True, blank=True)
+
 
     def __str__(self):
         return self.name
@@ -283,24 +241,56 @@ class Gathering(models.Model):
         verbose_name = _('دورهمی')
         verbose_name_plural = _('دورهمی ها')
 
-class JoinGatheringRequest(models.Model):
-    g_id = models.ForeignKey(Gathering , verbose_name=_("شناسه دورهمی"),on_delete= models.CASCADE)
-    username = models.ForeignKey(User , verbose_name=_("نام کاربری"),on_delete= models.CASCADE)
-    state = (
-        ('0','requested'),
-        ('1','accepted'),
-        ('2','rejected')
-    )
-    status = models.SmallIntegerField(verbose_name=_("وضعیت درخواست"),choices=state)
+
+class Patogh(models.Model):
+    id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
+    patogh_id = models.ForeignKey(PatoghInfo , verbose_name=_("شناسه اطلاعات پاتوق"),on_delete=models.PROTECT , null = True)
+    start_time = models.DateTimeField(verbose_name=_("زمان شروع"),help_text="Start time for the patogh",null = True)
+    end_time = models.DateTimeField(verbose_name=_("زمان پایان"),help_text="end time for the patogh",null = True)
 
     def __str__(self):
-        return self.username + " state request is "+ self.status
+        return self.id
 
     class Meta:
-        ordering = ['g_id']
-        unique_together = ('g_id','username')
-        verbose_name = _('درخواست پیوستن')
-        verbose_name_plural = _('درخواست های پیوستن')
+        ordering = ['id']
+        verbose_name = _('دورهمی')
+        verbose_name_plural = _('دورهمی ها')
+
+
+class PartyMembers(models.Model):
+    p_id = models.ForeignKey(Party, verbose_name=_("اکیپ"),on_delete=models.PROTECT)
+    g_id = models.ForeignKey(Patogh ,verbose_name=_("کاربر"), on_delete= models.PROTECT)
+    is_admin=(
+        ('0','no'),
+        ('1','yes')
+    )
+    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"),choices=is_admin, default = '0')
+    class Meta:
+        unique_together = (("p_id","g_id"))
+        ordering = ['p_id']
+        verbose_name = _('عضو اکیپ')
+        verbose_name_plural = _('اعضای اکیپ')
+
+    def __str__(self):
+        return self.username.username 
+
+class PatoghMembers(models.Model):
+    patogh_id = models.ForeignKey(PatoghInfo , verbose_name=_("شناسه پاتوق"),on_delete=models.PROTECT , null = True)
+    email = models.ForeignKey(User , verbose_name=_("شناسه کاربر"),on_delete=models.PROTECT , null = True)
+    status = (
+        ('0','admin'),
+        ('1','normal participant')
+    )
+    state = models.CharField(verbose_name=_("مجوز کاربر"), choices=status, help_text="سطح دسترسی کاربر را مشخص کنید", default='1', max_length=10)
+    time = models.DateTimeField(verbose_name=_("زمان پیوستن"),help_text="attend patogh time", auto_now_add= True)
+
+    def __str__(self):
+        return self.patogh_id + " " + self.email
+
+    class Meta:
+        ordering = ['patogh_id']
+        verbose_name = _('عضو دورهمی')
+        verbose_name_plural = _('اعضای دورهمی')
 
 class PatoghsComments(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this patogh Commments")
@@ -339,10 +329,10 @@ class PatoghHaveImages(models.Model):
                                   null = True , blank = True, help_text = _("JPG, JPEG or PNG is validate"),
                                   validators =[FileExtensionValidator(VALID_IMAGE_FORMAT),validate_image_size])
     state = (
-        ('0','registered'),
-        ('1','accepted'),
-        ('2','rejected'),
-        ('3','deleted')
+        (0,'registered'),
+        (1,'accepted'),
+        (2,'rejected'),
+        (3,'deleted')
     )
     status = models.SmallIntegerField(verbose_name=_("وضعیت تایید عکس"),choices= state, default= 0)
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"),auto_now_add=True , null = True , blank= True)
@@ -356,39 +346,23 @@ class PatoghHaveImages(models.Model):
         verbose_name_plural = _('عکس های پاتوق')
 
 
-class UsersHavePermisions(models.Model):
-    username = models.ForeignKey(User ,verbose_name=_("نام کاربری"), on_delete= models.CASCADE)
-    permision_id = models.ForeignKey(UsersPermision , verbose_name=_("شناسه تاییدیه"),on_delete= models.CASCADE)
-
+class UsersHaveFriends(models.Model):
+    sender = models.ForeignKey(User , on_delete= models.PROTECT, verbose_name=_("فرستنده") )
+    receiver = models.ForeignKey(User , on_delete= models.PROTECT, verbose_name=_("گیرنده") )
+    status = (
+        (0,'rejected'),
+        (1,'pending answer'),
+        (2,'accepted')
+    )
+    state = models.SmallIntegerField(verbose_name=_("وضعیت دوستی"), default=1, choices= status )
+    time = models.DateTimeField(verbose_name=_("زمان درخواست دوستی"), auto_now_add=True, null = True , blank= True)
+    
     def __str__(self):
-        return self.username + " have permission id: " + self.permision_id
+        return self.sender + " requested to: " + self.receiver
     class Meta:
-        ordering = ['username']
-        unique_together = ('username','permision_id')
+        ordering = ['time']
+        unique_together = ('sender','receiver')
         verbose_name = _('وضعیت درخواست')
         verbose_name_plural = _('وضعیت درخواست ها')
 
-
-
-class GatheringScheduall(models.Model):
-    g_id = models.ForeignKey(Gathering,verbose_name=_("شناسه دورهمی"), on_delete=models.CASCADE )
-    status = (
-        ('0','active with out repeat'),
-        ('1','repeat'),
-        ('2','unactive')
-    )
-    Sa = models.SmallIntegerField(verbose_name=_("شنبه"),choices=status)
-    Su = models.SmallIntegerField(verbose_name=_("یک شنبه"),choices=status)
-    Mo = models.SmallIntegerField(verbose_name=_("دو شنبه"),choices=status)
-    Tu = models.SmallIntegerField(verbose_name=_("سه شنبه"),choices=status)
-    We = models.SmallIntegerField(verbose_name=_("چهار شنبه"),choices=status)
-    Th = models.SmallIntegerField(verbose_name=_("پنج شنبه"),choices=status)
-    Fr = models.SmallIntegerField(verbose_name=_("جمعه"),choices=status)
-
-    def __str__(self):
-        return self.g_id
-    class Meta: 
-        ordering = ['g_id']
-        verbose_name = _('برنامه زمانی')
-        verbose_name_plural = _('برنامه های زمانی')
 
