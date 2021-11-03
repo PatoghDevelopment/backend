@@ -1,10 +1,10 @@
 from django.urls import path
-from main_app.views import SignupApiView, SigninApiView,CityListCreateApi, TopUsersApiView
+from main_app.views import SignupApiView, SigninApiView,CityListCreateApi
 from main_app.views import UserInfoApiView ,VerifyOTPView,ForgotPasswordView,ChangePasswordView
 from django.urls.resolvers import URLPattern
 
 from . import views
-from .views import SignupApiView, SigninApiView, UserInfoApiView , SearchDorehami
+from .views import SignupApiView, SigninApiView, UserInfoApiView 
 
 urlpatterns = [
     path('signup/', SignupApiView.as_view() , name = 'user_signup'),
@@ -14,12 +14,12 @@ urlpatterns = [
     path('password/forgot/', ForgotPasswordView.as_view(), name='forgot_password'), #forgot Password
     path('password/reset/', ChangePasswordView.as_view(), name='reset_password'), #Resetting the Password after Login
     path('cityList/', CityListCreateApi.as_view(), name='city_list'),
-    path('topuser/', TopUsersApiView.as_view(), name='top_user'),
+    # path('topuser/', TopUsersApiView.as_view(), name='top_user'),
 
 
 
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
-    path('searchGatherings/', views.SearchDorehami),
-    path('addGathering/', views.AddDorehami),
+    # path('searchGatherings/', views.SearchDorehami),
+    # path('addGathering/', views.AddDorehami),
     path('userprofile/', views.UserProfile)
 ]

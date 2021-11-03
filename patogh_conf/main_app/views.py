@@ -9,14 +9,14 @@ from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import AddDorehamiSerializer, CityListSerializer, SignupSerializer,SigninSerializer, TopUsersSerializer, UserProfileSerializer,VerifyOTPSerializer
+from main_app.serializers import  CityListSerializer, SignupSerializer,SigninSerializer, UserProfileSerializer,VerifyOTPSerializer
 from main_app.serializers import UserSerializer,ForgotPasswordSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
-from main_app.models import GatheringHaveMember, User,City,Gathering
+from main_app.models import User,City
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import random
@@ -26,7 +26,6 @@ from passlib.hash import django_pbkdf2_sha256 as handler
 from django.contrib.auth.models import update_last_login
 from django.conf import settings
 from django.core.mail import send_mail
-import jwt
 import pyotp
 import socket
 
@@ -247,78 +246,78 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TopUsersApiView(generics.ListAPIView):
-    serializer_class = TopUsersSerializer
-    permission_classes = (permissions.AllowAny,)
+# class TopUsersApiView(generics.ListAPIView):
+#     serializer_class = TopUsersSerializer
+#     permission_classes = (permissions.AllowAny,)
 
-    def get_queryset(self):
-        result = GatheringHaveMember.objects.all().values('username_id').annotate(total=Count('username_id')).order_by('-total')[0:3]
-        return result
+#     def get_queryset(self):
+#         result = GatheringHaveMember.objects.all().values('username_id').annotate(total=Count('username_id')).order_by('-total')[0:3]
+#         return result
 
 
-@api_view(['POST'])
-def AddDorehami(request):
-    data = {
-        'id': request.data['id'],
-        'creator_id': request.data['creator_id'],
-        'patogh_id': request.data['patogh_id'],
-        'name': request.data['name'],
-        'status': request.data['status'],
-        'start_time': request.data['start_time'],
-        'end_time': request.data['end_time'],
-        'description': request.data['description'],
-        'gender_filter ': request.data['gender_filter '],
-        'members_count': request.data['members_count'],
-        'min_age': request.data['min_age'],
-        'max_age': request.data['max_age'],
-        'tags_id': request.data['tags_id'],
-    }
-    ser = AddDorehamiSerializer(data=data)
-    if ser.is_valid():
-        ser.save()
-        return Response(ser.data, status.HTTP_201_CREATED)
-    else:
-        return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def AddDorehami(request):
+#     data = {
+#         'id': request.data['id'],
+#         'creator_id': request.data['creator_id'],
+#         'patogh_id': request.data['patogh_id'],
+#         'name': request.data['name'],
+#         'status': request.data['status'],
+#         'start_time': request.data['start_time'],
+#         'end_time': request.data['end_time'],
+#         'description': request.data['description'],
+#         'gender_filter ': request.data['gender_filter '],
+#         'members_count': request.data['members_count'],
+#         'min_age': request.data['min_age'],
+#         'max_age': request.data['max_age'],
+#         'tags_id': request.data['tags_id'],
+#     }
+#     ser = AddDorehamiSerializer(data=data)
+#     if ser.is_valid():
+#         ser.save()
+#         return Response(ser.data, status.HTTP_201_CREATED)
+#     else:
+#         return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-def SearchDorehami(request):
-    dorehamiha = Gathering.objects.all()
-    try:
-        name = request.query_params['name']
-        if name:
-            dorehamiha = Gathering.objects.filter(name=name)
-    except:
-        pass
-    try:
-        Mcity = City.objects.get(name=request.query_params['name'])
-        city_id = Mcity.id
-        if Mcity:
-            dorehamiha = Gathering.objects.filter(city=city_id)
-    except:
-        pass
-    try:
-        gender_filter = request.query_params['gender_filter']
-        if gender_filter:
-            dorehamiha = Gathering.objects.filter(gender_filter=gender_filter)
-    except:
-        pass
-    try:
-        members_count = request.query_params['members_count']
-        if members_count:
-            dorehamiha = Gathering.objects.filter(members_count=members_count)
-    except:
-        pass
-    try:
-        start_time = request.query_params['start_time']
-        if start_time:
-            dorehamiha = Gathering.objects.filter(start_time=start_time)
-    except:
-        pass
-    if dorehamiha:
-        ser = AddDorehamiSerializer(dorehamiha,many=True)
-        return  Response(ser.data,status=status.HTTP_200_OK)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# def SearchDorehami(request):
+#     dorehamiha = Gathering.objects.all()
+#     try:
+#         name = request.query_params['name']
+#         if name:
+#             dorehamiha = Gathering.objects.filter(name=name)
+#     except:
+#         pass
+#     try:
+#         Mcity = City.objects.get(name=request.query_params['name'])
+#         city_id = Mcity.id
+#         if Mcity:
+#             dorehamiha = Gathering.objects.filter(city=city_id)
+#     except:
+#         pass
+#     try:
+#         gender_filter = request.query_params['gender_filter']
+#         if gender_filter:
+#             dorehamiha = Gathering.objects.filter(gender_filter=gender_filter)
+#     except:
+#         pass
+#     try:
+#         members_count = request.query_params['members_count']
+#         if members_count:
+#             dorehamiha = Gathering.objects.filter(members_count=members_count)
+#     except:
+#         pass
+#     try:
+#         start_time = request.query_params['start_time']
+#         if start_time:
+#             dorehamiha = Gathering.objects.filter(start_time=start_time)
+#     except:
+#         pass
+#     if dorehamiha:
+#         ser = AddDorehamiSerializer(dorehamiha,many=True)
+#         return  Response(ser.data,status=status.HTTP_200_OK)
+#     else:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def UserProfile(request):

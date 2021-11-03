@@ -94,23 +94,22 @@ def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
 class PatoghCategory(models.Model):
-    keyword = models.TextChoices(_('ورزشی'), _('علمی'), _('تفریحی'), _('هنری'), _('مسافرتی'), _('خرید'),primary_key = True)
-    name = models.CharField( choices=keyword.choices, max_length=50,verbose_name=_("کتگوری"))
+    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Category")
+    name = models.CharField(  max_length=50,verbose_name=_("کتگوری"))
 
     class Meta: 
-        ordering = ['keyword']
+        ordering = ['id']
         verbose_name = _('کتگوری')
         verbose_name_plural = _('کتگوری ها')
 
 class LocationTypes(models.Model):   
-    keyword = models.TextChoices(_('جنگل'), _('دریا'), _('رودخانه'), _('کافه'), _('رستوران'), _('پارک'), _('شهربازی'),
-                                 _('مکان ورزشی'), _('کوه'), _('سینما'), _('روستا'),primary_key = True,verbose_name=_("نوع مکان"))
-    name = models.CharField( choices=keyword.choices, max_length=30,verbose_name=_("نوع مکان"))
+    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this location type")
+    name = models.CharField(max_length=30,verbose_name=_("نوع مکان"))
 
     def __str__(self):
         return self.name
     class Meta:
-        ordering = ['keyword']
+        ordering = ['id']
         verbose_name = _('مکان')
         verbose_name_plural = _('مکان ها')
 
@@ -129,14 +128,10 @@ class Tags(models.Model):
         verbose_name_plural = _('برچسب ها')
         
 class City(models.Model):
-    keyword = models.TextChoices(_('آذربایجان شرقی'), _('آذربایجان غربی'), _('اردبیل'), _('اصفهان'), _('البرز'), _('ایلام'),
-                                _('بوشهر'),_('تهران'),_('چهارمحال و بختیاری'),_('خراسان جنوبی'),_('خراسان رضوی'),_('خراسان شمالی'),
-                                 _('خوزستان'),_('زنجان'),_('سمنان'),_('سیستان و بلوچستان'),_('فارس'),_('قزوین'),_('قم'),_('کردستان'),
-                                _('کرمان'),_('کرمانشاه'),_('کهگیلویه و بویراحمد'),_('گلستان'),_('گیلان'),_('لرستان'),_('مازندران'),
-                                _('مرکزی'),_('هرمزگان'),_('همدان'),_('یزد'),primary_key = True, verbose_name=_("شهر"))
-    name = models.CharField( choices=keyword.choices, max_length=50,verbose_name=_("شهر"))
+    id = models.UUIDField(verbose_name=_("شناسه"),primary_key=True, default=uuid.uuid4,help_text="Unique Id for this Tag")
+    name = models.CharField( max_length=50,verbose_name=_("شهر"))
     class Meta:
-        ordering = ['keyword']
+        ordering = ['id']
         verbose_name = _('شهر')
         verbose_name_plural = _('شهر ها')
        
@@ -147,7 +142,6 @@ class User(AbstractUser):
     username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
     first_name = models.CharField(verbose_name=_("نام"),max_length=100,null = True , blank = True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
-    password = models.CharField(widget=models.PasswordInput)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
     mobile_number = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
     birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
@@ -180,7 +174,7 @@ class User(AbstractUser):
 
 class PendingVerify(models.Model):
     email = models.EmailField(verbose_name=_("ایمیل کاربر"), primary_key= True, max_length=50 )
-    otp = models.IntegerField(verbose_name=_("OTP کد"), max_length=6)
+    otp = models.CharField(verbose_name=_("OTP کد"), max_length=6)
     send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add= True , null = True)
     allowed_try_count = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5
                                            ,validators =[MinValueValidator(0),MaxValueValidator(5)])
@@ -347,8 +341,8 @@ class PatoghHaveImages(models.Model):
 
 
 class UsersHaveFriends(models.Model):
-    sender = models.ForeignKey(User , on_delete= models.PROTECT, verbose_name=_("فرستنده") )
-    receiver = models.ForeignKey(User , on_delete= models.PROTECT, verbose_name=_("گیرنده") )
+    sender = models.ForeignKey(User , related_name='sender_set', on_delete= models.PROTECT, verbose_name=_("فرستنده") )
+    receiver = models.ForeignKey(User , related_name='reciver_set', on_delete= models.PROTECT, verbose_name=_("گیرنده") )
     status = (
         (0,'rejected'),
         (1,'pending answer'),

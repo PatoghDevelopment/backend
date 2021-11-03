@@ -8,17 +8,17 @@ from .models import *
 # Register your models here 
 class CityAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ('name')
+    list_display = ('id','name')
     search_fields = ['name']
     
 class PatoghCategoryAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ('name')
+    list_display = ('id','name')
     search_fields = ['name']
 
 class LocationTypesAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ('name')
+    list_display = ('id','name')
     search_fields = ['name']
     list_filter = []
 
@@ -32,7 +32,7 @@ class TagsAdmin(admin.ModelAdmin):
     
 class UserAdmin(admin.ModelAdmin):
     ordering = ['username']
-    list_display = ('username','last_name','email','phone','gender')
+    list_display = ('username','last_name','email','mobile_number','gender')
     search_fields = ['username','first_name','last_name','email']
     list_filter = ['gender']
     autocomplete_fields = ['city']
@@ -60,7 +60,6 @@ class PendingVerifyAdmin(admin.ModelAdmin):
     list_filter = ['allowed_try_count']
     search_fields = ['email']
     list_filter = []
-    autocomplete_fields = ['receptor']
 
 class PartyAdmin(admin.ModelAdmin):
     ordering = ['name','id']
@@ -118,7 +117,7 @@ class PatoghHaveImagesAdmin(admin.ModelAdmin):
 
 class UsersHaveFriendsAdmin(admin.ModelAdmin):
     ordering = ['sender','receiver']
-    list_display = ('username','receiver','state','time')
+    list_display = ('sender','receiver','state','time')
     search_fields = ['sender','receiver','state']
     list_filter = ['state']
     autocomplete_fields = ['sender','receiver']

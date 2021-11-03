@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from main_app.models import City, User, Gathering,GatheringHaveMember
+from main_app.models import City, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 
@@ -144,12 +144,6 @@ class ChangePasswordSerializer(serializers.Serializer):
         fields = ['username','fullname','email','phone','birthdate','city','gender','profile_image_url','bio']
     
 
-
-class TopUsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GatheringHaveMember
-        fields = ['username_id']
-
 class CityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = City
@@ -161,14 +155,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['fullname','profile_image_url']
 
-class GhatheringListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Gathering
-        fields = '__all__'
-        depth = 1
+# class GhatheringListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Gathering
+#         fields = '__all__'
+#         depth = 1
 
-class AddDorehamiSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Gathering
-        fields = '__all__'
-        depth = 1
+# class AddDorehamiSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Gathering
+#         fields = '__all__'
+#         depth = 1
+# class TopUsersSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = GatheringHaveMember
+#         fields = ['username_id']
