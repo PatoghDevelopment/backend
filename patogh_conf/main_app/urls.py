@@ -1,5 +1,5 @@
 from django.urls import path
-from main_app.views import SignupApiView, SigninApiView,CityListCreateApi
+from main_app.views import SignupApiView, SigninApiView,CityListCreateApi, PatoghDetail
 from main_app.views import UserInfoApiView ,VerifyOTPView,ForgotPasswordView,ChangePasswordView
 from django.urls.resolvers import URLPattern
 
@@ -16,6 +16,8 @@ urlpatterns = [
     path('cityList/', CityListCreateApi.as_view(), name='city_list'),
     # path('topuser/', TopUsersApiView.as_view(), name='top_user'),
 
+    # Patogh paths
+    path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
 
 
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),

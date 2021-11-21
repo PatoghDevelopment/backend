@@ -5,11 +5,15 @@ from django.db import models
 from django.http import response
 from rest_framework.decorators import api_view
 from django.shortcuts import render
+
+from .models import Patogh
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import AllowAny
 from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import  CityListSerializer, SignupSerializer,SigninSerializer, UserProfileSerializer,VerifyOTPSerializer
+from main_app.serializers import  CityListSerializer, SignupSerializer,SigninSerializer, UserProfileSerializer,VerifyOTPSerializer,PatoghSerializer
 from main_app.serializers import UserSerializer,ForgotPasswordSerializer
 from main_app.serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
@@ -22,7 +26,7 @@ from django.urls import reverse
 import random
 from django.db.models import Count
 from rest_framework import viewsets
-from passlib.hash import django_pbkdf2_sha256 as handler
+# from passlib.hash import django_pbkdf2_sha256 as handler
 from django.contrib.auth.models import update_last_login
 from django.conf import settings
 from django.core.mail import send_mail
@@ -164,6 +168,23 @@ class VerifyOTPView(APIView):
             return Response({'msg': 'OTP verfication successful'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Patogh
+
+class PatoghDetail(RetrieveAPIView):
+    queryset = Patogh.objects.all()
+    serializer_class = PatoghSerializer
+    permission_classes = (AllowAny,)
+
+# class PatoghView(APIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     serializer_class = PatoghSerializer
+
+#     def get(self, request):
+#         queryset = Patogh.objects.filter(id=request.data)
+
+
 
 # it will send the mail with changed password which is generated randomly
 

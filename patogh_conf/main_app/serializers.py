@@ -1,8 +1,11 @@
 from django.contrib.auth import authenticate
+from django.db.models import fields
 from rest_framework import serializers
 from main_app.models import City, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
+
+from .models import Patogh
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
@@ -154,6 +157,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['fullname','profile_image_url']
+
+
+class PatoghSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patogh
+        fields = "__all__"
 
 # class GhatheringListSerializer(serializers.ModelSerializer):
 #     class Meta:
