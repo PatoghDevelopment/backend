@@ -181,16 +181,9 @@ class PatoghDetailWithSearch(ListAPIView):
     queryset = Patogh.objects.all()
     serializer_class = PatoghSerializer
     permission_classes = (AllowAny,)
-    filterset_fields = ['name','city']
-    search_fields =  ['name','city']
+    # filterset_fields = ['id']
+    # search_fields =  ['patoghInfo__name'] i will fiex this
 
-
-# class PatoghView(APIView):
-#     permission_classes = (permissions.IsAuthenticated,)
-#     serializer_class = PatoghSerializer
-
-#     def get(self, request):
-#         queryset = Patogh.objects.filter(id=request.data)
 
 
 

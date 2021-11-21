@@ -1,5 +1,5 @@
 from django.urls import path
-from main_app.views import SignupApiView, SigninApiView,CityListCreateApi, PatoghDetail
+from main_app.views import SignupApiView, SigninApiView,CityListCreateApi, PatoghDetail, PatoghDetailWithSearch
 from main_app.views import UserInfoApiView ,VerifyOTPView,ForgotPasswordView,ChangePasswordView
 from django.urls.resolvers import URLPattern
 
@@ -18,7 +18,7 @@ urlpatterns = [
 
     # Patogh paths
     path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
-
+    path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
     # path('searchGatherings/', views.SearchDorehami),
