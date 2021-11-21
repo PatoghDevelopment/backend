@@ -160,6 +160,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class PatoghSerializer(serializers.ModelSerializer):
+    
+    def get_patogh_id(self, obj):
+        return {
+            "id" : obj.patogh_id.id,
+            "creator" : obj.patogh_id.creator,
+            "name" : obj.patogh_id.name,
+        }
+    patogh_id = serializers.SerializerMethodField("get_patogh_id")
+    
     class Meta:
         model = Patogh
         fields = "__all__"

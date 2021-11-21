@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from django.shortcuts import render
 
 from .models import Patogh
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from pyotp import otp
 from pyotp.totp import TOTP
@@ -176,6 +176,14 @@ class PatoghDetail(RetrieveAPIView):
     queryset = Patogh.objects.all()
     serializer_class = PatoghSerializer
     permission_classes = (AllowAny,)
+
+class PatoghDetailWithSearch(ListAPIView):
+    queryset = Patogh.objects.all()
+    serializer_class = PatoghSerializer
+    permission_classes = (AllowAny,)
+    filterset_fields = ['name','city']
+    search_fields =  ['name','city']
+
 
 # class PatoghView(APIView):
 #     permission_classes = (permissions.IsAuthenticated,)
