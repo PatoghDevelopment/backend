@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.db.models import fields
 from rest_framework import serializers
-from main_app.models import City, User
+from .models import City, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 
@@ -118,11 +118,11 @@ class SigninSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    city = serializers.PrimaryKeyRelatedField( queryset=City.objects.all(), many=True, required=False)
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
 
     class Meta:
         model = User
-        fields = ['fullname','phone','birthdate','city','gender','profile_image_url','bio']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
    
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
@@ -144,7 +144,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
     class Meta:
         model = User
-        fields = ['username','fullname','email','phone','birthdate','city','gender','profile_image_url','bio']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
     
 
 class CityListSerializer(serializers.ModelSerializer):
@@ -153,10 +153,12 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = ['id','name']
         read_only_fields = ['id']
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['fullname','profile_image_url']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        read_only_fields = ['email']
 
 
 class PatoghSerializer(serializers.ModelSerializer):
@@ -173,18 +175,3 @@ class PatoghSerializer(serializers.ModelSerializer):
         model = Patogh
         fields = "__all__"
 
-# class GhatheringListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Gathering
-#         fields = '__all__'
-#         depth = 1
-
-# class AddDorehamiSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Gathering
-#         fields = '__all__'
-#         depth = 1
-# class TopUsersSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = GatheringHaveMember
-#         fields = ['username_id']
