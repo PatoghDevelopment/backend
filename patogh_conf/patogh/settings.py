@@ -193,8 +193,8 @@ MEDIA_URL = '/media/'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'PATOGH.KHU@gmail.com'
-EMAIL_HOST_PASSWORD = 'GATHERING123'
+EMAIL_HOST_USER = 'patogh.khu@gmail.com'
+EMAIL_HOST_PASSWORD = '009948421816'
 EMAIL_USE_TLS = True
 
 JWT_AUTH = {
