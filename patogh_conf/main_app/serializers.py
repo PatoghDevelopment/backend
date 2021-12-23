@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from main_app.models import City, PatoghInfo, PatoghMembers, PendingVerify, User
+from main_app.models import City, PendingVerify, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
@@ -11,6 +11,8 @@ import datetime
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
+
+from .models import Patogh
 
 class SignupSerializer(serializers.Serializer):
 
@@ -74,4 +76,107 @@ class SignupSerializer(serializers.Serializer):
         user = User.objects.create_user(email, password1)
         PendingVerify.objects.filter(receptor=email).delete()
         return user
+
+
+class SigninSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        label=_("نام کاربری"),
+        write_only=True        
+    )
+
+    password = serializers.CharField(
+        label= _("رمز عبور"),
+        min_length = 6,
+        write_only = True,
+        help_text =_("رمز عبور باید حداقل 6 کاراکتر باشد")
+    )
+
+    token = serializers.CharField(
+        label = _("توکن"),
+        read_only = True
+    )
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+        
+        if username and password :
+            user1 = authenticate(request=self.context.get('request'),
+                                username=username, password = password)
+            
+            if User.objects.filter(email=username).exists():
+                user2 = User.objects.get(email = username)
+            
+            if not (user1 or user2):
+                msg = _("کاربر با این مشخصات وجود ندارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
+        else:
+            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+            raise serializers.ValidationError(msg, code = 'authorization')
+
+        if user1:
+            attrs['user'] = user1
+        else:
+            attrs['user'] = user2
+
+        return attrs
+
+class UserSerializer(serializers.ModelSerializer):
+
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
+   
+
+class VerifyOTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['otp']
+
+class ForgotPasswordSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
+    
+
+class CityListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id','name']
+        read_only_fields = ['id']
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        read_only_fields = ['email']
+
+
+class PatoghSerializer(serializers.ModelSerializer):
+    
+    def get_patogh_id(self, obj):
+        return {
+            "id" : obj.patogh_id.id,
+            "creator" : obj.patogh_id.creator,
+            "name" : obj.patogh_id.name,
+        }
+    patogh_id = serializers.SerializerMethodField("get_patogh_id")
+    
+    class Meta:
+        model = Patogh
+        fields = "__all__"
 
