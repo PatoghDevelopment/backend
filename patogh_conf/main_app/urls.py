@@ -17,5 +17,5 @@ urlpatterns = [
 
     #user paths
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
-    path('userprofile/', views.UserProfile)
+    path('userprofile/', UserProfileView.as_view())
 ]

@@ -16,7 +16,7 @@ from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
 from main_app.serializers import  EmailSerializer, SignupSerializer
-from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer
+from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
 from .serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -127,41 +127,6 @@ class Signup(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user_obj = serializer.save()
         return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
-        serializer = self.serializer_class(data=request.data)
-        # Generating Random Password of specific Type or use according to your need
-        str_1 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                 'U', 'V', 'W', 'X', 'Y', 'Z']
-        str_2 = ['!', '@', '#', '$', '%', '&', '*', '/', '-', '+']
-        str_3 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-
-        str = random.choice(str_1)
-        for s in range(4):
-            str += random.choice(str_1).lower()
-        str += random.choice(str_2)
-        for x in range(2):
-            str += random.choice(str_3)
-
-        password = handler.hash(str)
-
-        if serializer.is_valid():
-            email = request.data['email']
-            User.objects.filter(email=email).update(password=password)
-
-            subject = 'Forgot Password Request'
-            message = 'Your request for Forgot Password has been received, your new password is ' + str
-            email_from = settings.EMAIL_HOST_USER
-            recipient_list = [email]
-
-            send_mail(
-                subject,
-                message,
-                email_from,
-                recipient_list,
-                fail_silently=False,
-            )
-            return Response({'msg': 'done'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
 
 # for changing the password
 
@@ -198,6 +163,14 @@ class ChangePasswordView(generics.UpdateAPIView):
                 return Response(response)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserInfoApiView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
 
 
 class UserProfileView(RetrieveUpdateAPIView):
