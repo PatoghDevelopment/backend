@@ -153,10 +153,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     def __str__(self):
-        if self.fullname:
-            return self.fullname
-        else:
-            return self.username
+        return self.username
 
     class Meta:
         ordering = ['username']
