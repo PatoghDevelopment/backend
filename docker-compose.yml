@@ -14,9 +14,9 @@ services:
       - mysql-network
     external_links:
       - mysql
-#    volumes:
-#      - /srv/patogh-api/media:/app/media
-#      - /srv/patogh-api/static:/app/static
+    volumes:
+      - /srv/patogh-api/media:/app/media
+      - /srv/patogh-api/static:/app/static
 
 networks:
   mysql-network:
