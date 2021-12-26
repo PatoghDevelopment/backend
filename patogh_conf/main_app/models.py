@@ -20,21 +20,18 @@ from django.apps import apps
 
 class UserManager(BaseUserManager):
 
-    def create_user(self,username, email, password=None, fullname=None,otp = None ,**kwargs):
-
-        if fullname is None:
-            raise TypeError(_('Users must have a Name'))
+    def create_user(self,email, password=None, **kwargs):
 
         if email is None:
             raise TypeError(_('Users must have an email address.'))
 
-        user = self.model(fullname = fullname,otp = otp, username = username, email=self.normalize_email(email),**kwargs)
+        user = self.model( email=self.normalize_email(email),**kwargs)
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_superuser(self, username, email=None, password=None, **extra_fields):
+    def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -43,24 +40,19 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(username, email, password,'admin','1' , **extra_fields)
+        return self._create_user(email, password,'admin','1' , **extra_fields)
 
-    def _create_user(self, username, email, password,fullname,otp, **extra_fields):
+    def _create_user(self, email, password, **extra_fields):
         """
         Create and save a user with the given username, email, and password.
         """
-        if not username:
-            raise ValueError('The given username must be set')
+
         email = self.normalize_email(email)
         # Lookup the real model class from the global app registry so this
         # manager method can be used in migrations. This is fine because
         # managers are by definition working on the real model.
-        GlobalUserModel = apps.get_model(self.model._meta.app_label, self.model._meta.object_name)
-        username = GlobalUserModel.normalize_username(username)
-        user = self.model(username=username, email=email, **extra_fields)
+        user = self.model( email=email, **extra_fields)
         user.password = make_password(password)
-        user.fullname = fullname
-        user.otp = otp
         user.save(using=self._db)
         return user
 
@@ -161,10 +153,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     def __str__(self):
-        if self.fullname:
-            return self.fullname
-        else:
-            return self.username
+        return self.username
 
     class Meta:
         ordering = ['username']
@@ -173,14 +162,15 @@ class User(AbstractUser):
 
 
 class PendingVerify(models.Model):
-    email = models.EmailField(verbose_name=_("ایمیل کاربر"), primary_key= True, max_length=50 )
-    otp = models.CharField(verbose_name=_("OTP کد"), max_length=6)
-    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add= True , null = True)
-    allowed_try_count = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"),default=5
-                                           ,validators =[MinValueValidator(0),MaxValueValidator(5)])
+    receptor = models.EmailField(verbose_name=_("دریافت کننده"), primary_key=True, max_length=50, default='a@a.com')
+    otp = models.IntegerField(verbose_name=_("OTP کد"))
+    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add=True, blank=True, null=True)
+    allowed_try = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"), default=5
+                                          , validators=[MinValueValidator(0), MaxValueValidator(5)])
+    objects = models.Manager()
 
     def __str__(self):
-        return self.email
+        return self.receptor
 
     class Meta:
         ordering = ['send_time']

@@ -90,13 +90,13 @@ WSGI_APPLICATION = 'patogh.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
-        'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
-        'USER': os.environ.get('SQL_USER', 'user'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD', '123'),
-        'HOST': os.environ.get('SQL_HOST', 'localhost'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'patogh_db',
+        'USER': 'root',
+        'PASSWORD': 'USER4321!',
     }
 }
 
@@ -119,6 +119,12 @@ REST_FRAMEWORK = {
     'rest_framework.authentication.TokenAuthentication',
     'rest_framework.authentication.SessionAuthentication',
     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        ],
+        'DEFAULT_FILTER_BACKENDS': 
+        [
+         'django_filters.rest_framework.DjangoFilterBackend',
+         'rest_framework.filters.SearchFilter',
+         
         ],
 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -193,8 +199,8 @@ MEDIA_URL = '/media/'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'PATOGH.KHU@gmail.com'
-EMAIL_HOST_PASSWORD = 'GATHERING123'
+EMAIL_HOST_USER = 'patogh.khu@gmail.com'
+EMAIL_HOST_PASSWORD = '009948421816'
 EMAIL_USE_TLS = True
 
 JWT_AUTH = {

@@ -13,6 +13,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: Who am i
+        run: whoami
+
       - name: Deploy Project
         run: docker-compose up -d --force-recreate --build patogh-api
 

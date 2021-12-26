@@ -1,25 +1,21 @@
 from django.urls import path
-from main_app.views import SignupApiView, SigninApiView,CityListCreateApi
-from main_app.views import UserInfoApiView ,VerifyOTPView,ForgotPasswordView,ChangePasswordView
+from rest_framework import views
+from .views import *
+from main_app.views import  PatoghDetail, PatoghDetailWithSearch
+from main_app.views import UserInfoApiView , Signup
 from django.urls.resolvers import URLPattern
 
-from . import views
-from .views import SignupApiView, SigninApiView, UserInfoApiView 
 
 urlpatterns = [
-    path('signup/', SignupApiView.as_view() , name = 'user_signup'),
-    path('signin/', SigninApiView.as_view() , name = 'user_signin'),
-    path('profile/',UserInfoApiView.as_view(), name = 'user_info'),
-    path('verify/', VerifyOTPView.as_view(), name = 'verify'), #otp Verify
-    path('password/forgot/', ForgotPasswordView.as_view(), name='forgot_password'), #forgot Password
-    path('password/reset/', ChangePasswordView.as_view(), name='reset_password'), #Resetting the Password after Login
-    path('cityList/', CityListCreateApi.as_view(), name='city_list'),
-    # path('topuser/', TopUsersApiView.as_view(), name='top_user'),
+    #athentication paths
+    path('get_otp', SendOTP.as_view(), name='user_signup'),
+    path('signup/', Signup.as_view(), name='signup'),
 
+    # Patogh paths
+    path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
+    path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
-
+    #user paths
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
-    # path('searchGatherings/', views.SearchDorehami),
-    # path('addGathering/', views.AddDorehami),
-    path('userprofile/', views.UserProfile)
+    path('userprofile/', UserProfileView.as_view())
 ]

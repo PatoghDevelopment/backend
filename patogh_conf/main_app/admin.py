@@ -56,9 +56,9 @@ class PatoghInfoAdmin(admin.ModelAdmin):
 
 class PendingVerifyAdmin(admin.ModelAdmin):
     ordering = ['send_time']
-    list_display = ('send_time','email','allowed_try_count')
-    list_filter = ['allowed_try_count']
-    search_fields = ['email']
+    list_display = ('send_time','receptor','allowed_try')
+    list_filter = ['allowed_try']
+    search_fields = ['receptor']
     list_filter = []
 
 class PartyAdmin(admin.ModelAdmin):
