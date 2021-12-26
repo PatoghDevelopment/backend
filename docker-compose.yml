@@ -17,7 +17,6 @@ services:
     volumes:
       - /srv/patogh-api/media:/app/media
       - /srv/patogh-api/static:/app/static
-      - /srv/patogh-api/migrations:/app/login/migrations
 
 networks:
   mysql-network:
