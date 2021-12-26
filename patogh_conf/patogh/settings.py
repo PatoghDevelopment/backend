@@ -93,10 +93,11 @@ WSGI_APPLICATION = 'patogh.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'patogh_db',
-        'USER': 'root',
-        'PASSWORD': 'USER4321!',
+        'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
+        'USER': os.environ.get('SQL_USER', 'root'),
+        'PASSWORD': os.environ.get('SQL_PASSWORD', 'USER4321!'),
+        'HOST': os.environ.get('SQL_HOST', '127.0.0.1'),
     }
 }
 
