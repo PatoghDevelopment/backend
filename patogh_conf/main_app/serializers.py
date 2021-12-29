@@ -127,7 +127,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
+        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
    
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
@@ -149,7 +149,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
+        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
     
 
 class CityListSerializer(serializers.ModelSerializer):
@@ -162,7 +162,7 @@ class CityListSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio', 'score']
         read_only_fields = ['email']
 
 
