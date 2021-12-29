@@ -127,7 +127,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
    
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
