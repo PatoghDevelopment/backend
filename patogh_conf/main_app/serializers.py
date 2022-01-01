@@ -158,7 +158,7 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = ['id','name']
         read_only_fields = ['id']
 
-
+    
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
