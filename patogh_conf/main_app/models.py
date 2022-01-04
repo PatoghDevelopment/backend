@@ -6,7 +6,7 @@ import uuid
 from datetime import date
 import hashlib
 from django.db.models import indexes
-from django.db.models.aggregates import Max 
+from django.db.models.aggregates import Max
 from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import CharField
@@ -136,7 +136,7 @@ class User(AbstractUser):
     last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
     mobile_number = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
-    birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
+    birth_date = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
     city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"), blank = True)
     gender_status = (
         ('0','female'),
