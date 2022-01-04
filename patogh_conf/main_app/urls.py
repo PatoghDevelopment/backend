@@ -1,8 +1,8 @@
 from django.urls import path
 from rest_framework import views
 from .views import *
-from main_app.views import  PatoghDetail, PatoghDetailWithSearch
-from main_app.views import UserInfoApiView , Signup
+from .views import  PatoghDetail, PatoghDetailWithSearch
+from .views import UserInfoApiView , Signup
 from django.urls.resolvers import URLPattern
 
 

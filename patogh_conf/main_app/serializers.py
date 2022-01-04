@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from main_app.models import City, PendingVerify, User
+from .models import City, PendingVerify, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q

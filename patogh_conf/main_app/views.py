@@ -15,14 +15,14 @@ from pyotp import otp
 from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
-from main_app.serializers import  EmailSerializer, SignupSerializer
+from .serializers import  EmailSerializer, SignupSerializer
 from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
 from .serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
-from main_app.models import PendingVerify, User,City,PatoghMembers
+from .models import PendingVerify, User,City,PatoghMembers
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from . import utils
@@ -174,6 +174,7 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
 
 
 class UserProfileView(RetrieveUpdateAPIView):
+    queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = (permissions.AllowAny,)
 
