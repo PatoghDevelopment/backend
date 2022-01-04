@@ -178,6 +178,9 @@ class UserProfileView(RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = (permissions.AllowAny,)
 
+    def get_object(self):
+        return self.request.user
+
     # @extend_schema(
     #     summary="update profile",
     #     responses={
