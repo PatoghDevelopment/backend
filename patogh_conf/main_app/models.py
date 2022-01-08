@@ -243,12 +243,12 @@ class Patogh(models.Model):
 
 class PartyMembers(models.Model):
     p_id = models.ForeignKey(Party, verbose_name=_("اکیپ"),on_delete=models.PROTECT)
-    g_id = models.ForeignKey(Patogh ,verbose_name=_("کاربر"), on_delete= models.PROTECT)
+    g_id = models.ForeignKey(User, verbose_name=_("کاربر"), on_delete=models.PROTECT)
     is_admin=(
-        ('0','no'),
-        ('1','yes')
+        ('0', 'no'),
+        ('1', 'yes')
     )
-    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"),choices=is_admin, default = '0')
+    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"),choices=is_admin, default='0')
     class Meta:
         unique_together = (("p_id","g_id"))
         ordering = ['p_id']
