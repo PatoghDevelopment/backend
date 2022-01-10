@@ -4,11 +4,12 @@ from .views import *
 from main_app.views import  PatoghDetail, PatoghDetailWithSearch
 from main_app.views import UserInfoApiView , Signup
 from django.urls.resolvers import URLPattern
+from django.contrib import admin
 
 
 urlpatterns = [
     #athentication paths
-    path('get_otp', SendOTP.as_view(), name='user_signup'),
+    path('get_otp/', SendOTP.as_view(), name='user_signup'),
     path('signup/', Signup.as_view(), name='signup'),
 
     # Patogh paths
@@ -19,3 +20,9 @@ urlpatterns = [
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
     path('userprofile/', UserProfileView.as_view())
 ]
+
+
+APP_NAME = "Patogh" 
+admin.site.site_header = "پنل مدیریت " + APP_NAME
+admin.site.site_title = APP_NAME
+admin.site.index_title = "صفحه مدیریت"

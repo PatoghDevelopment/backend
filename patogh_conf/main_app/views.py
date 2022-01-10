@@ -99,6 +99,7 @@ class PatoghDetailWithSearch(ListAPIView):
     queryset = Patogh.objects.all()
     serializer_class = PatoghSerializer
     permission_classes = (AllowAny,)
+    pagination_view = None
     # filterset_fields = ['id']
     # search_fields =  ['patoghInfo__name'] i will fiex this
 
