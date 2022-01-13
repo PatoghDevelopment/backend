@@ -70,11 +70,12 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://api.patogh.markop.ir',
-    "http://localhost:3000/enteremail",
-    "http://localhost:3000/signup",
+    # "http://localhost:3000/enteremail",
+    # "http://localhost:3000/signup",
+    "http://localhost:8000",
     "http://127.0.0.1:8000",
-    'https://patogh.markop.ir/enteremail',
-    'https://patogh.markop.ir/signup',
+    # 'https://patogh.markop.ir/enteremail',
+    # 'https://patogh.markop.ir/signup',
 ]
 
 
@@ -231,5 +232,5 @@ JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
     # Time for expiration of token
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_AUTH_HEADER_PREFIX': 'Token',
 }

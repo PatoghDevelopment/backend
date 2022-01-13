@@ -16,7 +16,10 @@ from .models import Patogh
 
 class SignupSerializer(serializers.Serializer):
 
-    email = serializers.EmailField(write_only=True)
+    email = serializers.EmailField(
+        label=_("ایمیل"),
+        write_only=True
+        )
 
     otp = serializers.CharField(
         label=_("توکن"),
@@ -79,47 +82,45 @@ class SignupSerializer(serializers.Serializer):
 
 
 class SigninSerializer(serializers.Serializer):
-    username = serializers.CharField(
-        label=_("نام کاربری"),
-        write_only=True        
+    email = serializers.EmailField(
+        label="ایمیل",
+        write_only=True
     )
-
     password = serializers.CharField(
-        label= _("رمز عبور"),
-        min_length = 6,
-        write_only = True,
-        help_text =_("رمز عبور باید حداقل 6 کاراکتر باشد")
+        label="رمز عبور",
+        min_length=6,
+        write_only=True,
+        help_text="رمز عبور باید حداقل ۶ رقمی باشد"
     )
-
     token = serializers.CharField(
-        label = _("توکن"),
-        read_only = True
+        label="توکن",
+        read_only=True
     )
 
     def validate(self, attrs):
-        username = attrs.get('username')
+        email = attrs.get('email')
         password = attrs.get('password')
-        
-        if username and password :
-            user1 = authenticate(request=self.context.get('request'),
-                                username=username, password = password)
-            
-            if User.objects.filter(email=username).exists():
-                user2 = User.objects.get(email = username)
-            
-            if not (user1 or user2):
-                msg = _("کاربر با این مشخصات وجود ندارد")
-                raise serializers.ValidationError(msg, code= 'authorization')
-        else:
-            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
-            raise serializers.ValidationError(msg, code = 'authorization')
 
-        if user1:
-            attrs['user'] = user1
-        else:
-            attrs['user'] = user2
+        if email and password:
+            # user = authenticate(request=self.context.get('request'),
+            #                     email=email, password=password)
+            user = User.objects.filter(email = email, password = password)
+            if user.exists():
+                user = user.first()
 
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                msg = _('Unable to log in with provided credentials.'+user[0])
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "email" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
         return attrs
+
 
 class UserSerializer(serializers.ModelSerializer):
 

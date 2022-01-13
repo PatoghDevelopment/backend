@@ -16,7 +16,7 @@ from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
 from main_app.serializers import  EmailSerializer, SignupSerializer
-from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
+from .serializers import  SigninSerializer, SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
 from .serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -126,9 +126,25 @@ class Signup(generics.CreateAPIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user_obj = serializer.save()
-        return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+        # user_obj = serializer.save()
+        # return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
 
+
+class Signin(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]  
+    serializer_class = SigninSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+
+        
 # for changing the password
 
 class ChangePasswordView(generics.UpdateAPIView):
@@ -201,4 +217,5 @@ class UserProfileView(RetrieveUpdateAPIView):
     # )
     # def get(self, request, *args, **kwargs):        # get user info
     #     return super(UserProfileView, self).get(request)
+
 

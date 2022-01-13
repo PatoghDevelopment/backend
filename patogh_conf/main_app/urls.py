@@ -11,6 +11,7 @@ urlpatterns = [
     #athentication paths
     path('get_otp/', SendOTP.as_view(), name='user_signup'),
     path('signup/', Signup.as_view(), name='signup'),
+    path('signin/', Signin.as_view(), name='signin'),
 
     # Patogh paths
     path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),

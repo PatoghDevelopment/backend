@@ -130,8 +130,11 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
+
+unique_id = uuid.uuid4().hex
+
 class User(AbstractUser):
-    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
+    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True, default=unique_id)
     first_name = models.CharField(verbose_name=_("نام"),max_length=100,null = True , blank = True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
