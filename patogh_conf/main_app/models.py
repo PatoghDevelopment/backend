@@ -149,6 +149,7 @@ class User(AbstractUser):
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
     score = models.IntegerField(verbose_name=_("امتیاز کاربر"), null= True , blank = True , default=0)
+    parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
     
     objects = UserManager()
 
