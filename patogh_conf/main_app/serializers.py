@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import City, PatoghInfo, PendingVerify, User
+from .models import *
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
@@ -196,3 +196,14 @@ class PatoghLimitSerializer(serializers.ModelSerializer):
         fields = ('id','start_time','patoghinfo')
 
 # Patogh end ----------------------------------------------------------------------------------
+
+
+class UserPartiesSerializer(serializers.ModelSerializer):
+    id = serializers.CharField()
+    name = serializers.ReadOnlyField(source='Party.name')
+    description = serializers.ReadOnlyField(source='Party.description')
+    avatar = serializers.ReadOnlyField(source='Party.avatar')
+
+    class Meta:
+        model = PartyMembers
+        fields = ('id', 'name', 'description', 'avatar')
