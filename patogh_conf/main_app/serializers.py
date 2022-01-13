@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import City, PendingVerify, User
+from .models import City, PatoghInfo, PendingVerify, User
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
@@ -166,17 +166,33 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['email']
 
 
+# Patogh start----------------------------------------------------------------------------------
+
+class PatoghInfoSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PatoghInfo
+        fields = "__all__"
+
+
 class PatoghSerializer(serializers.ModelSerializer):
-    
-    def get_patogh_id(self, obj):
-        return {
-            "id" : obj.patogh_id.id,
-            "creator" : obj.patogh_id.creator,
-            "name" : obj.patogh_id.name,
-        }
-    patogh_id = serializers.SerializerMethodField("get_patogh_id")
-    
+    patoghinfo = PatoghInfoSerializer()
     class Meta:
         model = Patogh
         fields = "__all__"
 
+
+class PatoghInfoLimitedSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PatoghInfo
+        fields = ('name', 'city')
+
+
+class PatoghLimitSerializer(serializers.ModelSerializer):
+    patoghinfo = PatoghInfoLimitedSerializer()
+    class Meta:
+        model = Patogh
+        fields = ('id','start_time','patoghinfo')
+
+# Patogh end ----------------------------------------------------------------------------------

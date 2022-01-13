@@ -95,8 +95,8 @@ DATABASES = {
     'default': {
         'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
-        'USER': os.environ.get('SQL_USER', 'root'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD', 'USER4321!'),
+        'USER': os.environ.get('SQL_USER', 'user'),
+        'PASSWORD': os.environ.get('SQL_PASSWORD', 'User4321!'),
         'HOST': os.environ.get('SQL_HOST', '127.0.0.1'),
     }
 }

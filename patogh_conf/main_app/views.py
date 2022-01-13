@@ -37,6 +37,7 @@ from rest_framework.generics import get_object_or_404
 from django.utils import timezone
 from django.core.mail import send_mail
 import pyotp
+from .serializers import *
 
 # SignIn Sign out view----------------------
 def generateOTP():
@@ -90,18 +91,22 @@ class SendOTP(generics.GenericAPIView):
 
 
 # Patogh
-class PatoghDetail(RetrieveAPIView):
-    queryset = Patogh.objects.all()
-    serializer_class = PatoghSerializer
-    permission_classes = (AllowAny,)
 
-class PatoghDetailWithSearch(ListAPIView):
-    queryset = Patogh.objects.all()
-    serializer_class = PatoghSerializer
+class PatoghDetail(APIView):
     permission_classes = (AllowAny,)
-    # filterset_fields = ['id']
-    # search_fields =  ['patoghInfo__name'] i will fiex this
+    def get(self, request, pk, format=None):
+        queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
+        serializer = PatoghSerializer()
+        
+        return Response(serializer.data)
 
+class PatoghDetailLimitedColumn(APIView):
+    permission_classes = (AllowAny,)
+    def get(self, request, pk, format=None):
+        queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
+        serializer = PatoghLimitSerializer()
+        
+        return Response(serializer.data)
 
 
 
