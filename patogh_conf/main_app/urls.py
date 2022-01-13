@@ -18,5 +18,8 @@ urlpatterns = [
 
     #user paths
     path('profile/',UserInfoApiView.as_view(), name = 'user_info' ),
-    path('userprofile/', UserProfileView.as_view())
+    path('userprofile/', UserProfileView.as_view()),
+
+    # users parties
+    path('parties/', UserParties.as_view(), name="user_parties"),
 ]
