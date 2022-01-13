@@ -8,7 +8,7 @@ from django.http import response
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 
-from .models import Patogh
+from .models import *
 from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from pyotp import otp
@@ -186,27 +186,11 @@ class UserProfileView(RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    # @extend_schema(
-    #     summary="update profile",
-    #     responses={
-    #         201: OpenApiResponse(response=SignupSerializer,
-    #                              description=''),
-    #         400: OpenApiResponse(
-    #             description=""),
-    #     },
-    # )
-    # def put(self, request, *args, **kwargs):        # update profile
-    #     return super(UserProfileView, self).put(request)
-    #
-    # @extend_schema(
-    #     summary="get user info",
-    #     responses={
-    #         201: OpenApiResponse(response=SignupSerializer,
-    #                              description=''),
-    #         400: OpenApiResponse(
-    #             description=""),
-    #     },
-    # )
-    # def get(self, request, *args, **kwargs):        # get user info
-    #     return super(UserProfileView, self).get(request)
 
+class UserParties(generics.ListAPIView):
+    queryset = PartyMembers.objects.all()
+    serializer_class = UserPartiesSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
