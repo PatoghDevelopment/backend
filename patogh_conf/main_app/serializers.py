@@ -31,7 +31,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=6,
         max_length=30,
         write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
+        help_text=_("رمز عبور باید حداقل 6 کاراکتر داشته باشد")
     )
     
     password2 = serializers.CharField(
@@ -39,7 +39,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=6,
         max_length=30,
         write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
+        help_text=_("رمز عبور باید حداقل 6 کاراکتر داشته باشد")
     )
 
 
@@ -52,7 +52,7 @@ class SignupSerializer(serializers.Serializer):
                 msg = _("کاربر با این مشخصات وجود دارد")
                 raise serializers.ValidationError(msg, code='conflict')
             if password1 != password2:
-                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+                msg = _("لطفا هر دو گذرواژه را یکسان وارد کنید.")
                 raise serializers.ValidationError(msg, code='conflict')
             # user = authenticate(request=self.context.get('request'), password=password)
             # if user:
@@ -69,7 +69,7 @@ class SignupSerializer(serializers.Serializer):
                     raise serializers.ValidationError(_("کد تایید منقضی شده است."))
 
         else:
-            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+            msg = _("لطفا اطلاعات خود را به درستی وارد کنید.")
             raise serializers.ValidationError(msg, code='authorization')
 
     def create(self, validated_data):
@@ -112,10 +112,10 @@ class SigninSerializer(serializers.Serializer):
             # users. (Assuming the default ModelBackend authentication
             # backend.)
             if not user:
-                msg = _('Unable to log in with provided credentials.'+user[0])
+                msg = _('کاربری با این مشخصات یافت نشد.')
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = _('Must include "email" and "password".')
+            msg = _('لطفا ایمیل و پسورد را وارد کنید.')
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user

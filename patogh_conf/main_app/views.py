@@ -119,7 +119,7 @@ class Signup(generics.CreateAPIView):
     @extend_schema(
         summary="create a new User",
         responses={
-            201: OpenApiResponse(description='Signed UP successfully.'),
+            201: OpenApiResponse(description='ثبت نام با موفقیت انجام شد.'),
             400: OpenApiResponse(description="bad request."),
         },
     )
