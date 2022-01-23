@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'main_app',
     'django.contrib.admin',
     'django.contrib.auth',
+    'corsheaders',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -60,9 +61,30 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+
+CORS_ALLOWED_ORIGINS = [
+    # 'https://api.patogh.markop.ir',
+    # "http://localhost:3000/enteremail",
+    # "http://localhost:3000/signup",
+    # "http://localhost:8000",
+    # "http://127.0.0.1:8000",
+    # 'https://patogh.markop.ir/enteremail',
+    # 'https://patogh.markop.ir/signup',
+    # 'http://localhost:3000/signin',
+    # 'http://localhost:3000/backuppassword2',
+    # 'http://localhost:3000/backuppassword1',
+    # 'http://localhost:3000/profile',
+    # 'https://patogh.markop.ir/signin',
+    # 'https://patogh.markop.ir/backuppassword2',
+    # 'https://patogh.markop.ir/backuppassword1',
+    # 'https://patogh.markop.ir/profile'   
+
 ]
 
 
@@ -95,8 +117,8 @@ DATABASES = {
     'default': {
         'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
-        'USER': os.environ.get('SQL_USER', 'user'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD', 'User4321!'),
+        'USER': os.environ.get('SQL_USER', 'root'),
+        'PASSWORD': os.environ.get('SQL_PASSWORD', 'USER4321!'),
         'HOST': os.environ.get('SQL_HOST', '127.0.0.1'),
     }
 }
@@ -219,5 +241,5 @@ JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
     # Time for expiration of token
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_AUTH_HEADER_PREFIX': 'Token',
 }

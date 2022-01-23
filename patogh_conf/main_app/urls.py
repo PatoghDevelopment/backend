@@ -8,8 +8,11 @@ from django.urls.resolvers import URLPattern
 
 urlpatterns = [
     #athentication paths
-    path('get_otp', SendOTP.as_view(), name='user_signup'),
+    path('get_otp', SingUpSendOTP.as_view(), name='user_signup'),
     path('signup/', Signup.as_view(), name='signup'),
+    path('reset_password_otp/', ResetPasswordSendOTP.as_view(), name='reset_password_otp'),
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+
 
     # Patogh paths
     path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),

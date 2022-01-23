@@ -14,6 +14,7 @@ class EmailSerializer(serializers.Serializer):
 
 from .models import Patogh
 
+
 class SignupSerializer(serializers.Serializer):
 
     email = serializers.EmailField(write_only=True)
@@ -38,7 +39,6 @@ class SignupSerializer(serializers.Serializer):
         write_only=True,
         help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
     )
-
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -121,6 +121,7 @@ class SigninSerializer(serializers.Serializer):
 
         return attrs
 
+
 class UserSerializer(serializers.ModelSerializer):
 
     city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
@@ -135,22 +136,36 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
         model = User
         fields = ['otp']
 
-class ForgotPasswordSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=255)
 
-    class Meta:
-        model = User
-        fields = ['email']
+class RestPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    otp_token = serializers.CharField(required=True)
+    password1 = serializers.CharField(required=True)
+    password2 = serializers.CharField(required=True)
 
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password1 = attrs.get('password1')
+        password2 = attrs.get('password2')
+        user = User.objects.filter(email=email).first()
+        if user:
+            if password1 != password2:
+                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+                raise serializers.ValidationError(msg, code='conflict')
+            otp = attrs.get('otp_token')
+            pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+            time_now = timezone.now()
+            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                if int(otp) == pending_verify_obj.otp:
+                    return attrs
+                else:
+                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+            else:
+                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+        else:
+            msg = _("کاربری با این اطلاعات وجود ندارد")
+            raise serializers.ValidationError(msg, code='authorization')
 
-class ChangePasswordSerializer(serializers.Serializer):
-
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
-    
 
 class CityListSerializer(serializers.ModelSerializer):
     class Meta:
