@@ -116,7 +116,7 @@ class SigninSerializer(serializers.Serializer):
 
         if user1:
             attrs['user'] = user1
-        else:
+        elif user2:
             attrs['user'] = user2
 
         return attrs

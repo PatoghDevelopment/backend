@@ -40,7 +40,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(email, password,'admin','1' , **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
     def _create_user(self, email, password, **extra_fields):
         """
@@ -55,7 +55,6 @@ class UserManager(BaseUserManager):
         user.password = make_password(password)
         user.save(using=self._db)
         return user
-
 
 UNIDENTIFIED = '-1'
 IDENTIFIED = '1'

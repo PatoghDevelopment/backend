@@ -154,6 +154,19 @@ class Signup(generics.CreateAPIView):
         user_obj = serializer.save()
         return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
 
+
+class Signin(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]  
+    serializer_class = SigninSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+
+
 # for changing the password
 
 
@@ -177,7 +190,7 @@ class ResetPasswordView(generics.UpdateAPIView):
         }
         return Response(ok_response)
 
-        
+
 class UserInfoApiView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
