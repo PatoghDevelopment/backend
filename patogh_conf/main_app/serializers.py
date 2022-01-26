@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from main_app.models import City, PendingVerify, User
+from .models import *
 from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
@@ -14,12 +14,10 @@ class EmailSerializer(serializers.Serializer):
 
 from .models import Patogh
 
+
 class SignupSerializer(serializers.Serializer):
 
-    email = serializers.EmailField(
-        label=_("ایمیل"),
-        write_only=True
-        )
+    email = serializers.EmailField(write_only=True)
 
     otp = serializers.CharField(
         label=_("توکن"),
@@ -31,7 +29,7 @@ class SignupSerializer(serializers.Serializer):
         min_length=6,
         max_length=30,
         write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر داشته باشد")
+        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
     )
     
     password2 = serializers.CharField(
@@ -39,9 +37,8 @@ class SignupSerializer(serializers.Serializer):
         min_length=6,
         max_length=30,
         write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر داشته باشد")
+        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
     )
-
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -52,7 +49,7 @@ class SignupSerializer(serializers.Serializer):
                 msg = _("کاربر با این مشخصات وجود دارد")
                 raise serializers.ValidationError(msg, code='conflict')
             if password1 != password2:
-                msg = _("لطفا هر دو گذرواژه را یکسان وارد کنید.")
+                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
                 raise serializers.ValidationError(msg, code='conflict')
             # user = authenticate(request=self.context.get('request'), password=password)
             # if user:
@@ -69,7 +66,7 @@ class SignupSerializer(serializers.Serializer):
                     raise serializers.ValidationError(_("کد تایید منقضی شده است."))
 
         else:
-            msg = _("لطفا اطلاعات خود را به درستی وارد کنید.")
+            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
             raise serializers.ValidationError(msg, code='authorization')
 
     def create(self, validated_data):
@@ -82,43 +79,46 @@ class SignupSerializer(serializers.Serializer):
 
 
 class SigninSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        label="ایمیل",
-        write_only=True
+    username = serializers.CharField(
+        label=_("نام کاربری"),
+        write_only=True        
     )
+
     password = serializers.CharField(
-        label="رمز عبور",
-        min_length=6,
-        write_only=True,
-        help_text="رمز عبور باید حداقل ۶ رقمی باشد"
+        label= _("رمز عبور"),
+        min_length = 6,
+        write_only = True,
+        help_text =_("رمز عبور باید حداقل 6 کاراکتر باشد")
     )
+
     token = serializers.CharField(
-        label="توکن",
-        read_only=True
+        label = _("توکن"),
+        read_only = True
     )
 
     def validate(self, attrs):
-        email = attrs.get('email')
+        username = attrs.get('username')
         password = attrs.get('password')
-
-        if email and password:
-            # user = authenticate(request=self.context.get('request'),
-            #                     email=email, password=password)
-            user = User.objects.filter(email = email, password = password)
-            if user.exists():
-                user = user.first()
-
-            # The authenticate call simply returns None for is_active=False
-            # users. (Assuming the default ModelBackend authentication
-            # backend.)
-            if not user:
-                msg = _('کاربری با این مشخصات یافت نشد.')
-                raise serializers.ValidationError(msg, code='authorization')
+        
+        if username and password :
+            user1 = authenticate(request=self.context.get('request'),
+                                username=username, password = password)
+            
+            if User.objects.filter(email=username).exists():
+                user2 = User.objects.get(email = username)
+            
+            if not (user1 or user2):
+                msg = _("کاربر با این مشخصات وجود ندارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
         else:
-            msg = _('لطفا ایمیل و پسورد را وارد کنید.')
-            raise serializers.ValidationError(msg, code='authorization')
+            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+            raise serializers.ValidationError(msg, code = 'authorization')
 
-        attrs['user'] = user
+        if user1:
+            attrs['user'] = user1
+        elif user2:
+            attrs['user'] = user2
+
         return attrs
 
 
@@ -128,7 +128,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
    
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
@@ -136,22 +136,36 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
         model = User
         fields = ['otp']
 
-class ForgotPasswordSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=255)
 
-    class Meta:
-        model = User
-        fields = ['email']
+class RestPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    otp_token = serializers.CharField(required=True)
+    password1 = serializers.CharField(required=True)
+    password2 = serializers.CharField(required=True)
 
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password1 = attrs.get('password1')
+        password2 = attrs.get('password2')
+        user = User.objects.filter(email=email).first()
+        if user:
+            if password1 != password2:
+                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+                raise serializers.ValidationError(msg, code='conflict')
+            otp = attrs.get('otp_token')
+            pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+            time_now = timezone.now()
+            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                if int(otp) == pending_verify_obj.otp:
+                    return attrs
+                else:
+                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+            else:
+                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+        else:
+            msg = _("کاربری با این اطلاعات وجود ندارد")
+            raise serializers.ValidationError(msg, code='authorization')
 
-class ChangePasswordSerializer(serializers.Serializer):
-
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio']
-    
 
 class CityListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -159,26 +173,52 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = ['id','name']
         read_only_fields = ['id']
 
-    
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender', 'email', 'birthdate', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
         read_only_fields = ['email']
 
 
-class PatoghSerializer(serializers.ModelSerializer):
-    
-    patogh_id = serializers.SerializerMethodField("get_patogh_id")
+# Patogh start----------------------------------------------------------------------------------
 
-    def get_patogh_id(self, obj):
-        return {
-            "id" : obj.patogh_id.id,
-            "creator" : obj.patogh_id.creator,
-            "name" : obj.patogh_id.name,
-        }
+class PatoghInfoSerializer(serializers.ModelSerializer):
     
+    class Meta:
+        model = PatoghInfo
+        fields = "__all__"
+
+
+class PatoghSerializer(serializers.ModelSerializer):
+    patoghinfo = PatoghInfoSerializer()
     class Meta:
         model = Patogh
         fields = "__all__"
 
+
+class PatoghInfoLimitedSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PatoghInfo
+        fields = ('name', 'city')
+
+
+class PatoghLimitSerializer(serializers.ModelSerializer):
+    patoghinfo = PatoghInfoLimitedSerializer()
+    class Meta:
+        model = Patogh
+        fields = ('id','start_time','patoghinfo')
+
+# Patogh end ----------------------------------------------------------------------------------
+
+
+class UserPartiesSerializer(serializers.ModelSerializer):
+    id = serializers.CharField()
+    name = serializers.ReadOnlyField(source='Party.name')
+    description = serializers.ReadOnlyField(source='Party.description')
+    avatar = serializers.ReadOnlyField(source='Party.avatar')
+
+    class Meta:
+        model = PartyMembers
+        fields = ('id', 'name', 'description', 'avatar')

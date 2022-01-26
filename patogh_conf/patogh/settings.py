@@ -70,19 +70,17 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://api.patogh.markop.ir',
-    'https://patogh.markop.ir',
     # "http://localhost:3000/enteremail",
     # "http://localhost:3000/signup",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    'http://localhost:3000',
-    'http://0.0.0.0:8000',
     # 'https://patogh.markop.ir/enteremail',
     # 'https://patogh.markop.ir/signup',
     # 'http://localhost:3000/signin',
     # 'http://localhost:3000/backuppassword2',
     # 'http://localhost:3000/backuppassword1',
     # 'http://localhost:3000/profile',
+    'https://patogh.markop.ir',
     # 'https://patogh.markop.ir/signin',
     # 'https://patogh.markop.ir/backuppassword2',
     # 'https://patogh.markop.ir/backuppassword1',
@@ -222,11 +220,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+DEFAULT_FROM_EMAIL = 'patogh@markop.ir'
+SERVER_EMAIL = 'patogh@markop.ir'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.markop.ir'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'patogh.khu@gmail.com'
-EMAIL_HOST_PASSWORD = '009948421816'
+EMAIL_HOST_USER = 'patogh@markop.ir'
+EMAIL_HOST_PASSWORD = 'ETU*nxt6eqk5vmj5mcp'
 EMAIL_USE_TLS = True
 
 JWT_AUTH = {

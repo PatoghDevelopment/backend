@@ -6,7 +6,7 @@ import uuid
 from datetime import date
 import hashlib
 from django.db.models import indexes
-from django.db.models.aggregates import Max 
+from django.db.models.aggregates import Max
 from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import CharField
@@ -55,7 +55,6 @@ class UserManager(BaseUserManager):
         user.password = make_password(password)
         user.save(using=self._db)
         return user
-
 
 UNIDENTIFIED = '-1'
 IDENTIFIED = '1'
@@ -130,16 +129,13 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
-
-unique_id = uuid.uuid4().hex
-
 class User(AbstractUser):
-    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True, default=unique_id)
+    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
     first_name = models.CharField(verbose_name=_("نام"),max_length=100,null = True , blank = True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
     mobile_number = models.CharField(verbose_name=_("شماره تلفن"),unique = True, max_length=12,null=True,blank=True)
-    birthdate = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
+    birth_date = models.DateField(verbose_name=_("تاریخ تولد"),null = True , blank = True )
     city = models.ForeignKey(City , on_delete=models.PROTECT , null = True,verbose_name=_("شهر"), blank = True)
     gender_status = (
         ('0','female'),
@@ -152,6 +148,7 @@ class User(AbstractUser):
                                           )
     bio = models.CharField(verbose_name=_("درباره"),max_length=1000,null = True , blank = True)
     score = models.IntegerField(verbose_name=_("امتیاز کاربر"), null= True , blank = True , default=0)
+    parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
     
     objects = UserManager()
 
@@ -246,12 +243,12 @@ class Patogh(models.Model):
 
 class PartyMembers(models.Model):
     p_id = models.ForeignKey(Party, verbose_name=_("اکیپ"),on_delete=models.PROTECT)
-    g_id = models.ForeignKey(User ,verbose_name=_("کاربر"), on_delete= models.PROTECT)
+    g_id = models.ForeignKey(User, verbose_name=_("کاربر"), on_delete=models.PROTECT)
     is_admin=(
-        ('0','no'),
-        ('1','yes')
+        ('0', 'no'),
+        ('1', 'yes')
     )
-    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"),choices=is_admin, default = '0')
+    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"),choices=is_admin, default='0')
     class Meta:
         unique_together = (("p_id","g_id"))
         ordering = ['p_id']
@@ -351,5 +348,3 @@ class UsersHaveFriends(models.Model):
         unique_together = ('sender','receiver')
         verbose_name = _('وضعیت درخواست')
         verbose_name_plural = _('وضعیت درخواست ها')
-
-

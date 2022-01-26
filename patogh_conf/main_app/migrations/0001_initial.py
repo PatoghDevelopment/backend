@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('last_name', models.CharField(blank=True, max_length=100, null=True, verbose_name='نام خانوادگی')),
                 ('email', models.EmailField(max_length=50, primary_key=True, serialize=False, verbose_name='ایمیل')),
                 ('mobile_number', models.CharField(blank=True, max_length=12, null=True, unique=True, verbose_name='شماره تلفن')),
-                ('birthdate', models.DateField(blank=True, null=True, verbose_name='تاریخ تولد')),
+                ('birth_date', models.DateField(blank=True, null=True, verbose_name='تاریخ تولد')),
                 ('gender', models.CharField(blank=True, choices=[('0', 'female'), ('1', 'male')], default='1', max_length=6, null=True, verbose_name='جنسیت')),
                 ('avatar', models.ImageField(blank=True, help_text='JPG, JPEG or PNG is validate', null=True, upload_to=main_app.models.user_image_profile_directory_path, validators=[django.core.validators.FileExtensionValidator(['png', 'jpg', 'jpeg']), main_app.models.validate_image_size], verbose_name='عکس پروفایل')),
                 ('bio', models.CharField(blank=True, max_length=1000, null=True, verbose_name='درباره')),
