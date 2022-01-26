@@ -78,6 +78,7 @@ CORS_ALLOWED_ORIGINS = [
     # 'https://patogh.markop.ir/enteremail',
     # 'https://patogh.markop.ir/signup',
     # 'http://localhost:3000/signin',
+    'http://localhost:3000',
     # 'http://localhost:3000/backuppassword2',
     # 'http://localhost:3000/backuppassword1',
     # 'http://localhost:3000/profile',
