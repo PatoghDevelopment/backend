@@ -28,8 +28,8 @@ SECRET_KEY = 'django-insecure--(%z)$f+7z9o04i#a)-%zr@30hk+#7^d--gzzz5(u07#1sgcxm
 DEBUG = True
 
 ALLOWED_HOSTS = []
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", '').split(
-    " ") if os.environ.get("DJANGO_ALLOWED_HOSTS", '') else []
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", '').split(
+#     " ") if os.environ.get("DJANGO_ALLOWED_HOSTS", '') else []
 
 
 # Application definition
