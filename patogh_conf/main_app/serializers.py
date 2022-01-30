@@ -104,10 +104,10 @@ class SigninSerializer(serializers.Serializer):
             user1 = authenticate(request=self.context.get('request'),
                                 username=username, password = password)
             
-            if User.objects.filter(email=username).exists():
-                user2 = User.objects.get(email = username)
+            # if User.objects.filter(email=username).exists():
+            #     user2 = User.objects.get(email = username)
             
-            if not (user1 or user2):
+            if not (user1 ):
                 msg = _("کاربر با این مشخصات وجود ندارد")
                 raise serializers.ValidationError(msg, code= 'authorization')
         else:
@@ -116,8 +116,10 @@ class SigninSerializer(serializers.Serializer):
 
         if user1:
             attrs['user'] = user1
-        elif user2:
-            attrs['user'] = user2
+        else :
+            msg = _(".......کاربر پیدا نشد")
+            raise serializers.ValidationError(msg, code = 'authorization')
+        #     attrs['user'] = user2
 
         return attrs
 
