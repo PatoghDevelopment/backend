@@ -167,14 +167,6 @@ class SigninSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
-
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
-   
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
     class Meta:
@@ -218,12 +210,16 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = ['id','name']
         read_only_fields = ['id']
 
+class UserSerializer(serializers.ModelSerializer):
 
-class UserProfileSerializer(serializers.ModelSerializer):
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        fields = ['username','first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
         read_only_fields = ['email']
+
+   
 
 
 # Patogh start----------------------------------------------------------------------------------

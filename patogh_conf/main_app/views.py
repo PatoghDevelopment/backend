@@ -16,7 +16,7 @@ from pyotp.totp import TOTP
 from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
 from .serializers import  EmailSerializer, SignupSerializer
-from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
+from .serializers import  SignupSerializer,PatoghSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
@@ -200,13 +200,13 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-class UserProfileView(RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = (permissions.AllowAny,)
+# class UserProfileView(RetrieveUpdateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserProfileSerializer
+#     permission_classes = (permissions.AllowAny,)
 
-    def get_object(self):
-        return self.request.user
+#     def get_object(self):
+#         return self.request.user
 
 
 class UserParties(generics.ListAPIView):
