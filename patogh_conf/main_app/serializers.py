@@ -80,7 +80,7 @@ class SignupSerializer(serializers.Serializer):
 
 class SigninSerializer(serializers.Serializer):
     username = serializers.CharField(
-        label=_("نام کاربری"),
+        label=_("ایمیل"),
         write_only=True        
     )
 

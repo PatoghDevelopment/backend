@@ -18,6 +18,9 @@ from django.template.defaultfilters import default, filesizeformat
 from django.contrib.auth.hashers import make_password
 from django.apps import apps
 
+from random import choice
+from string import ascii_lowercase, digits
+
 class UserManager(BaseUserManager):
 
     def create_user(self,email, password=None, **kwargs):
@@ -129,8 +132,22 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
+
+def generate_random_username(length=16, chars=ascii_lowercase+digits, split=4, delimiter='-'):
+    
+    username = ''.join([choice(chars) for i in range(length)])
+    
+    if split:
+        username = delimiter.join([username[start:start+split] for start in range(0, len(username), split)])
+    
+    try:
+        User.objects.get(username=username)
+        return generate_random_username(length=length, chars=chars, split=split, delimiter=delimiter)
+    except User.DoesNotExist:
+        return username;
+
 class User(AbstractUser):
-    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
+    username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True, default=generate_random_username)
     first_name = models.CharField(verbose_name=_("نام"),max_length=100,null = True , blank = True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"),max_length=100,null = True , blank = True)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True )
