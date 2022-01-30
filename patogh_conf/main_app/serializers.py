@@ -79,7 +79,7 @@ class SignupSerializer(serializers.Serializer):
 
 
 class SigninSerializer(serializers.Serializer):
-    username = serializers.CharField(
+    email = serializers.EmailField(
         label=_("ایمیل"),
         write_only=True        
     )
@@ -97,17 +97,14 @@ class SigninSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        username = attrs.get('username')
+        email = attrs.get('email')
         password = attrs.get('password')
         
-        if username and password :
-            user1 = authenticate(request=self.context.get('request'),
-                                username=username, password = password)
-            
-            # if User.objects.filter(email=username).exists():
-            #     user2 = User.objects.get(email = username)
-            
-            if not (user1 ):
+        if email and password :
+            # user1 = None
+            if User.objects.filter(email=email , password = password).exists():
+                user1 = User.objects.get(email = email)
+            else:
                 msg = _("کاربر با این مشخصات وجود ندارد")
                 raise serializers.ValidationError(msg, code= 'authorization')
         else:
@@ -116,10 +113,6 @@ class SigninSerializer(serializers.Serializer):
 
         if user1:
             attrs['user'] = user1
-        else :
-            msg = _(".......کاربر پیدا نشد")
-            raise serializers.ValidationError(msg, code = 'authorization')
-        #     attrs['user'] = user2
 
         return attrs
 
@@ -150,7 +143,7 @@ class RestPasswordSerializer(serializers.Serializer):
         password1 = attrs.get('password1')
         password2 = attrs.get('password2')
         user = User.objects.filter(email=email).first()
-        if user:
+        if User.objects.filter(email=email).exists():
             if password1 != password2:
                 msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
                 raise serializers.ValidationError(msg, code='conflict')

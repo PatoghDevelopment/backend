@@ -180,7 +180,7 @@ class ResetPasswordView(generics.UpdateAPIView):
         serializer.is_valid()
         email = serializer.validated_data.get('email')
         user = User.objects.filter(email=email).first()
-        user.password = make_password(serializer.validated_data.get('password1'))
+        user.password = serializer.validated_data.get('password1')
         user.save()
         ok_response = {
             'status': 'موفقیت آمیز',
