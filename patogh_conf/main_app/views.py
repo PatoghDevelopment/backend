@@ -181,12 +181,14 @@ class ResetPasswordView(generics.UpdateAPIView):
         email = serializer.validated_data.get('email')
         user = User.objects.filter(email=email).first()
         user.password = serializer.validated_data.get('password1')
+        # user.set_password(serializer.validated_data.get('password1'))
         user.save()
         ok_response = {
             'status': 'موفقیت آمیز',
             'code': status.HTTP_200_OK,
             'message': 'پسورد با موفقیت بروز شد',
-            'temp': user.password,
+            'temp': serializer.validated_data.get('password1'),
+            'temp2': user.password ,
             'data': []
         }
         return Response(ok_response)
