@@ -128,7 +128,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
+        fields = ['first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio']
    
 
 class VerifyOTPSerializer(serializers.ModelSerializer):
@@ -177,7 +177,7 @@ class CityListSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender_status', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
+        fields = ['first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
         read_only_fields = ['email']
 
 
