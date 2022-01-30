@@ -186,6 +186,7 @@ class ResetPasswordView(generics.UpdateAPIView):
             'status': 'موفقیت آمیز',
             'code': status.HTTP_200_OK,
             'message': 'پسورد با موفقیت بروز شد',
+            'temp': user.password,
             'data': []
         }
         return Response(ok_response)
