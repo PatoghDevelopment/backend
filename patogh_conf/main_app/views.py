@@ -89,7 +89,7 @@ class BaseSendOTP(generics.GenericAPIView):
 class SingUpSendOTP(BaseSendOTP):
 
     def validate_email(self):
-        serializer = EmailSerializer(data=self.request.data)
+        serializer = EmailSerializerSignup(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user_email = serializer.data['email']
         obj_user = User.objects.filter(email=user_email).first()
@@ -101,7 +101,7 @@ class SingUpSendOTP(BaseSendOTP):
 class ResetPasswordSendOTP(BaseSendOTP):
 
     def validate_email(self):
-        serializer = EmailSerializer(data=self.request.data)
+        serializer = EmailSerializerResetPassword(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user_email = serializer.data['email']
         obj_user = User.objects.filter(email=user_email).first()

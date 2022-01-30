@@ -6,13 +6,58 @@ from rest_framework.generics import get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
 import datetime
+from .models import Patogh
 
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-from .models import Patogh
+class EmailSerializerResetPassword(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        
+        if email:
+            if not User.objects.filter(email=email).exists():
+                msg = _("کاربر با این مشخصات وجود ندارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
+        #     else:
+        #         msg = _("کاربر با این مشخصات وجود ندارد")
+        #         raise serializers.ValidationError(msg, code= 'authorization')
+        # else:
+        #     msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+        #     raise serializers.ValidationError(msg, code = 'authorization')
+
+        # if user1:
+        #     attrs['user'] = user1
+        return attrs
+    
+class EmailSerializerSignup(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        
+        if email:
+            if User.objects.filter(email=email).exists():
+                msg = _("کاربر با این مشخصات وجود دارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
+        #     else:
+        #         msg = _("کاربر با این مشخصات وجود ندارد")
+        #         raise serializers.ValidationError(msg, code= 'authorization')
+        # else:
+        #     msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+        #     raise serializers.ValidationError(msg, code = 'authorization')
+
+        # if user1:
+        #     attrs['user'] = user1
+
+        return attrs
+
+
+
 
 
 class SignupSerializer(serializers.Serializer):
