@@ -173,7 +173,7 @@ class Signin(generics.GenericAPIView):
 class ResetPasswordView(generics.UpdateAPIView):
     serializer_class = RestPasswordSerializer
     model = User
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = [permissions.AllowAny]  
 
     def update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
