@@ -146,9 +146,14 @@ class SigninSerializer(serializers.Serializer):
         password = attrs.get('password')
         
         if email and password :
-            # user1 = None
-            if User.objects.filter(email=email , password = password).exists():
+
+            if User.objects.filter(email=email, password = password).exists():
                 user1 = User.objects.get(email = email)
+
+            elif User.objects.filter(email=email).exists():
+                user = User.objects.filter(email=email).first()
+                msg = _(user.password+"رمز عبور اشتباه است")
+                raise serializers.ValidationError(msg, code= 'authorization')
             else:
                 msg = _("کاربر با این مشخصات وجود ندارد")
                 raise serializers.ValidationError(msg, code= 'authorization')
