@@ -153,6 +153,7 @@ class SigninSerializer(serializers.Serializer):
                 msg = _(user.password+"رمز عبور اشتباه است")
                 raise serializers.ValidationError(msg, code= 'authorization')
 
+
         else:
             msg = _("کاربر با این مشخصات وجود ندارد")
             raise serializers.ValidationError(msg, code= 'authorization')
