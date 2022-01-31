@@ -145,39 +145,36 @@ class SigninSerializer(serializers.Serializer):
         email = attrs.get('email')
         password = attrs.get('password')
         
-        user = User.objects.get(email=email)
-        if user:
-            if user.check_password(password):
-                attrs['user'] = user
-            else:
+        # user = User.objects.get(email=email)
+        # if user:
+        #     if user.check_password(password):
+        #         attrs['user'] = user
+        #     else:
+        #         msg = _("رمز عبور اشتباه است")
+        #         raise serializers.ValidationError(msg, code= 'authorization')
+        # else:
+        #     msg = _("کاربر با این مشخصات وجود ندارد")
+        #     raise serializers.ValidationError(msg, code= 'authorization')
+
+        
+        if email and password :
+
+            if User.objects.filter(email=email, password = password).exists():
+                user1 = User.objects.get(email = email)
+
+            elif User.objects.filter(email=email).exists() :
+                user = User.objects.filter(email=email).first()
                 msg = _(user.password+"رمز عبور اشتباه است")
                 raise serializers.ValidationError(msg, code= 'authorization')
-
-
+            else:
+                msg = _("کاربر با این مشخصات وجود ندارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
         else:
-            msg = _("کاربر با این مشخصات وجود ندارد")
-            raise serializers.ValidationError(msg, code= 'authorization')
-        # if email and password :
-        #     user2 = authenticate(email=email, password=password)
+            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+            raise serializers.ValidationError(msg, code = 'authorization')
 
-        #     if User.objects.filter(email=email, password = password).exists():
-        #         user1 = User.objects.get(email = email)
-
-        #     elif User.objects.filter(email=email).exists() and not user2:
-        #         user = User.objects.filter(email=email).first()
-        #         msg = _(user.password+"رمز عبور اشتباه است")
-        #         raise serializers.ValidationError(msg, code= 'authorization')
-        #     # else:
-        #     #     msg = _("کاربر با این مشخصات وجود ندارد")
-        #     #     raise serializers.ValidationError(msg, code= 'authorization')
-        # else:
-        #     msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
-        #     raise serializers.ValidationError(msg, code = 'authorization')
-
-        # if user2:
-        #     attrs['user'] = user2
-        # elif user1:
-        #     attrs['user'] = user1
+        if user1:
+            attrs['user'] = user1
 
         return attrs
 
