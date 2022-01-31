@@ -188,8 +188,6 @@ class ResetPasswordView(generics.GenericAPIView):
             'status': 'موفقیت آمیز',
             'code': status.HTTP_200_OK,
             'message': 'پسورد با موفقیت بروز شد',
-            'temp': serializer.validated_data.get('password1'),
-            'temp2': user.password ,
             'data': []
         }
         return Response(ok_response)
@@ -201,7 +199,6 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
 
 # class UserProfileView(RetrieveUpdateAPIView):
 #     queryset = User.objects.all()

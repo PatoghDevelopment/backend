@@ -231,6 +231,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username','first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'mobile_number', 'bio', 'score']
         read_only_fields = ['email']
 
+    def validate(self, attrs):
+        if attrs['username']:
+            username = attrs.get('username')
+            if User.objects.filter(username=username).exists():
+                msg = _("کاربر با این نام کاربری وجود دارد")
+                raise serializers.ValidationError(msg, code= 'authorization')
+
+        return attrs
    
 
 
