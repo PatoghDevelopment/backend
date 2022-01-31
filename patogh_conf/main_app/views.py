@@ -100,6 +100,7 @@ class SingUpSendOTP(BaseSendOTP):
 
 class ResetPasswordSendOTP(BaseSendOTP):
 
+    permission_classes = [permissions.AllowAny]
     def validate_email(self):
         serializer = EmailSerializerResetPassword(data=self.request.data)
         serializer.is_valid(raise_exception=True)
