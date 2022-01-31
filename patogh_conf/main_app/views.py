@@ -171,12 +171,12 @@ class Signin(generics.GenericAPIView):
 # for changing the password
 
 
-class ResetPasswordView(generics.UpdateAPIView):
+class ResetPasswordView(generics.GenericAPIView):
     serializer_class = RestPasswordSerializer
     model = User
     permission_classes = [permissions.AllowAny]  
 
-    def update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid()
         email = serializer.validated_data.get('email')
