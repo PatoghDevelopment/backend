@@ -146,8 +146,7 @@ class SigninSerializer(serializers.Serializer):
         password = attrs.get('password')
         
         if email and password :
-            user2 = authenticate(request=self.context.get('request'),
-                                email=email, password=password)
+            user2 = authenticate(email=email, password=password)
 
             if User.objects.filter(email=email, password = password).exists():
                 user1 = User.objects.get(email = email)
