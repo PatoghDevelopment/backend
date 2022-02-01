@@ -131,7 +131,7 @@ class PatoghDetailLimitedColumn(APIView):
         return Response(serializer.data)
 
 
-class PatoghCreateAndUpdate(APIView):
+class PatoghCreateAndUpdateAndDelete(APIView):
     permission_classes = (AllowAny,)
     def post(self, request, format=None):
         serializer = PatoghAndOtherModelSerializer(data=request.data)
@@ -140,8 +140,19 @@ class PatoghCreateAndUpdate(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def put(self, request, pk, format=None):
-    #     serializers = PatoghAndOtherModelSerializer(data=request.data)
+    def delete(self, request, pk, format=None):
+        patoghInfo = self.get_object(pk)
+        patoghInfo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, pk, format=None):
+        patoghinfo = self.get_object(pk)
+        serializer = PatoghAndOtherModelSerializer(patoghinfo, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

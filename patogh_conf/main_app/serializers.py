@@ -223,12 +223,12 @@ class PatoghMembersSerializer(serializers.ModelSerializer):
 
 
 class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
-    patoghinfo = PatoghInfoLimitedSerializer()
+    patogh = PatoghSerializer()
     patoghhaveimages = PatoghHaveImagesSerializer()
     patoghmembers = PatoghMembersSerializer()
     class Meta:
-        model = Patogh
-        fields = ('id','start_time', 'end_time','patogh_id','patoghinfo', 'patoghhaveimages', 'patoghmembers')
+        model = PatoghInfo
+        fields = '__all__'
 
     def create(self, validated_data):
         patogh = validated_data.pop('patogh')
@@ -242,7 +242,56 @@ class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
 
         return patoghinfo
     
-    
+    def update(self, instance, validated_data):
+        patoghs_data = validated_data.pop('patogh')
+        patoghhaveimages_data = validated_data.pop('patoghhaveimages')
+        patoghmembers_data = validated_data.pop('patoghmembers')
+        
+        patoghs = (instance.patogh).all()
+        patoghs = list(patoghs)
+
+        patoghhaveimages = (instance.patoghhaveimages).all()
+        patoghhaveimages = list(patoghhaveimages)
+
+        patoghmemberss = (instance.patoghmembers).all()
+        patoghmemberss  = list(patoghmemberss)  
+
+        
+        instance.name = validated_data.get('name', instance.name)
+        instance.profile_image = validated_data.get('profile_image', instance.profile_image)
+        instance.description = validated_data.get('description', instance.description)
+        instance.type = validated_data.get('type', instance.type)
+        instance.creation_time = validated_data.get('creation_time', instance.creation_time)
+        instance.address = validated_data.get('address', instance.address)
+        instance.category_id = validated_data.get('category_id', instance.category_id)
+        instance.city_id = validated_data.get('city_id', instance.city_id)
+        instance.creator_id = validated_data.get('creator_id', instance.creator_id)
+        instance.save()
+
+        for patogh_data in patoghs_data:
+            patogh = patoghs.pop(0)
+            patogh.start_time = patogh_data.get('start_time', patogh.start_time)
+            patogh.end_time = patogh_data.get('end_time', patogh.end_time)
+            patogh.save()
+        
+        for patoghhaveimage_data in patoghhaveimages_data:
+            patoghhaveimage = patoghhaveimages.pop(0)
+            patoghhaveimage.image_url = patoghhaveimage_data.get('image_url', patoghhaveimage.image_url)
+            patoghhaveimage.status = patoghhaveimage_data.get('status', patoghhaveimage.status)
+            patoghhaveimage.send_time = patoghhaveimage_data.get('send_time', patoghhaveimage.send_time)
+            patoghhaveimage.save()
+        
+        for patoghmember_data in patoghmembers_data:
+            patoghmembers = patoghmemberss.pop(0)
+            patoghmembers.state =  patoghmember_data.get('state', patoghmembers.state)
+            patoghmembers.time =  patoghmember_data.get('time', patoghmembers.time)
+            patoghmembers.email_id =  patoghmember_data.get('email_id', patoghmembers.email_id)
+            patoghmembers.save()
+        
+        return instance
+
+            
+
 
 
 # Patogh end ----------------------------------------------------------------------------------
