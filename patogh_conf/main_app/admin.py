@@ -38,7 +38,7 @@ class UserAdmin(admin.ModelAdmin):
     autocomplete_fields = ['city']
     fieldsets = (
         (None, {'fields': ('username','email','mobile_number','password')}),
-        (_("اصل"), {'fields': ('birthdate','first_name','last_name','city')}),
+        (_("اصل"), {'fields': ('birth_date','first_name','last_name','city')}),
         (_("اطلاعت دیگر"),{'fields': ('gender','avatar','bio','score')}),
     )
 

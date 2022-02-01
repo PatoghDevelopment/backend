@@ -18,7 +18,6 @@ from rest_framework import permissions , generics, serializers, status
 from rest_framework.views import APIView
 from .serializers import  EmailSerializer, SignupSerializer
 from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
-from .serializers import ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
@@ -48,10 +47,14 @@ def generateOTP():
     return one_time
 
 
-class SendOTP(generics.GenericAPIView):
+class BaseSendOTP(generics.GenericAPIView):
     """
         get just user's email for sending OTP to verify email.
     """
+
+    def validate_email(self):
+        pass
+
     serializer_class = EmailSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -65,30 +68,48 @@ class SendOTP(generics.GenericAPIView):
         },
     )
     def post(self, request):
-        serializer = EmailSerializer(data=request.data)
+        user_email, obj_user = self.validate_email()
+        pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
+        otp = generateOTP()
+        if pending_verify_obj:
+            time_now = timezone.now()
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                pending_verify_obj.otp = otp
+                pending_verify_obj.send_time = time_now
+                pending_verify_obj.save()
+            else:
+                print(user_email)
+                return Response(status=status.HTTP_200_OK)
+        else:
+            instance = PendingVerify(receptor=user_email, otp=otp)
+            instance.save()
+        print(user_email)
+        utils.send_email(otp, user_email)
+        return Response(status=status.HTTP_201_CREATED)
+
+class SingUpSendOTP(BaseSendOTP):
+
+    def validate_email(self):
+        serializer = EmailSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user_email = serializer.data['email']
         obj_user = User.objects.filter(email=user_email).first()
-        pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
-        otp = generateOTP()
         if not obj_user:
-            if pending_verify_obj:
-                time_now = timezone.now()
-                if time_now > (pending_verify_obj).send_time + datetime.timedelta(minutes=2):
-                    pending_verify_obj.otp = otp
-                    pending_verify_obj.send_time = time_now
-                    pending_verify_obj.save()
-                else:
-                    print(user_email)
-                    return Response(status=status.HTTP_200_OK)
-            else:
-                instance = PendingVerify(receptor=user_email, otp=otp)
-                instance.save()
-            print(user_email)
-            utils.send_email(otp, user_email)
-            return Response(status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return user_email, obj_user
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ResetPasswordSendOTP(BaseSendOTP):
+
+    def validate_email(self):
+        serializer = EmailSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        user_email = serializer.data['email']
+        obj_user = User.objects.filter(email=user_email).first()
+        if obj_user:
+            return user_email, obj_user
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 # Patogh
@@ -150,41 +171,41 @@ class Signup(generics.CreateAPIView):
         user_obj = serializer.save()
         return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
 
+
+class Signin(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]  
+    serializer_class = SigninSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+
+
 # for changing the password
 
-class ChangePasswordView(generics.UpdateAPIView):
 
-        serializer_class = ChangePasswordSerializer
-        model = User
-        permission_classes = (permissions.IsAuthenticated,)
+class ResetPasswordView(generics.UpdateAPIView):
+    serializer_class = RestPasswordSerializer
+    model = User
+    permission_classes = (permissions.AllowAny,)
 
-        http_method_names = ['put']
-        
-        def get_object(self, queryset=None):
-            obj = self.request.user
-            return obj
-
-        def update(self, request, *args, **kwargs):
-            self.object = self.get_object()
-            serializer = self.get_serializer(data=request.data)
-
-            if serializer.is_valid():
-                # Check old password
-                if not self.object.check_password(serializer.data.get("old_password")):
-                    return Response({"پسورد قدیمی": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-                # set_password also hashes the password that the user will get
-                self.object.set_password(serializer.data.get("new_password"))
-                self.object.save()
-                response = {
-                    'status': 'موفقیت آمیز',
-                    'code': status.HTTP_200_OK,
-                    'message': 'پسورد با موفقیت بروز شد',
-                    'data': []
-                }
-
-                return Response(response)
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid()
+        email = serializer.validated_data.get('email')
+        user = User.objects.filter(email=email).first()
+        user.password = make_password(serializer.validated_data.get('password1'))
+        user.save()
+        ok_response = {
+            'status': 'موفقیت آمیز',
+            'code': status.HTTP_200_OK,
+            'message': 'پسورد با موفقیت بروز شد',
+            'data': []
+        }
+        return Response(ok_response)
 
 
 class UserInfoApiView(generics.RetrieveUpdateAPIView):
