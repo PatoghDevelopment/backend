@@ -195,6 +195,41 @@ class PatoghLimitSerializer(serializers.ModelSerializer):
         model = Patogh
         fields = ('id','start_time','patoghinfo')
 
+
+class PatoghHaveImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatoghHaveImages
+        fields = "__all__"
+
+class PatoghMembersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatoghMembers
+        fields = "__all__"
+
+
+class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
+    patoghinfo = PatoghInfoLimitedSerializer()
+    patoghhaveimages = PatoghHaveImagesSerializer()
+    patoghmembers = PatoghMembersSerializer()
+    class Meta:
+        model = Patogh
+        fields = ('id','start_time', 'end_time','patogh_id','patoghinfo', 'patoghhaveimages', 'patoghmembers')
+
+    def create(self, validated_data):
+        patogh = validated_data.pop('patogh')
+        patoghhaveimages = validated_data.pop('patoghhaveimages')
+        patoghmembers = validated_data.pop('patoghmembers')
+        patoghinfo = PatoghInfo.objects.create(**validated_data)
+        Patogh.objects.create(patogh_id_id=patoghinfo, **patogh)
+        PatoghHaveImages.objects.create(patogh_id_id=patoghinfo, **patoghhaveimages)
+        PatoghMembers.objects.create(patogh_id_id=patoghinfo, **patoghmembers)
+
+
+        return patoghinfo
+    
+    
+
+
 # Patogh end ----------------------------------------------------------------------------------
 
 

@@ -1,10 +1,9 @@
 from django.urls import path
 from rest_framework import views
-from .views import *
 from .views import  PatoghDetailLimitedColumn
 from .views import UserInfoApiView , Signup
 from django.urls.resolvers import URLPattern
-
+from .views import *
 
 urlpatterns = [
     #athentication paths
@@ -14,6 +13,7 @@ urlpatterns = [
     # Patogh paths
     path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
     path('patogh/detail/limit/<uuid:pk>/', PatoghDetailLimitedColumn.as_view(), name="patogh_detail_limited_column"),
+    path('patogh/createAndUpdate/', PatoghCreateAndUpdate.as_view(), name='patoghCreateAndUpdate'),
     # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
     #user paths

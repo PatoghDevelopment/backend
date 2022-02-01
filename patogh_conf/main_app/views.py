@@ -1,4 +1,5 @@
 import datetime
+from pickle import PUT
 from django import utils
 from django.db.models import Q
 from http.client import ImproperConnectionState, responses
@@ -107,6 +108,22 @@ class PatoghDetailLimitedColumn(APIView):
         serializer = PatoghLimitSerializer()
         
         return Response(serializer.data)
+
+
+class PatoghCreateAndUpdate(APIView):
+    permission_classes = (AllowAny,)
+    def post(self, request, format=None):
+        serializer = PatoghAndOtherModelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def put(self, request, pk, format=None):
+    #     serializers = PatoghAndOtherModelSerializer(data=request.data)
+
+
+
 
 
 
