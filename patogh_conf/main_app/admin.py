@@ -51,8 +51,9 @@ class PatoghInfoAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('id','creator','name','type')}),
         (_("آدرس"),{'fields': ('address','city')}),
-        (_("اطلاعات دیگر"),{'fields': ('category','description','creation_time','profile_image_url')})
+        (_("اطلاعات دیگر"),{'fields': ('category','description','creation_time','profile_image')})
     )
+    readonly_fields =['creation_time']
 
 class PendingVerifyAdmin(admin.ModelAdmin):
     ordering = ['send_time']
@@ -72,6 +73,8 @@ class PartyAdmin(admin.ModelAdmin):
         (_("فیلتر ها"), {'fields': ('start_time','end_time','gender_filter','members_count','min_age','max_age')}),
         (_("اطلاعات دیگر"),{'fields': ('description','tags_id')})
     )
+    readonly_fields =['creation_time']
+
 
 class PatoghAdmin(admin.ModelAdmin):
     ordering = ['patogh_id','id']

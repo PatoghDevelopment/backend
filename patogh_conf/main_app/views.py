@@ -8,12 +8,14 @@ from django.http import response
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 
+from .filters import PatoghInfoFilter
+
 from .models import *
 from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from pyotp import otp
 from pyotp.totp import TOTP
-from rest_framework import permissions , generics, serializers, status
+from rest_framework import permissions ,filters, generics, serializers, status
 from rest_framework.views import APIView
 from .serializers import  EmailSerializer, SignupSerializer
 from .serializers import  SignupSerializer,PatoghSerializer, UserSerializer
@@ -37,6 +39,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 import pyotp
 from .serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 # SignIn Sign out view----------------------
 def generateOTP():
@@ -121,6 +125,7 @@ class PatoghDetail(APIView):
         serializer = PatoghSerializer()
         
         return Response(serializer.data)
+        
 
 class PatoghDetailLimitedColumn(APIView):
     permission_classes = (AllowAny,)
@@ -153,7 +158,8 @@ class Signup(generics.CreateAPIView):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_obj = serializer.save()
-        return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
+        token, created = Token.objects.get_or_create(user=user_obj)
+        return Response(data={'token': token.key}, status=status.HTTP_201_CREATED)
 
 
 class Signin(generics.GenericAPIView):
@@ -216,3 +222,48 @@ class UserParties(generics.ListAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+
+class CityList(generics.ListAPIView):
+    queryset = City.objects.all()
+    serializer_class = CityListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = None
+
+# class PatoghCreateAndUpdateAndDelete(APIView):
+#     permission_classes = (AllowAny,)
+#     serializer_class = PatoghAndOtherModelSerializer
+
+#     def post(self, request, format=None):
+#         serializer = PatoghAndOtherModelSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, pk, format=None):
+#         patoghInfo = self.get_object(pk)
+#         patoghInfo.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+#     def put(self, request, *args, **kwargs):
+#         pk = self.kwargs.get('pk')
+#         patoghinfo = self.get_object(pk)
+#         serializer = PatoghAndOtherModelSerializer(patoghinfo, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# we should develop like this---------------------------------------warning
+# class PatoghInfoListCreate(generics.ListCreateAPIView):
+#     serializer_class = PatoghInfoListCreateSerializer
+#     permission_classes = [AllowAny]
+#     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+#     search_fields = ['id', 'title']
+#     filterset_class = PatoghInfoFilter
+#     pagination_class = None
+
+#     def get_queryset(self):
+#         return PatoghInfo.objects.all()

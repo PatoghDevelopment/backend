@@ -1,7 +1,7 @@
 from enum import auto
 from django.contrib.auth.base_user import BaseUserManager
 from django.core import validators
-from django.db import models
+from django.db import models, transaction
 import uuid
 from datetime import date
 import hashlib
@@ -216,7 +216,7 @@ class Party(models.Model):
 
 class PatoghInfo(models.Model):
     id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"),default=uuid.uuid4,help_text="Unique Id for this gathering")
-    creator = models.ForeignKey(User,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True )
+    creator = models.ForeignKey(User,verbose_name=_("شناسه پدید آورنده"), on_delete=models.PROTECT , null= True, blank=True )
     name = models.CharField(verbose_name=_("نام"),max_length=50 , null = True , blank=True)
     profile_image = models.ImageField(verbose_name=_("عکس پاتوق"),
                                            upload_to = patogh_image_directory_path ,
@@ -228,9 +228,9 @@ class PatoghInfo(models.Model):
         ('0', 'public'),
         ('1', 'private')
     )
-    type = models.CharField(verbose_name=_("حالت دورهمی"),default='1', choices=state, max_length= 10)
-    creation_time = models.DateTimeField(verbose_name=_("زمان ساخت پاتوق"),help_text="Creation time for the patogh",auto_now_add=True)
-    category = models.ForeignKey(PatoghCategory,verbose_name=_("نوع پاتوق"), on_delete=models.PROTECT , null= True )
+    type = models.CharField(verbose_name=_("حالت دورهمی"),default='0', choices=state, max_length= 10)
+    creation_time = models.DateTimeField(verbose_name=_("زمان ساخت پاتوق"),help_text="Creation time for the patogh",auto_now_add=True, null =True)
+    category = models.ForeignKey(PatoghCategory,verbose_name=_("نوع پاتوق"), on_delete=models.PROTECT , null= True, blank=True )
     address = models.CharField(verbose_name=_("آدرس"), max_length=1000, null=True, blank=True)
 
 
@@ -239,8 +239,8 @@ class PatoghInfo(models.Model):
 
     class Meta:
         ordering = ['id']
-        verbose_name = _('دورهمی')
-        verbose_name_plural = _('دورهمی ها')
+        verbose_name = _('اطلاعات دورهمی')
+        verbose_name_plural = _('اطلاعات دورهمی ها')
 
 
 class Patogh(models.Model):
@@ -251,6 +251,36 @@ class Patogh(models.Model):
 
     def __str__(self):
         return self.id
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if not hasattr(self,"patogh_id"):
+            self.patogh_id, _ = PatoghInfo.objects.get_or_create(id = self.id)
+
+        super(Patogh, self).save(*args, **kwargs)
+
+    # def create_patogh_patoghinfo(instance, created, raw, **kwargs):
+    #     # Ignore fixtures and saves for existing courses.
+    #     if not created or raw:
+    #         return
+
+    #     if not instance.patogh_id_id:
+    #         group, _ = PatoghInfo.objects.get_or_create(name='_course_' + self.id + '_student')
+    #         instance.student_group = group
+
+    #     if not instance.teacher_group_id:
+    #         teacher_group, _ = Group.objects.get_or_create(name='_course_' + self.id + '_teacher')
+    #         instance.teacher_group = teacher_group
+
+    #     instance.save()
+
+    # models.signals.post_save.connect(create_course_groups, sender=Course, dispatch_uid='create_course_groups')
+    # @transaction.atomic
+    # def save(self, *args, **kwargs):
+    #     if not self.patogh_id_id:
+    #         self.patogh_id, _ = PatoghInfo.objects.get_or_create(id= self.id)
+
+    #     super(Patogh, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['id']

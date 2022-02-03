@@ -16,6 +16,7 @@ urlpatterns = [
 
 
     # Patogh paths
+    # path('patogh/cr_up_del/', PatoghInfoListCreate.as_view(), name="patogh_detail"), #create and delete and update patogh
     path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
     path('patogh/detail/limit/<uuid:pk>/', PatoghDetailLimitedColumn.as_view(), name="patogh_detail_limited_column"),
     # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
@@ -26,4 +27,8 @@ urlpatterns = [
 
     # users parties
     path('parties/', UserParties.as_view(), name="user_parties"),
+
+    #City API
+    path('city_list/', CityList.as_view(), name="city_list"),
+
 ]
