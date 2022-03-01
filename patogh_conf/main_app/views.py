@@ -1,43 +1,14 @@
-import datetime
-from pickle import PUT
 from django import utils
-from django.db.models import Q
-from http.client import ImproperConnectionState, responses
-import inspect
-from django.db import models
-from django.http import response
-from rest_framework.decorators import api_view
-from django.shortcuts import render
-
-from .models import *
-from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
-from pyotp import otp
-from pyotp.totp import TOTP
-from rest_framework import permissions , generics, serializers, status
+from rest_framework import permissions, generics, status
 from rest_framework.views import APIView
-from .serializers import  EmailSerializer, SignupSerializer
-from .serializers import  SignupSerializer, UserProfileSerializer,PatoghSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
-from .models import PendingVerify, User,City,PatoghMembers
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
 from . import utils
-from django.db.models import Count
-from rest_framework import viewsets
-from django.contrib.auth.models import update_last_login
-from django.conf import settings
-from django.core.mail import send_mail
-import pyotp
-import socket
-from rest_framework.generics import get_object_or_404
-from django.utils import timezone
-from django.core.mail import send_mail
 import pyotp
 from .serializers import *
+
 
 # SignIn Sign out view----------------------
 def generateOTP():
@@ -87,6 +58,7 @@ class BaseSendOTP(generics.GenericAPIView):
         utils.send_email(otp, user_email)
         return Response(status=status.HTTP_201_CREATED)
 
+
 class SingUpSendOTP(BaseSendOTP):
 
     def validate_email(self):
@@ -111,28 +83,31 @@ class ResetPasswordSendOTP(BaseSendOTP):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-
 # Patogh
 
 class PatoghDetail(APIView):
     permission_classes = (AllowAny,)
+
     def get(self, request, pk, format=None):
         queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
         serializer = PatoghSerializer()
-        
+
         return Response(serializer.data)
+
 
 class PatoghDetailLimitedColumn(APIView):
     permission_classes = (AllowAny,)
+
     def get(self, request, pk, format=None):
         queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
         serializer = PatoghLimitSerializer()
-        
+
         return Response(serializer.data)
 
 
 class PatoghCreateAndUpdateAndDelete(APIView):
     permission_classes = (AllowAny,)
+
     def post(self, request, format=None):
         serializer = PatoghAndOtherModelSerializer(data=request.data)
         if serializer.is_valid():
@@ -152,11 +127,6 @@ class PatoghCreateAndUpdateAndDelete(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
 
 
 # it will send the mail with changed password which is generated randomly
@@ -184,7 +154,7 @@ class Signup(generics.CreateAPIView):
 
 
 class Signin(generics.GenericAPIView):
-    permission_classes = [permissions.AllowAny]  
+    permission_classes = [permissions.AllowAny]
     serializer_class = SigninSerializer
 
     def post(self, request, *args, **kwargs):
@@ -227,10 +197,10 @@ class UserInfoApiView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-class UserProfileView(RetrieveUpdateAPIView):
+class UserProfileView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.AllowAny)
 
     def get_object(self):
         return self.request.user
