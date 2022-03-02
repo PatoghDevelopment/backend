@@ -17,7 +17,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -30,7 +29,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", '').split(
     " ") if os.environ.get("DJANGO_ALLOWED_HOSTS", '') else []
-
 
 # Application definition
 
@@ -50,8 +48,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_pyotp',
     'django_rest_passwordreset',
-    
-    
+
 ]
 
 AUTH_USER_MODEL = 'main_app.User'
@@ -67,26 +64,24 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 CORS_ALLOWED_ORIGINS = [
-    'https://api.patogh.markop.ir',
-    "http://localhost:3000/enteremail",
-    "http://localhost:3000/signup",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    'https://patogh.markop.ir/enteremail',
-    'https://patogh.markop.ir/signup',
-    'http://localhost:3000/signin',
-    'http://localhost:3000/backuppassword2',
-    'http://localhost:3000/backuppassword1',
-    'http://localhost:3000/profile',
-    'https://patogh.markop.ir/signin',
-    'https://patogh.markop.ir/backuppassword2',
-    'https://patogh.markop.ir/backuppassword1',
-    'https://patogh.markop.ir/profile'   
+    # 'https://api.patogh.markop.ir',
+    # "http://localhost:3000/enteremail",
+    # "http://localhost:3000/signup",
+    # "http://localhost:8000",
+    # "http://127.0.0.1:8000",
+    # 'https://patogh.markop.ir/enteremail',
+    # 'https://patogh.markop.ir/signup',
+    # 'http://localhost:3000/signin',
+    # 'http://localhost:3000/backuppassword2',
+    # 'http://localhost:3000/backuppassword1',
+    # 'http://localhost:3000/profile',
+    # 'https://patogh.markop.ir/signin',
+    # 'https://patogh.markop.ir/backuppassword2',
+    # 'https://patogh.markop.ir/backuppassword1',
+    # 'https://patogh.markop.ir/profile'
 
 ]
-
 
 ROOT_URLCONF = 'patogh.urls'
 
@@ -108,21 +103,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'patogh.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
+    #     'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
+    #     'USER': os.environ.get('SQL_USER', 'user'),
+    #     'PASSWORD': os.environ.get('SQL_PASSWORD', 'User4321!'),
+    #     'HOST': os.environ.get('SQL_HOST', '127.0.0.1'),
+    # }
     'default': {
-        'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
-        'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
-        'USER': os.environ.get('SQL_USER', 'user'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD', 'User4321!'),
-        'HOST': os.environ.get('SQL_HOST', '127.0.0.1'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 REST_FRAMEWORK = {
 
@@ -132,22 +129,22 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_RENDERER_CLASSES': [
-    'rest_framework.renderers.JSONRenderer',
-    'rest_framework.renderers.BrowsableAPIRenderer'
-        ],
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ],
     'DEFAULT_PERMISSION_CLASSES':
         ('rest_framework.permissions.IsAuthenticated',),
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-    'rest_framework.authentication.TokenAuthentication',
-    'rest_framework.authentication.SessionAuthentication',
-    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        ],
-        'DEFAULT_FILTER_BACKENDS': 
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS':
         [
-         'django_filters.rest_framework.DjangoFilterBackend',
-         'rest_framework.filters.SearchFilter',
-         
+            'django_filters.rest_framework.DjangoFilterBackend',
+            'rest_framework.filters.SearchFilter',
+
         ],
 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -161,8 +158,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'this is for find friends and have good time',
     'VERSION': '1.0.0',
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -182,7 +177,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -200,11 +194,10 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATICFILES_DIRS=[
+STATICFILES_DIRS = [
     BASE_DIR / 'media/static-files'
 ]
 
@@ -215,7 +208,7 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
- 
+
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
@@ -230,15 +223,15 @@ EMAIL_USE_TLS = True
 
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
+        'rest_framework_jwt.utils.jwt_encode_handler',
     'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
+        'rest_framework_jwt.utils.jwt_decode_handler',
     'JWT_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_payload_handler',
+        'rest_framework_jwt.utils.jwt_payload_handler',
     'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
+        'rest_framework_jwt.utils.jwt_response_payload_handler',
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     # Time for expiration of token
