@@ -133,7 +133,7 @@ class User(AbstractUser):
         return self.username
 
     class Meta:
-        ordering = ['id']
+        ordering = ['username']
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
 
