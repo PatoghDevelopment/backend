@@ -1,4 +1,5 @@
 from django import utils
+from django.http.response import HttpResponse
 from rest_framework.permissions import AllowAny
 from rest_framework import permissions, generics, status
 from rest_framework.views import APIView
@@ -223,4 +224,55 @@ class FriendRequestListCreate(generics.ListCreateAPIView):
         return FriendRequest.objects.filter(receiver=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user, receiver=get_object_or_404(User, username=self.kwargs['username']))
+        if FriendRequest.objects.filter(sender=self.request.user,
+                                        receiver=get_object_or_404(User, username=self.kwargs['username'])).exists():
+            return Response('شما قبلا به این کاربر درخواست داده اید', status=400)
+        if self.request.user.friends.filter(username=self.kwargs['username']).exists():
+            raise Response('این کاربر از دوستان شماست', status=400)
+        serializer.save(sender=self.request.user,
+                        receiver=get_object_or_404(User, username=self.kwargs['username']))
+
+
+class AcceptFriendRequest(generics.CreateAPIView):
+    serializer_class = FriendRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        req = get_object_or_404(FriendRequest, sender=user, receiver=self.request.user)
+        self.request.user.friends.add(user)
+        user.friends.add(self.request.user)
+        req.delete()
+        return Response('Accepted', status=201)
+
+
+class RemoveFriendRequest(generics.DestroyAPIView):
+    serializer_class = FriendRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        req = get_object_or_404(FriendRequest, sender=user, receiver=self.request.user)
+        req.delete()
+        return Response('Deleted', status=200)
+
+
+class FriendList(generics.ListAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.friends.all()
+
+
+class RemoveFriend(generics.DestroyAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        if not user.friends.filter(username=self.request.user.username).exists():
+            return Response('این کاربر از دوستان شما نیست', status=400)
+        user.friends.remove(self.request.user)
+        self.request.user.friends.remove(user)
+        return Response('Deleted', status=210)
