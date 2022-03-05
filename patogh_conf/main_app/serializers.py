@@ -370,6 +370,15 @@ class UserPartiesSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'avatar')
 
 
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(source='sender.username')
+    receiver = serializers.ReadOnlyField(source='receiver.username')
+
+    class Meta:
+        model = FriendRequest
+        fields = ('sender', 'receiver', 'datetime')
+
+
 
 
 

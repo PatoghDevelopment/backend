@@ -168,6 +168,7 @@ class User(AbstractUser):
     parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
     
     objects = UserManager()
+    friends = models.ManyToManyField('User', verbose_name='دوستان', blank=True)
 
     def __str__(self):
         return self.username
@@ -395,3 +396,23 @@ class UsersHaveFriends(models.Model):
         unique_together = ('sender','receiver')
         verbose_name = _('وضعیت درخواست')
         verbose_name_plural = _('وضعیت درخواست ها')
+
+
+STATUS_CHOICES = [
+    ('a', 'پاسخ داده شده'),
+    ('w', 'در انتظار')
+]
+
+
+class FriendRequest(models.Model):
+    sender = models.ForeignKey(User, verbose_name='فرستنده', related_name='sender', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, verbose_name='گیرنده', related_name='receiver', on_delete=models.CASCADE)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, verbose_name='وضعیت', null=True, blank=True)
+    datetime = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
+
+    class Meta:
+        ordering = ['-datetime']
+        verbose_name = 'درخواست دوستی'
+        verbose_name_plural = 'درخواست های دوستی'
+
+
