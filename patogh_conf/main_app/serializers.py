@@ -381,8 +381,6 @@ class FriendSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'bio')
 
-
-
 # class PatoghInfoListCreateSerializer(serializers.ModelSerializer):
 #     patogh = PatoghSerializerCalledByInfo()
 #     patoghhaveimages = PatoghHaveImagesSerializer()
