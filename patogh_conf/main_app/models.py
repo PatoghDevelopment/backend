@@ -5,44 +5,39 @@ from django.db.models.base import Model
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator, ValidationError
-from django.contrib.auth.hashers import make_password
 
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, email, password=None, **kwargs):
+    def create_user(self, email, username, password=None):
 
-        if email is None:
-            raise TypeError(_('Users must have an email address.'))
+        if not email:
+            raise ValueError('Users must have an email')
+        if not username:
+            raise ValueError('Users must have an username')
 
-        user = self.model(email=self.normalize_email(email), **kwargs)
+        user = self.model(
+            email=email,
+            username=username
+        )
         user.set_password(password)
-        user.save()
-
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+    def create_superuser(self, email, password=None):
+        if not email:
+            raise ValueError('Users must have an email')
+        if not password:
+            raise ValueError('Users must have a password')
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(email, password, **extra_fields)
-
-    def _create_user(self, email, password, **extra_fields):
-        """
-        Create and save a user with the given username, email, and password.
-        """
-
-        email = self.normalize_email(email)
-        # Lookup the real model class from the global app registry so this
-        # manager method can be used in migrations. This is fine because
-        # managers are by definition working on the real model.
-        user = self.model(email=email, **extra_fields)
-        user.password = make_password(password)
+        user = self.model(
+            email=email,
+        )
+        user.set_password(password)
+        user.is_admin = True
+        user.is_superuser = True
+        user.is_staff = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 
@@ -60,7 +55,7 @@ verify_state = (
 
 def validate_image_size(image):
     if image.size > 2097152:
-        raise ValidationError('حد اکثر سایز عکس باید 2 مگابایت باشد')
+        raise ValidationError('حداکثر سایز عکس باید 2 مگابایت باشد')
 
 
 VALID_IMAGE_FORMAT = ['png', 'jpg', 'jpeg']
@@ -116,7 +111,6 @@ class User(AbstractUser):
     first_name = models.CharField(verbose_name=_("نام"), max_length=100, null=True, blank=True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"), max_length=100, null=True, blank=True)
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True)
-    mobile_number = models.CharField(verbose_name=_("شماره تلفن"), unique=True, max_length=12, null=True, blank=True)
     birth_date = models.DateField(verbose_name=_("تاریخ تولد"), null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.PROTECT, null=True, verbose_name=_("شهر"), blank=True)
     gender_status = (
@@ -130,7 +124,6 @@ class User(AbstractUser):
                                validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size]
                                )
     bio = models.CharField(verbose_name=_("درباره"), max_length=1000, null=True, blank=True)
-    score = models.IntegerField(verbose_name=_("امتیاز کاربر"), null=True, blank=True, default=0)
     parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
     friends = models.ManyToManyField('User', verbose_name='دوستان', blank=True)
 
@@ -140,7 +133,7 @@ class User(AbstractUser):
         return self.username
 
     class Meta:
-        ordering = ['username']
+        ordering = ['id']
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
 
@@ -160,6 +153,20 @@ class PendingVerify(models.Model):
         ordering = ['send_time']
         verbose_name = _('تاییدیه')
         verbose_name_plural = _('تاییدیه ها')
+
+
+class Support(models.Model):
+    email = models.EmailField(verbose_name='ایمیل')
+    description = models.TextField(verbose_name='متن پیام', max_length=2000)
+    date = models.DateTimeField(verbose_name='تاریخ', auto_now_add=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name = 'پشتیبانی'
+        verbose_name_plural = 'پشتیبانی ها'
+        ordering = ['-id']
 
 
 class PatoghCategory(models.Model):
