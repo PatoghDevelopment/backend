@@ -238,32 +238,32 @@ class UserSerializer(serializers.ModelSerializer):
 
 # Patogh start----------------------------------------------------------------------------------
 
-class PatoghInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatoghInfo
-        fields = "__all__"
+#class PatoghInfoSerializer(serializers.ModelSerializer):
+ #   class Meta:
+  #      model = PatoghInfo
+   #     fields = "__all__"
 
 
-class PatoghSerializer(serializers.ModelSerializer):
-    patoghinfo = PatoghInfoSerializer()
+#class PatoghSerializer(serializers.ModelSerializer):
+ #   patoghinfo = PatoghInfoSerializer()
 
-    class Meta:
-        model = Patogh
-        fields = "__all__"
-
-
-class PatoghInfoLimitedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatoghInfo
-        fields = ('name', 'city')
+  #  class Meta:
+   #     model = Patogh
+    #    fields = "__all__"
 
 
-class PatoghLimitSerializer(serializers.ModelSerializer):
-    patoghinfo = PatoghInfoLimitedSerializer()
+#class PatoghInfoLimitedSerializer(serializers.ModelSerializer):
+ #   class Meta:
+  #      model = PatoghInfo
+   #     fields = ('name', 'city')
 
-    class Meta:
-        model = Patogh
-        fields = ('id', 'start_time', 'patoghinfo')
+
+#class PatoghLimitSerializer(serializers.ModelSerializer):
+ #   patoghinfo = PatoghInfoLimitedSerializer()
+
+  #  class Meta:
+   #     model = Patogh
+    #    fields = ('id', 'start_time', 'patoghinfo')
 
 
 class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
@@ -272,10 +272,10 @@ class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PatoghHaveImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatoghHaveImages
-        fields = "__all__"
+#class PatoghHaveImagesSerializer(serializers.ModelSerializer):
+ #   class Meta:
+  #      model = PatoghHaveImages
+   #     fields = "__all__"
 
 
 class PatoghMembersSerializer(serializers.ModelSerializer):
@@ -284,28 +284,28 @@ class PatoghMembersSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
-    patogh = PatoghSerializerCalledByInfo()
-    patoghhaveimages = PatoghHaveImagesSerializer()
-    patoghmembers = PatoghMembersSerializer()
+#class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
+ #   patogh = PatoghSerializerCalledByInfo()
+  #  patoghhaveimages = PatoghHaveImagesSerializer()
+   # patoghmembers = PatoghMembersSerializer()
 
-    class Meta:
-        model = PatoghInfo
-        fields = '__all__'
+    #class Meta:
+     #   model = PatoghInfo
+      #  fields = '__all__'
 
-    def create(self, validated_data):
-        patogh = validated_data.pop('patogh')
-        patoghhaveimages = validated_data.pop('patoghhaveimages')
-        patoghmembers = validated_data.pop('patoghmembers')
-        patoghinfo = super().create(validated_data)
-        print(patoghinfo + "asfdsajdflasbfoahsfohasfas;iugsafiuvasfi")
-        Patogh.objects.create(patogh_id=patoghinfo['id'], **patogh)
-        PatoghHaveImages.objects.create(patogh_id=patoghinfo, **patoghhaveimages)
-        PatoghMembers.objects.create(patogh_id=patoghinfo, **patoghmembers)
+    #def create(self, validated_data):
+     #   patogh = validated_data.pop('patogh')
+      #  patoghhaveimages = validated_data.pop('patoghhaveimages')
+       # patoghmembers = validated_data.pop('patoghmembers')
+        #patoghinfo = super().create(validated_data)
+        #print(patoghinfo + "asfdsajdflasbfoahsfohasfas;iugsafiuvasfi")
+        #Patogh.objects.create(patogh_id=patoghinfo['id'], **patogh)
+        #PatoghHaveImages.objects.create(patogh_id=patoghinfo, **patoghhaveimages)
+        #PatoghMembers.objects.create(patogh_id=patoghinfo, **patoghmembers)
 
-        return patoghinfo
+        #return patoghinfo
 
-    def update(self, instance, validated_data):
+    """def update(self, instance, validated_data):
         patoghs_data = validated_data.pop('patogh')
         patoghhaveimages_data = validated_data.pop('patoghhaveimages')
         patoghmembers_data = validated_data.pop('patoghmembers')
@@ -350,7 +350,7 @@ class PatoghAndOtherModelSerializer(serializers.ModelSerializer):
             patoghmembers.email_id = patoghmember_data.get('email_id', patoghmembers.email_id)
             patoghmembers.save()
 
-        return instance
+        return instance"""
 
 
 # Patogh end ----------------------------------------------------------------------------------

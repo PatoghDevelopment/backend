@@ -130,17 +130,18 @@ class UsersHaveFriendsAdmin(admin.ModelAdmin):
     autocomplete_fields = ['sender', 'receiver']
 
 
-admin.site.register(City, CityAdmin)
+"""admin.site.register(City, CityAdmin)
 admin.site.register(PatoghCategory, PatoghCategoryAdmin)
 admin.site.register(Tags, TagsAdmin)
 admin.site.register(User, UserAdmin)
-admin.site.register(PatoghInfo, PatoghInfoAdmin)
+#admin.site.register(PatoghInfo, PatoghInfoAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
 admin.site.register(Party, PartyAdmin)
 admin.site.register(Patogh, PatoghAdmin)
 admin.site.register(PartyMembers, PartyMembersAdmin)
 admin.site.register(PatoghMembers, PatoghMembersAdmin)
-admin.site.register(PatoghsComments, PatoghsCommentsAdmin)
-admin.site.register(reportedPatogh, reportedPatoghAdmin)
-admin.site.register(PatoghHaveImages, PatoghHaveImagesAdmin)
+#admin.site.register(PatoghsComments, PatoghsCommentsAdmin)
+#admin.site.register(reportedPatogh, reportedPatoghAdmin)
+#admin.site.register(PatoghHaveImages, PatoghHaveImagesAdmin)
 admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
+"""

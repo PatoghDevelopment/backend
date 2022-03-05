@@ -86,27 +86,27 @@ class ResetPasswordSendOTP(BaseSendOTP):
 
 # Patogh
 
-class PatoghDetail(APIView):
+"""class PatoghDetail(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request, pk, format=None):
         queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
         serializer = PatoghSerializer()
 
-        return Response(serializer.data)
+        return Response(serializer.data)"""
 
 
-class PatoghDetailLimitedColumn(APIView):
+"""class PatoghDetailLimitedColumn(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request, pk, format=None):
         queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
         serializer = PatoghLimitSerializer()
 
-        return Response(serializer.data)
+        return Response(serializer.data)"""
 
 
-class PatoghCreateAndUpdateAndDelete(APIView):
+"""class PatoghCreateAndUpdateAndDelete(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
@@ -127,7 +127,7 @@ class PatoghCreateAndUpdateAndDelete(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
 
 # it will send the mail with changed password which is generated randomly
