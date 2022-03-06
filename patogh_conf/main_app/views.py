@@ -287,3 +287,11 @@ class RemoveFriend(generics.DestroyAPIView):
         user.friends.remove(self.request.user)
         self.request.user.friends.remove(user)
         return Response('Deleted', status=210)
+
+
+class SearchUser(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return User.objects.filter(username=self.kwargs['username'])

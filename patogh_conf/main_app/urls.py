@@ -23,10 +23,11 @@ urlpatterns = [
     #path('patogh/delete/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghDelete'),
     path('newfriendrequest/<str:username>', FriendRequestListCreate.as_view()),
     path('friendrequests/', FriendRequestListCreate.as_view()),
-    path('acceptfriendrequest/<str:username>', AcceptFriendRequest.as_view()),
-    path('removefriendrequest/<str:username>', RemoveFriendRequest.as_view()),
+    path('acceptfriendrequest/<str:username>/', AcceptFriendRequest.as_view()),
+    path('removefriendrequest/<str:username>/', RemoveFriendRequest.as_view()),
     path('friends/', FriendList.as_view()),
     path('removefriend/<str:username>/', RemoveFriend.as_view()),
+    path('searchuser/<str:username>/', SearchUser.as_view()),
     # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
     # users parties
