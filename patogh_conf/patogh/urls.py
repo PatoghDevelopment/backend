@@ -32,6 +32,6 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 APP_NAME = _("پاتوق")
-admin.site.site_header = _("پنل مدیریت") + APP_NAME
+admin.site.site_header = _("پنل مدیریت ") + APP_NAME
 admin.site.site_title = APP_NAME
-admin.site.index_title = _("پنل مدیریت")
+admin.site.index_title = _("پنل مدیریت ")

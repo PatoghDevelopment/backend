@@ -5,26 +5,30 @@ from .models import *
 
 # Register your models here 
 class CityAdmin(admin.ModelAdmin):
-    ordering = ['name']
+    ordering = ['id']
     list_display = ('id', 'name')
     search_fields = ['name']
 
 
 class PatoghCategoryAdmin(admin.ModelAdmin):
-    ordering = ['name']
+    ordering = ['id']
     list_display = ('id', 'name')
     search_fields = ['name']
 
 
+class SupportAdmin(admin.ModelAdmin):
+    list_display = ['id', 'email']
+
+
 class TagsAdmin(admin.ModelAdmin):
-    ordering = ['tag']
-    list_display = ('tag', 'id')
+    ordering = ['id']
+    list_display = ('id', 'tag')
     search_fields = ['tag']
 
 
 class UserAdmin(admin.ModelAdmin):
-    ordering = ['username']
-    list_display = ('username', 'last_name', 'email', 'gender')
+    ordering = ['id']
+    list_display = ('id', 'username', 'email')
     search_fields = ['username', 'first_name', 'last_name', 'email']
     list_filter = ['gender']
     autocomplete_fields = ['city']
@@ -36,8 +40,8 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class PatoghAdmin(admin.ModelAdmin):
-    ordering = ['name']
-    list_display = ('name', 'type', 'city', 'creator')
+    ordering = ['id']
+    list_display = ('id', 'name', 'type', 'city', 'creator')
     search_fields = ['creator', 'name', 'city', 'category']
     list_filter = ['type']
     autocomplete_fields = ['city', 'creator', 'category']
@@ -57,10 +61,9 @@ class PendingVerifyAdmin(admin.ModelAdmin):
 
 
 class PartyAdmin(admin.ModelAdmin):
-    ordering = ['name', 'id']
-    list_display = ('name', 'id', 'creator', 'creation_time')
+    ordering = ['id']
+    list_display = ('id', 'name', 'creator', 'creation_time')
     search_fields = ['creator']
-    list_filter = []
     autocomplete_fields = ['creator']
     fieldsets = (
         (None, {'fields': ('id', 'creator_id', 'patogh_id', 'name', 'status')}),
@@ -71,24 +74,22 @@ class PartyAdmin(admin.ModelAdmin):
 
 
 class PartyMembersAdmin(admin.ModelAdmin):
-    ordering = ['party_id', 'member_id']
-    list_display = ('party_id', 'member_id', 'status')
+    ordering = ['id']
+    list_display = ('id', 'party_id', 'member_id', 'status')
     search_fields = ['status']
-    list_filter = []
     autocomplete_fields = ['party_id', 'member_id']
 
 
 class PatoghMembersAdmin(admin.ModelAdmin):
-    ordering = ['patogh_id', 'email']
-    list_display = ('patogh_id', 'email', 'state', 'time')
+    ordering = ['id']
+    list_display = ('id', 'patogh_id', 'email', 'state', 'time')
     search_fields = ['state']
-    list_filter = []
     autocomplete_fields = ['patogh_id', 'email']
 
 
 class UsersHaveFriendsAdmin(admin.ModelAdmin):
-    ordering = ['sender', 'receiver']
-    list_display = ('sender', 'receiver', 'state', 'time')
+    ordering = ['id']
+    list_display = ('id', 'sender', 'receiver', 'state', 'time')
     search_fields = ['sender', 'receiver', 'state']
     list_filter = ['state']
     autocomplete_fields = ['sender', 'receiver']
@@ -104,3 +105,4 @@ admin.site.register(Patogh, PatoghAdmin)
 admin.site.register(PartyMembers, PartyMembersAdmin)
 admin.site.register(PatoghMembers, PatoghMembersAdmin)
 admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
+admin.site.register(Support, SupportAdmin)
