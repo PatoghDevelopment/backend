@@ -1,8 +1,7 @@
 from django import utils
-from django.http.response import HttpResponse
-from rest_framework.permissions import AllowAny
+from django.contrib.auth.hashers import make_password
+from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, generics, status
-from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response

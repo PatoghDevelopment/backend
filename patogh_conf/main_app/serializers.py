@@ -19,16 +19,7 @@ class EmailSerializerResetPassword(serializers.Serializer):
             if not User.objects.filter(email=email).exists():
                 msg = _("کاربر با این مشخصات وجود ندارد")
                 raise serializers.ValidationError(msg, code='authorization')
-        #     else:
-        #         msg = _("کاربر با این مشخصات وجود ندارد")
-        #         raise serializers.ValidationError(msg, code= 'authorization')
-        # else:
-        #     msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
-        #     raise serializers.ValidationError(msg, code = 'authorization')
-
-        # if user1:
-        #     attrs['user'] = user1
-        return attrs
+            return attrs
 
 
 class EmailSerializerSignup(serializers.Serializer):
@@ -41,17 +32,7 @@ class EmailSerializerSignup(serializers.Serializer):
             if User.objects.filter(email=email).exists():
                 msg = _("کاربر با این مشخصات وجود دارد")
                 raise serializers.ValidationError(msg, code='authorization')
-        #     else:
-        #         msg = _("کاربر با این مشخصات وجود ندارد")
-        #         raise serializers.ValidationError(msg, code= 'authorization')
-        # else:
-        #     msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
-        #     raise serializers.ValidationError(msg, code = 'authorization')
-
-        # if user1:
-        #     attrs['user'] = user1
-
-        return attrs
+            return attrs
 
 
 class SignupSerializer(serializers.Serializer):
@@ -110,7 +91,6 @@ class SignupSerializer(serializers.Serializer):
     def create(self, validated_data):
         email = validated_data['email']
         password1 = validated_data['password1']
-        # otp = validated_data['otp']
         user = User.objects.create_user(email, password1)
         PendingVerify.objects.filter(receptor=email).delete()
         return user
@@ -137,18 +117,6 @@ class SigninSerializer(serializers.Serializer):
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
-
-        # user = User.objects.get(email=email)
-        # if user:
-        #     if user.check_password(password):
-        #         attrs['user'] = user
-        #     else:
-        #         msg = _("رمز عبور اشتباه است")
-        #         raise serializers.ValidationError(msg, code= 'authorization')
-        # else:
-        #     msg = _("کاربر با این مشخصات وجود ندارد")
-        #     raise serializers.ValidationError(msg, code= 'authorization')
-
         if email and password:
 
             if User.objects.filter(email=email, password=password).exists():
@@ -232,23 +200,16 @@ class UserSerializer(serializers.ModelSerializer):
         return attrs
 
 
-# Patogh start----------------------------------------------------------------------------------
-
-
 class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
     class Meta:
         model = Patogh
         fields = "__all__"
 
 
-
 class PatoghMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatoghMembers
         fields = "__all__"
-
-
-# Patogh end ----------------------------------------------------------------------------------
 
 
 class UserPartiesSerializer(serializers.ModelSerializer):
@@ -275,4 +236,3 @@ class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'bio')
-
