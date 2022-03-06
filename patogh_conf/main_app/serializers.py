@@ -37,27 +37,11 @@ class EmailSerializerSignup(serializers.Serializer):
 
 class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField(write_only=True)
-
-    otp = serializers.CharField(
-        label=_("توکن"),
-        write_only=True
-    )
-
-    password1 = serializers.CharField(
-        label=_("1رمز عبور"),
-        min_length=6,
-        max_length=30,
-        write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
-    )
-
-    password2 = serializers.CharField(
-        label=_("2رمز عبور"),
-        min_length=6,
-        max_length=30,
-        write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
-    )
+    otp = serializers.CharField(label=_("توکن"), write_only=True)
+    password1 = serializers.CharField(label=_("1رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    password2 = serializers.CharField(label=_("2رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -97,22 +81,10 @@ class SignupSerializer(serializers.Serializer):
 
 
 class SigninSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        label=_("ایمیل"),
-        write_only=True
-    )
-
-    password = serializers.CharField(
-        label=_("رمز عبور"),
-        min_length=6,
-        write_only=True,
-        help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد")
-    )
-
-    token = serializers.CharField(
-        label=_("توکن"),
-        read_only=True
-    )
+    email = serializers.EmailField(label=_("ایمیل"), write_only=True)
+    password = serializers.CharField(label=_("رمز عبور"), min_length=6, write_only=True,
+                                     help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    token = serializers.CharField(label=_("توکن"), read_only=True)
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -148,8 +120,12 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     otp_token = serializers.CharField(required=True)
-    password1 = serializers.CharField(required=True)
-    password2 = serializers.CharField(required=True)
+    password1 = serializers.CharField(
+        label=_("1رمز عبور"), min_length=6, max_length=30,
+        write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    password2 = serializers.CharField(
+        label=_("2رمز عبور"), min_length=6, max_length=30,
+        write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -194,10 +170,11 @@ class UserSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(label='رمز عبور قبلی', max_length=128, required=True,
                                          write_only=True)
-    new_password = serializers.CharField(label='رمز عبور جدید', max_length=128, required=True,
-                                         write_only=True)
-    new_password_confirmation = serializers.CharField(label='تکرار رمز عبور جدید', max_length=128,
-                                                      required=True, write_only=True)
+    new_password = serializers.CharField(label=_("1رمز عبور"), min_length=6, max_length=30,
+                                         write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    new_password_confirmation = serializers.CharField(label=_("2رمز عبور"), min_length=6, max_length=30,
+                                                      write_only=True,
+                                                      help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
     def validate_old_password(self, value):
         user = self.context['request'].user

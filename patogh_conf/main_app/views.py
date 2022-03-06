@@ -11,7 +11,6 @@ import pyotp
 from .serializers import *
 
 
-# SignIn Sign out view----------------------
 def generateOTP():
     secret = pyotp.random_base32()
     totp = pyotp.TOTP(secret, digits=5)
@@ -186,7 +185,6 @@ class Support(generics.CreateAPIView):
 
         return Response(serializer.data)"""
 
-
 """class PatoghDetailLimitedColumn(APIView):
     permission_classes = (AllowAny,)
 
@@ -195,7 +193,6 @@ class Support(generics.CreateAPIView):
         serializer = PatoghLimitSerializer()
 
         return Response(serializer.data)"""
-
 
 """class PatoghCreateAndUpdateAndDelete(APIView):
     permission_classes = (AllowAny,)

@@ -6,8 +6,14 @@ urlpatterns = [
     path('get_otp', SingUpSendOTP.as_view(), name='user_signup'),
     path('signup/', Signup.as_view(), name='signup'),
     path('signin/', Signin.as_view(), name='signin'),
-    path('forgotpasswordotp/', forgotPasswordSendOTP.as_view(), name='forgot-password_otp'),
+    path('forgotpasswordotp/', ForgotPasswordSendOTP.as_view(), name='forgot-password_otp'),
     path('forgotpassword/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('profile/', Profile.as_view(), name='User Profile'),
+    path('userprofile/<str:email>/', UserProfile.as_view(), name='Profile'),
+    path('deleteaccount/', DeleteAccount.as_view(), name='Delete Account'),
+    path('changepassword/', ChangePassword.as_view(), name='Change Password'),
+    path('support/', Support.as_view(), name='Support'),
+
 
     # Patogh paths
     #path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
@@ -22,13 +28,6 @@ urlpatterns = [
     path('friends/', FriendList.as_view()),
     path('removefriend/<str:username>/', RemoveFriend.as_view()),
     # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
-
-    # user paths
-    path('profile/', Profile.as_view(), name='User Profile'),
-    path('userprofile/<str:email>/', UserProfile.as_view(), name='Profile'),
-    path('deleteaccount/', DeleteAccount.as_view(), name='Delete Account'),
-    path('changepassword/', ChangePassword.as_view(), name='Change Password'),
-    path('support/', Support.as_view(), name='Support'),
 
     # users parties
     path('parties/', UserParties.as_view(), name="user_parties"),
