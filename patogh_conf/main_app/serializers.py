@@ -145,7 +145,7 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
         fields = ['otp']
 
 
-class RestPasswordSerializer(serializers.Serializer):
+class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     otp_token = serializers.CharField(required=True)
     password1 = serializers.CharField(required=True)
@@ -190,14 +190,42 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'bio']
         read_only_fields = ['email']
 
-    def validate(self, attrs):
-        if attrs['username']:
-            username = attrs.get('username')
-            if User.objects.filter(username=username).exists():
-                msg = _("کاربر با این نام کاربری وجود دارد")
-                raise serializers.ValidationError(msg, code='authorization')
 
-        return attrs
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(label='رمز عبور قبلی', max_length=128, required=True,
+                                         write_only=True)
+    new_password = serializers.CharField(label='رمز عبور جدید', max_length=128, required=True,
+                                         write_only=True)
+    new_password_confirmation = serializers.CharField(label='تکرار رمز عبور جدید', max_length=128,
+                                                      required=True, write_only=True)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('رمز عبور قبلی اشتباه است!')
+        return value
+
+    def validate(self, data):
+        if data['new_password'] == data['old_password']:
+            raise serializers.ValidationError('رمز عبور قبلی و جدید یکسان است!', code='conflict')
+        if data['new_password'] != data['new_password_confirmation']:
+            raise serializers.ValidationError('رمز عبور با تکرارش یکسان نیست!', code='conflict')
+        return data
+
+    def save(self, **kwargs):
+        password = self.validated_data['new_password']
+        user = self.context['request'].user
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class Support(serializers.ModelSerializer):
+    date = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Support
+        fields = ['id', 'email', 'description', 'date']
 
 
 class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
