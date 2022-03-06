@@ -3,13 +3,13 @@ from .views import *
 
 urlpatterns = [
     # athentication paths
-    path('get_otp', SingUpSendOTP.as_view(), name='user_signup'),
-    path('signup/', Signup.as_view(), name='signup'),
-    path('signin/', Signin.as_view(), name='signin'),
-    path('forgotpasswordotp/', ForgotPasswordSendOTP.as_view(), name='forgot-password_otp'),
-    path('forgotpassword/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('get_otp', SingUpSendOTP.as_view(), name='Signup OTP'),
+    path('signup/', Signup.as_view(), name='Signup'),
+    path('signin/', Signin.as_view(), name='Signin'),
+    path('forgotpasswordotp/', ForgotPasswordSendOTP.as_view(), name='Forgot Password OTP'),
+    path('forgotpassword/', ForgotPasswordView.as_view(), name='Forgot Password'),
     path('profile/', Profile.as_view(), name='User Profile'),
-    path('userprofile/<str:email>/', UserProfile.as_view(), name='Profile'),
+    path('userprofile/<str:username>/', UserProfile.as_view(), name='Profile'),
     path('deleteaccount/', DeleteAccount.as_view(), name='Delete Account'),
     path('changepassword/', ChangePassword.as_view(), name='Change Password'),
     path('support/', Support.as_view(), name='Support'),

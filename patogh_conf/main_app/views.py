@@ -141,7 +141,7 @@ class UserProfile(generics.RetrieveAPIView):
     queryset = User.objects.all()
 
     def get_object(self):
-        return get_object_or_404(User, email=self.kwargs['email'])
+        return get_object_or_404(User, username=self.kwargs['username'])
 
 
 class DeleteAccount(APIView):
