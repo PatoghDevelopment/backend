@@ -110,7 +110,7 @@ class User(AbstractUser):
     username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
     first_name = models.CharField(verbose_name=_("نام"), max_length=100, null=True, blank=True)
     last_name = models.CharField(verbose_name=_("نام خانوادگی"), max_length=100, null=True, blank=True)
-    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, primary_key=True)
+    email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, unique=True)
     birth_date = models.DateField(verbose_name=_("تاریخ تولد"), null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.PROTECT, null=True, verbose_name=_("شهر"), blank=True)
     gender_status = (
@@ -126,6 +126,8 @@ class User(AbstractUser):
     bio = models.CharField(verbose_name=_("درباره"), max_length=1000, null=True, blank=True)
     parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
     friends = models.ManyToManyField('User', verbose_name='دوستان', blank=True)
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
 
     objects = UserManager()
 

@@ -20,7 +20,6 @@ class TagsAdmin(admin.ModelAdmin):
     ordering = ['tag']
     list_display = ('tag', 'id')
     search_fields = ['tag']
-    list_filter = []
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -72,11 +71,11 @@ class PartyAdmin(admin.ModelAdmin):
 
 
 class PartyMembersAdmin(admin.ModelAdmin):
-    ordering = ['p_id', 'g_id']
-    list_display = ('p_id', 'g_id', 'status')
+    ordering = ['party_id', 'member_id']
+    list_display = ('party_id', 'member_id', 'status')
     search_fields = ['status']
     list_filter = []
-    autocomplete_fields = ['p_id', 'g_id']
+    autocomplete_fields = ['party_id', 'member_id']
 
 
 class PatoghMembersAdmin(admin.ModelAdmin):
