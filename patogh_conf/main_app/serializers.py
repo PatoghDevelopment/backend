@@ -238,6 +238,49 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
 
 class FriendSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField()
+    bio = serializers.ReadOnlyField()
+
     class Meta:
         model = User
         fields = ('username', 'bio')
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ('id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members')
+
+    def get_num_of_members(self, company):
+        return company.members.count()
+
+
+class LeaveCompanySerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField()
+    description = serializers.ReadOnlyField()
+    photo = serializers.ReadOnlyField()
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ('id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members')
+
+    def get_num_of_members(self, company):
+        return company.members.count()
+
+
+class CompanyRUDSerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    name = serializers.ReadOnlyField()
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ['id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members']
+
+    def get_num_of_members(self, company):
+        return company.members.count()

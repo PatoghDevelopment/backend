@@ -310,3 +310,22 @@ class FriendRequest(models.Model):
         ordering = ['-datetime']
         verbose_name = 'درخواست دوستی'
         verbose_name_plural = 'درخواست های دوستی'
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=50, verbose_name='نام')
+    description = models.CharField(max_length=200, verbose_name='توضیحات', blank=True, null=True)
+    creator = models.ForeignKey(User, verbose_name='سازنده', on_delete=models.CASCADE, related_name='creator')
+    date = models.DateField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    members = models.ManyToManyField(User, blank=True, verbose_name='اعضا')
+    photo = models.ImageField(verbose_name="عکس اکیپ",
+                              upload_to=party_image_profile_directory_path,
+                              null=True, blank=True, help_text=_("JPG, JPEG or PNG is validate"),
+                              validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size])
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = 'اکیپ'
+        verbose_name_plural = 'اکیپ ها'
+
+

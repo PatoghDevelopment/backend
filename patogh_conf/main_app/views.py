@@ -295,3 +295,102 @@ class SearchUser(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(username=self.kwargs['username'])
+
+
+class CompanyCreate(generics.CreateAPIView):
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        obj = serializer.save(creator=self.request.user)
+        obj.members.add(self.request.user)
+
+
+class CompanyList(generics.ListAPIView):
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.company_set.all()
+
+
+class AddCompanyMember(generics.CreateAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.company_set.all()
+
+    def post(self, request, *args, **kwargs):
+        company = get_object_or_404(Company, pk=self.kwargs['pk'])
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        if company.creator.username != self.request.user.username:
+            return Response('فقط سازنده گروه حق اضافه کردن عضو جدید را دارد', status=400)
+        if company.members.filter(username=user.username).exists():
+            return Response('کاربر مورد نظر از اعضای گروه میباشد', status=400)
+        company.members.add(user)
+        return Response('اضافه شد', status=201)
+
+
+class LeaveCompany(generics.CreateAPIView):
+    serializer_class = LeaveCompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.company_set.all()
+
+    def post(self, request, *args, **kwargs):
+        company = get_object_or_404(Company, pk=self.kwargs['pk'])
+        if company.creator == self.request.user:
+            company.delete()
+            return Response('با خروج شما اکیپ حذف شد', status=200)
+        if company.members.filter(username=self.request.user.username).exists():
+            company.members.remove(self.request.user)
+            return Response('Left', status=201)
+        else:
+            return Response('شما عضو این گروه نیستید', status=400)
+
+
+class RemoveMember(generics.DestroyAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.company_set.all()
+
+    def delete(self, request, *args, **kwargs):
+        company = get_object_or_404(Company, pk=self.kwargs['pk'])
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        if company.creator != self.request.user:
+            return Response('فقط سازنده اکیپ به این قابلیت دسترسی دارد', status=200)
+        if not company.members.filter(username=user.username).exists():
+            return Response('کاربر مورد نظر از اعضای گروه نمیباشد', status=400)
+        company.members.remove(user)
+        return Response('Deleted', status=200)
+
+
+class CompanyMembers(generics.ListAPIView):
+    serializer_class = FriendSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return get_object_or_404(Company, pk=self.kwargs['pk']).members.all()
+
+
+class CompanyRUD(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CompanyRUDSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Company.objects.all()
+
+    def perform_authentication(self, request):
+        company = get_object_or_404(Company, pk=self.kwargs['pk'])
+        if company.creator != self.request.user:
+            raise ValidationError('فقط سازنده اکیپ به این قابلیت دسترسی دارد')
+
+
+class CompanySearch(generics.ListAPIView):
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Company.objects.filter(name=self.kwargs['name'], members__in=[self.request.user])

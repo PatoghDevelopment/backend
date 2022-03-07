@@ -28,6 +28,14 @@ urlpatterns = [
     path('friends/', FriendList.as_view()),
     path('removefriend/<str:username>/', RemoveFriend.as_view()),
     path('searchuser/<str:username>/', SearchUser.as_view()),
+    path('newcompany/', CompanyCreate.as_view()),
+    path('companies/', CompanyList.as_view()),
+    path('company/<int:pk>/addmember/<str:username>/', AddCompanyMember.as_view()),
+    path('company/<int:pk>/leave/', LeaveCompany.as_view()),
+    path('company/<int:pk>/removemember/<str:username>/', RemoveMember.as_view()),
+    path('company/<int:pk>/members/', CompanyMembers.as_view()),
+    path('company-rud/<int:pk>/', CompanyRUD.as_view()),
+    path('searchcompany/<str:name>/', CompanySearch.as_view()),
     # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
     # users parties
