@@ -22,6 +22,7 @@ class SignupSendOTPSerializer(serializers.Serializer):
 
 class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField(label='ایمیل', write_only=True)
+    username = serializers.CharField(label=_("نام کاربری"), max_length=100, write_only=True)
     otp = serializers.CharField(label=_("کد تایید"), write_only=True)
     password1 = serializers.CharField(label=_("رمز عبور"), min_length=6, max_length=30,
                                       write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
@@ -30,17 +31,20 @@ class SignupSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs.get('email')
+        username = attrs.get('username')
         password1 = attrs.get('password1')
         password2 = attrs.get('password2')
-        if email and password1 and password2:
+        if email and username and password1 and password2:
             if User.objects.filter(email=email).exists():
                 msg = _("کاربر با این مشخصات وجود دارد")
+                raise serializers.ValidationError(msg, code='conflict')
+            if User.objects.filter(username=username).exists():
+                msg = _("این نام کاربری موجود است")
                 raise serializers.ValidationError(msg, code='conflict')
             if password1 != password2:
                 msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
                 raise serializers.ValidationError(msg, code='conflict')
-            # user = authenticate(request=self.context.get('request'), password=password)
-            # if user:
+
             else:
                 otp = attrs.get('otp')
                 pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
@@ -59,8 +63,9 @@ class SignupSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         email = validated_data['email']
+        username = validated_data['username']
         password1 = validated_data['password1']
-        user = User.objects.create_user(email, password1)
+        user = User.objects.create_user(email, username, password1)
         PendingVerify.objects.filter(receptor=email).delete()
         return user
 
