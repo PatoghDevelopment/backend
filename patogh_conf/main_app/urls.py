@@ -21,6 +21,8 @@ urlpatterns = [
     #path('patogh/create/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghCreate'),
     #path('patogh/update/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghUpdate'),
     #path('patogh/delete/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghDelete'),
+    #path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
+
     path('newfriendrequest/<str:username>', FriendRequestListCreate.as_view()),
     path('friendrequests/', FriendRequestListCreate.as_view()),
     path('acceptfriendrequest/<str:username>/', AcceptFriendRequest.as_view()),
@@ -36,8 +38,4 @@ urlpatterns = [
     path('company/<int:pk>/members/', CompanyMembers.as_view()),
     path('company-rud/<int:pk>/', CompanyRUD.as_view()),
     path('searchcompany/<str:name>/', CompanySearch.as_view()),
-    # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
-
-    # users parties
-    path('parties/', UserParties.as_view(), name="user_parties"),
 ]

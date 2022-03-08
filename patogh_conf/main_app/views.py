@@ -218,15 +218,6 @@ class Support(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
 
-class UserParties(generics.ListAPIView):
-    queryset = PartyMembers.objects.all()
-    serializer_class = UserPartiesSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
-
-
 class FriendRequestListCreate(generics.ListCreateAPIView):
     serializer_class = FriendRequestSerializer
     permission_classes = [permissions.IsAuthenticated]

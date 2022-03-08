@@ -3,27 +3,10 @@ from django.utils.translation import gettext as _
 from .models import *
 
 
-# Register your models here 
 class CityAdmin(admin.ModelAdmin):
     ordering = ['id']
     list_display = ('id', 'name')
     search_fields = ['name']
-
-
-class PatoghCategoryAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'name')
-    search_fields = ['name']
-
-
-class SupportAdmin(admin.ModelAdmin):
-    list_display = ['id', 'email']
-
-
-class TagsAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'tag')
-    search_fields = ['tag']
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -39,6 +22,23 @@ class UserAdmin(admin.ModelAdmin):
     )
 
 
+class PendingVerifyAdmin(admin.ModelAdmin):
+    ordering = ['send_time']
+    list_display = ('send_time', 'receptor', 'allowed_try')
+    list_filter = ['allowed_try']
+    search_fields = ['receptor']
+
+
+class SupportAdmin(admin.ModelAdmin):
+    list_display = ['id', 'email']
+
+
+class PatoghCategoryAdmin(admin.ModelAdmin):
+    ordering = ['id']
+    list_display = ('id', 'name')
+    search_fields = ['name']
+
+
 class PatoghAdmin(admin.ModelAdmin):
     ordering = ['id']
     list_display = ('id', 'name', 'type', 'city', 'creator')
@@ -51,33 +51,6 @@ class PatoghAdmin(admin.ModelAdmin):
         (_("اطلاعات دیگر"), {'fields': ('category', 'description', 'creation_time', 'profile_image')})
     )
     readonly_fields = ['creation_time']
-
-
-class PendingVerifyAdmin(admin.ModelAdmin):
-    ordering = ['send_time']
-    list_display = ('send_time', 'receptor', 'allowed_try')
-    list_filter = ['allowed_try']
-    search_fields = ['receptor']
-
-
-class PartyAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'name', 'creator', 'creation_time')
-    search_fields = ['creator']
-    autocomplete_fields = ['creator']
-    fieldsets = (
-        (None, {'fields': ('id', 'creator_id', 'patogh_id', 'name', 'status')}),
-        (_("فیلتر ها"), {'fields': ('start_time', 'end_time', 'gender_filter', 'members_count', 'min_age', 'max_age')}),
-        (_("اطلاعات دیگر"), {'fields': ('description', 'tags_id')})
-    )
-    readonly_fields = ['creation_time']
-
-
-class PartyMembersAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'party_id', 'member_id', 'status')
-    search_fields = ['status']
-    autocomplete_fields = ['party_id', 'member_id']
 
 
 class PatoghMembersAdmin(admin.ModelAdmin):
@@ -97,12 +70,9 @@ class UsersHaveFriendsAdmin(admin.ModelAdmin):
 
 admin.site.register(City, CityAdmin)
 admin.site.register(PatoghCategory, PatoghCategoryAdmin)
-admin.site.register(Tags, TagsAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
-admin.site.register(Party, PartyAdmin)
 admin.site.register(Patogh, PatoghAdmin)
-admin.site.register(PartyMembers, PartyMembersAdmin)
 admin.site.register(PatoghMembers, PatoghMembersAdmin)
 admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
 admin.site.register(Support, SupportAdmin)

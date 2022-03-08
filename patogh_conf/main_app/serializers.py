@@ -217,17 +217,6 @@ class PatoghMembersSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UserPartiesSerializer(serializers.ModelSerializer):
-    id = serializers.CharField()
-    name = serializers.ReadOnlyField(source='Party.name')
-    description = serializers.ReadOnlyField(source='Party.description')
-    avatar = serializers.ReadOnlyField(source='Party.avatar')
-
-    class Meta:
-        model = PartyMembers
-        fields = ('id', 'name', 'description', 'avatar')
-
-
 class FriendRequestSerializer(serializers.ModelSerializer):
     sender = serializers.ReadOnlyField(source='sender.username')
     receiver = serializers.ReadOnlyField(source='receiver.username')

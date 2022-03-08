@@ -77,21 +77,6 @@ def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
 
-class Tags(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"), primary_key=True, default=uuid.uuid4,
-                          help_text="Unique Id for this Tag")
-    tag = models.CharField(verbose_name=_("برچسب"), unique=True, max_length=40)
-
-    def __str__(self):
-        return self.tag
-
-    class Meta:
-        ordering = ['id']
-        unique_together = ('id', 'tag')
-        verbose_name = _('برچسب')
-        verbose_name_plural = _('برچسب ها')
-
-
 class City(models.Model):
     id = models.UUIDField(verbose_name=_("شناسه"), primary_key=True, default=uuid.uuid4,
                           help_text="Unique Id for this Tag")
@@ -234,43 +219,6 @@ class PatoghMembers(models.Model):
         ordering = ['patogh_id']
         verbose_name = _('عضو پاتوق')
         verbose_name_plural = _('اعضای پاتوق')
-
-
-class Party(models.Model):
-    id = models.UUIDField(primary_key=True, verbose_name=_("شناسه"), default=uuid.uuid4,
-                          help_text="Unique Id for this party")
-    name = models.CharField(verbose_name=_("نام"), max_length=128, null=True, blank=True)
-    avatar = models.ImageField(verbose_name=_("عکس اکیپ"),
-                               upload_to=party_image_profile_directory_path,
-                               null=True, blank=True, help_text=_("JPG, JPEG or PNG is validate"),
-                               validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size])
-    creator = models.ForeignKey(User, verbose_name=_("پدید آورنده"), on_delete=models.PROTECT, null=True)
-    description = models.CharField(verbose_name=_("توضیحات"), help_text="descripe your party", max_length=1000)
-    creation_time = models.DateTimeField(verbose_name=_("زمان ساخت اکیپ"), help_text="Creation time for the party",
-                                         auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['id']
-        verbose_name = _('اکیپ')
-        verbose_name_plural = _('اکیپ ها')
-
-
-class PartyMembers(models.Model):
-    party_id = models.ForeignKey(Party, verbose_name=_("اکیپ"), on_delete=models.PROTECT)
-    member_id = models.ForeignKey(User, verbose_name=_("کاربر"), on_delete=models.PROTECT)
-    is_admin = (
-        ('0', 'no'),
-        ('1', 'yes')
-    )
-    status = models.SmallIntegerField(verbose_name=_("سطح دسترسی کاربر به اکیپ"), choices=is_admin, default='0')
-
-    class Meta:
-        ordering = ['party_id']
-        verbose_name = _('عضو اکیپ')
-        verbose_name_plural = _('اعضای اکیپ')
 
 
 class UsersHaveFriends(models.Model):
