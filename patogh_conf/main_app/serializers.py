@@ -5,25 +5,8 @@ from django.utils import timezone
 import datetime
 
 
-class EmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-
-class EmailSerializerResetPassword(serializers.Serializer):
-    email = serializers.EmailField()
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-
-        if email:
-            if not User.objects.filter(email=email).exists():
-                msg = _("کاربر با این مشخصات وجود ندارد")
-                raise serializers.ValidationError(msg, code='authorization')
-            return attrs
-
-
-class EmailSerializerSignup(serializers.Serializer):
-    email = serializers.EmailField()
+class SignupSendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -32,15 +15,17 @@ class EmailSerializerSignup(serializers.Serializer):
             if User.objects.filter(email=email).exists():
                 msg = _("کاربر با این مشخصات وجود دارد")
                 raise serializers.ValidationError(msg, code='authorization')
-            return attrs
+        else:
+            raise serializers.ValidationError('ایمیل نمی تواند خالی باشد!', code='authorization')
+        return attrs
 
 
 class SignupSerializer(serializers.Serializer):
-    email = serializers.EmailField(write_only=True)
-    otp = serializers.CharField(label=_("توکن"), write_only=True)
-    password1 = serializers.CharField(label=_("1رمز عبور"), min_length=6, max_length=30,
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+    otp = serializers.CharField(label=_("کد تایید"), write_only=True)
+    password1 = serializers.CharField(label=_("رمز عبور"), min_length=6, max_length=30,
                                       write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
-    password2 = serializers.CharField(label=_("2رمز عبور"), min_length=6, max_length=30,
+    password2 = serializers.CharField(label=_("تایید رمز عبور"), min_length=6, max_length=30,
                                       write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
     def validate(self, attrs):
@@ -115,6 +100,22 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['otp']
+
+
+class ForgotPasswordSendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if email:
+            user = User.objects.filter(email=email)
+            if user:
+                user = user.first()
+            if not user:
+                raise serializers.ValidationError('کاربری با این اطلاعات موجود نیست!', code='authorization')
+        else:
+            raise serializers.ValidationError('ایمیل نمی تواند خالی باشد!', code='authorization')
+        return attrs
 
 
 class ForgotPasswordSerializer(serializers.Serializer):

@@ -3,7 +3,7 @@ from .views import *
 
 urlpatterns = [
     # athentication paths
-    path('get_otp', SingUpSendOTP.as_view(), name='Signup OTP'),
+    path('signupotp/', SingUpSendOTP.as_view(), name='Signup OTP'),
     path('signup/', Signup.as_view(), name='Signup'),
     path('signin/', Signin.as_view(), name='Signin'),
     path('forgotpasswordotp/', ForgotPasswordSendOTP.as_view(), name='Forgot Password OTP'),

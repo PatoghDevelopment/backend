@@ -109,8 +109,6 @@ class User(AbstractUser):
                                validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size]
                                )
     bio = models.CharField(verbose_name=_("درباره"), max_length=1000, null=True, blank=True)
-    parties = models.ManyToManyField("Party", through="PartyMembers", blank=True)
-    friends = models.ManyToManyField('User', verbose_name='دوستان', blank=True)
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
 
@@ -128,7 +126,7 @@ class User(AbstractUser):
 class PendingVerify(models.Model):
     receptor = models.EmailField(verbose_name=_("دریافت کننده"), primary_key=True, max_length=50, default='a@a.com')
     otp = models.IntegerField(verbose_name=_("OTP کد"))
-    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add=True, blank=True, null=True)
+    send_time = models.DateTimeField(verbose_name=_("زمان ارسال"), auto_now_add=True)
     allowed_try = models.SmallIntegerField(verbose_name=_(" دفعات مجاز برای تلاش"), default=5
                                            , validators=[MinValueValidator(0), MaxValueValidator(5)])
     objects = models.Manager()

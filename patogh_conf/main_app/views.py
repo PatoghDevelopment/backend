@@ -1,5 +1,7 @@
 from django import utils
 from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, generics, status
 from rest_framework.authtoken.models import Token
@@ -11,70 +13,69 @@ import pyotp
 from .serializers import *
 
 
-def generateOTP():
-    secret = pyotp.random_base32()
-    totp = pyotp.TOTP(secret, digits=5)
-    one_time = totp.now()
-    return one_time
+#
+# class BaseSendOTP(generics.GenericAPIView):
+#     permission_classes = [permissions.AllowAny]
+#
+#     @extend_schema(
+#         summary="get otp code",
+#         responses={
+#             200: OpenApiResponse(description="EmailTimeError"),
+#             201: OpenApiResponse(description='sent.'),
+#             400: OpenApiResponse(description="bad request."),
+#             401: OpenApiResponse(description="already sign in")
+#         },
+#     )
+#     def post(self, request):
+#         user_email = self.validate_email()
+#         pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
+#         otp = generateOTP()
+#         if pending_verify_obj:
+#             time_now = timezone.now()
+#             if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+#                 pending_verify_obj.otp = otp
+#                 pending_verify_obj.send_time = time_now
+#                 pending_verify_obj.save()
+#             else:
+#                 print(user_email)
+#                 return Response(status=status.HTTP_200_OK)
+#         else:
+#             instance = PendingVerify(receptor=user_email, otp=otp)
+#             instance.save()
+#         print(user_email)
+#         utils.send_email(otp, user_email)
+#         return Response(status=status.HTTP_201_CREATED)
+#
 
-
-class BaseSendOTP(generics.GenericAPIView):
-    def validate_email(self):
-        pass
-
-    serializer_class = EmailSerializer
+class SingUpSendOTP(generics.CreateAPIView):
+    serializer_class = SignupSendOTPSerializer
     permission_classes = [permissions.AllowAny]
 
-    @extend_schema(
-        summary="get otp code",
-        responses={
-            200: OpenApiResponse(description="EmailTimeError"),
-            201: OpenApiResponse(description='sent.'),
-            400: OpenApiResponse(description="bad request."),
-            401: OpenApiResponse(description="already sign in")
-        },
-    )
-    def post(self, request):
-        user_email, obj_user = self.validate_email()
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_email = serializer.validated_data['email']
         pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
-        otp = generateOTP()
+        otp = get_random_string(length=5, allowed_chars='1234567890')
         if pending_verify_obj:
             time_now = timezone.now()
-            if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
-                pending_verify_obj.otp = otp
-                pending_verify_obj.send_time = time_now
-                pending_verify_obj.save()
-            else:
-                print(user_email)
-                return Response(status=status.HTTP_200_OK)
+            # if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+            pending_verify_obj.otp = otp
+            pending_verify_obj.send_time = time_now
+            pending_verify_obj.save()
+            # else:
+            #     return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
-        print(user_email)
-        utils.send_email(otp, user_email)
-        return Response(status=status.HTTP_201_CREATED)
-
-
-class SingUpSendOTP(BaseSendOTP):
-    def validate_email(self):
-        serializer = EmailSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        user_email = serializer.data['email']
-        obj_user = User.objects.filter(email=user_email).first()
-        if not obj_user:
-            return user_email, obj_user
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
-class ForgotPasswordSendOTP(BaseSendOTP):
-    def validate_email(self):
-        serializer = EmailSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        user_email = serializer.data['email']
-        obj_user = User.objects.filter(email=user_email).first()
-        if obj_user:
-            return user_email, obj_user
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        # utils.send_email(otp, user_email)
+        mail = '{0}'.format(str(serializer.validated_data['email']))
+        data = '{0}'.format(otp)
+        send_mail('پاتوق',
+                  data,
+                  'no-reply-khu@markop.ir',
+                  mail)
+        return Response(user_email, status=status.HTTP_200_OK)
 
 
 class Signup(generics.CreateAPIView):
@@ -97,7 +98,6 @@ class Signup(generics.CreateAPIView):
 
 class Signin(generics.GenericAPIView):
     serializer_class = SigninSerializer
-    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -107,10 +107,33 @@ class Signin(generics.GenericAPIView):
         return Response({'token': token.key})
 
 
+class ForgotPasswordSendOTP(generics.CreateAPIView):
+    serializer_class = ForgotPasswordSendOTPSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_email = serializer.validated_data['email']
+        pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
+        otp = get_random_string(length=5, allowed_chars='1234567890')
+        if pending_verify_obj:
+            time_now = timezone.now()
+            # if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+            pending_verify_obj.otp = otp
+            pending_verify_obj.send_time = time_now
+            pending_verify_obj.save()
+            # else:
+            #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            instance = PendingVerify(receptor=user_email, otp=otp)
+            instance.save()
+        utils.send_email(otp, user_email)
+        return Response(user_email, status=status.HTTP_200_OK)
+
+
 class ForgotPasswordView(generics.UpdateAPIView):
     serializer_class = ForgotPasswordSerializer
-    model = User
-    permission_classes = [permissions.AllowAny]
 
     def update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
