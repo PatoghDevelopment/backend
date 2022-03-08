@@ -13,7 +13,6 @@ import pyotp
 from .serializers import *
 
 
-#
 # class BaseSendOTP(generics.GenericAPIView):
 #     permission_classes = [permissions.AllowAny]
 #
@@ -47,7 +46,7 @@ from .serializers import *
 #         return Response(status=status.HTTP_201_CREATED)
 #
 
-class SingUpSendOTP(generics.CreateAPIView):
+class SignupSendOTP(generics.CreateAPIView):
     serializer_class = SignupSendOTPSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -59,22 +58,16 @@ class SingUpSendOTP(generics.CreateAPIView):
         otp = get_random_string(length=5, allowed_chars='1234567890')
         if pending_verify_obj:
             time_now = timezone.now()
-            # if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
-            pending_verify_obj.otp = otp
-            pending_verify_obj.send_time = time_now
-            pending_verify_obj.save()
-            # else:
-            #     return Response(status=status.HTTP_400_BAD_REQUEST)
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                pending_verify_obj.otp = otp
+                pending_verify_obj.send_time = time_now
+                pending_verify_obj.save()
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
-        # utils.send_email(otp, user_email)
-        mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = '{0}'.format(otp)
-        send_mail('پاتوق',
-                  data,
-                  'no-reply-khu@markop.ir',
-                  mail)
+        utils.send_email(otp, user_email)
         return Response(user_email, status=status.HTTP_200_OK)
 
 
@@ -119,12 +112,12 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
         otp = get_random_string(length=5, allowed_chars='1234567890')
         if pending_verify_obj:
             time_now = timezone.now()
-            # if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
-            pending_verify_obj.otp = otp
-            pending_verify_obj.send_time = time_now
-            pending_verify_obj.save()
-            # else:
-            #     return Response(status=status.HTTP_400_BAD_REQUEST)
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                pending_verify_obj.otp = otp
+                pending_verify_obj.send_time = time_now
+                pending_verify_obj.save()
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()

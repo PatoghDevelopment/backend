@@ -197,14 +197,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-DEFAULT_FROM_EMAIL = 'patogh@markop.ir'
-SERVER_EMAIL = 'patogh@markop.ir'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# DEFAULT_FROM_EMAIL = 'patogh@markop.ir'
+# SERVER_EMAIL = 'patogh@markop.ir'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'mail.markop.ir'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'patogh@markop.ir'
+# EMAIL_HOST_PASSWORD = 'ETU*nxt6eqk5vmj5mcp'
+# EMAIL_USE_TLS = True
+
+
 EMAIL_HOST = 'mail.markop.ir'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'patogh@markop.ir'
-EMAIL_HOST_PASSWORD = 'ETU*nxt6eqk5vmj5mcp'
+EMAIL_HOST_USER = 'no-reply-khu@markop.ir'
+EMAIL_HOST_PASSWORD = 'fuw9MUM7rir!lunk'
+EMAIL_PORT = '587'
 EMAIL_USE_TLS = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
