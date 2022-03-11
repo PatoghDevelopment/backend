@@ -22,7 +22,7 @@ class SignupSendOTP(generics.CreateAPIView):
         otp = get_random_string(length=5, allowed_chars='1234567890')
         if pending_verify_obj:
             time_now = timezone.now()
-            if time_now > pending_verify_obj.send_time + datetime.timedelta(seconds=10):
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(seconds=60):
                 pending_verify_obj.otp = otp
                 pending_verify_obj.send_time = time_now
                 pending_verify_obj.save()
@@ -32,7 +32,7 @@ class SignupSendOTP(generics.CreateAPIView):
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
         mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = 'با سلام {0} '.format(otp)
+        data = '{0}'.format(otp)
         send_mail('پاتوق',
                   data,
                   'patogh@markop.ir',
@@ -60,6 +60,7 @@ class Signup(generics.CreateAPIView):
 
 class Signin(generics.GenericAPIView):
     serializer_class = SigninSerializer
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -81,7 +82,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
         otp = get_random_string(length=5, allowed_chars='1234567890')
         if pending_verify_obj:
             time_now = timezone.now()
-            if time_now > pending_verify_obj.send_time + datetime.timedelta(seconds=10):
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(seconds=60):
                 pending_verify_obj.otp = otp
                 pending_verify_obj.send_time = time_now
                 pending_verify_obj.save()
@@ -91,7 +92,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
         mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = 'با سلام {0} '.format(otp)
+        data = '{0'.format(otp)
         send_mail('پاتوق',
                   data,
                   'patogh@markop.ir',
@@ -101,6 +102,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
 
 class ForgotPasswordView(generics.UpdateAPIView):
     serializer_class = ForgotPasswordSerializer
+    permission_classes = [permissions.AllowAny]
 
     def update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -128,6 +130,7 @@ class Profile(generics.RetrieveUpdateAPIView):
 
 class UserProfile(generics.RetrieveAPIView):
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
     queryset = User.objects.all()
 
     def get_object(self):
@@ -159,6 +162,7 @@ class ChangePassword(generics.UpdateAPIView):
 
 class Support(generics.CreateAPIView):
     serializer_class = Support
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
