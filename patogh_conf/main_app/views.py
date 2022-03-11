@@ -92,7 +92,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
         mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = '{0'.format(otp)
+        data = '{0}'.format(otp)
         send_mail('پاتوق',
                   data,
                   'patogh@markop.ir',
