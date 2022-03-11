@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import *
 from django.utils.translation import gettext_lazy as _
@@ -80,24 +81,14 @@ class SigninSerializer(serializers.Serializer):
         email = attrs.get('email')
         password = attrs.get('password')
         if email and password:
-
-            if User.objects.filter(email=email, password=password).exists():
-                user1 = User.objects.get(email=email)
-
-            elif User.objects.filter(email=email).exists():
-                user = User.objects.filter(email=email).first()
-                msg = _("رمز عبور اشتباه است")
-                raise serializers.ValidationError(msg, code='authorization')
-            else:
-                msg = _("کاربر با این مشخصات وجود ندارد")
-                raise serializers.ValidationError(msg, code='authorization')
+            user = authenticate(request=self.context.get('request'),
+                                email=email, password=password)
+            if not user:
+                raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
         else:
-            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
-            raise serializers.ValidationError(msg, code='authorization')
+            raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
 
-        if user1:
-            attrs['user'] = user1
-
+        attrs['user'] = user
         return attrs
 
 
@@ -124,16 +115,15 @@ class ForgotPasswordSendOTPSerializer(serializers.Serializer):
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    otp_token = serializers.CharField(required=True)
-    password1 = serializers.CharField(
-        label=_("1رمز عبور"), min_length=6, max_length=30,
-        write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
-    password2 = serializers.CharField(
-        label=_("2رمز عبور"), min_length=6, max_length=30,
-        write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+    otp = serializers.CharField(label=_("کد تایید"), write_only=True)
+    password1 = serializers.CharField(label=_("رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    password2 = serializers.CharField(label=_("تایید رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
-    def validate(self, attrs):
+
+def validate(self, attrs):
         email = attrs.get('email')
         password1 = attrs.get('password1')
         password2 = attrs.get('password2')
@@ -142,7 +132,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
             if password1 != password2:
                 msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
                 raise serializers.ValidationError(msg, code='conflict')
-            otp = attrs.get('otp_token')
+            otp = attrs.get('otp')
             pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
             time_now = timezone.now()
             if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=2):
