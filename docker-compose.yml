@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  patogh-api:
+    build: .
+    image: patogh-api:latest
+    container_name: patogh-api
+    restart: always
+    ports:
+      - 127.0.0.1:6007:8000
+    env_file:
+      - .env.prod
+    networks:
+      - mysql-network
+    external_links:
+      - mysql
+    volumes:
+      - /srv/patogh-api/media:/app/media
+      - /srv/patogh-api/static:/app/static
+
+networks:
+  mysql-network:
+    external: true
