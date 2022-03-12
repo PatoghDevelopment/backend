@@ -1,0 +1,270 @@
+from django.contrib.auth import authenticate
+from rest_framework import serializers
+from .models import *
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+import datetime
+
+
+class SignupSendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+
+        if email:
+            if User.objects.filter(email=email).exists():
+                msg = _("کاربر با این مشخصات وجود دارد")
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            raise serializers.ValidationError('ایمیل نمی تواند خالی باشد!', code='authorization')
+        return attrs
+
+
+class SignupSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+    username = serializers.CharField(label=_("نام کاربری"), max_length=100, write_only=True)
+    otp = serializers.CharField(label=_("کد تایید"), write_only=True)
+    password1 = serializers.CharField(label=_("رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    password2 = serializers.CharField(label=_("تایید رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        username = attrs.get('username')
+        password1 = attrs.get('password1')
+        password2 = attrs.get('password2')
+        if email and username and password1 and password2:
+            if User.objects.filter(email=email).exists():
+                msg = _("کاربر با این مشخصات وجود دارد")
+                raise serializers.ValidationError(msg, code='conflict')
+            if User.objects.filter(username=username).exists():
+                msg = _("این نام کاربری موجود است")
+                raise serializers.ValidationError(msg, code='conflict')
+            if password1 != password2:
+                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+                raise serializers.ValidationError(msg, code='conflict')
+
+            else:
+                otp = attrs.get('otp')
+                pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+                time_now = timezone.now()
+                if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+                    if int(otp) == pending_verify_obj.otp:
+                        return attrs
+                    else:
+                        raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+                else:
+                    raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+
+        else:
+            msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
+            raise serializers.ValidationError(msg, code='authorization')
+
+    def create(self, validated_data):
+        email = validated_data['email']
+        username = validated_data['username']
+        password1 = validated_data['password1']
+        user = User.objects.create_user(email, username, password1)
+        PendingVerify.objects.filter(receptor=email).delete()
+        return user
+
+
+class SigninSerializer(serializers.Serializer):
+    email = serializers.EmailField(label=_("ایمیل"), write_only=True)
+    password = serializers.CharField(label=_("رمز عبور"), min_length=6, write_only=True,
+                                     help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    token = serializers.CharField(label=_("توکن"), read_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        if email and password:
+            user = authenticate(request=self.context.get('request'),
+                                email=email, password=password)
+            if not user:
+                raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
+        else:
+            raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
+
+        attrs['user'] = user
+        return attrs
+
+
+class VerifyOTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['otp']
+
+
+class ForgotPasswordSendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if email:
+            user = User.objects.filter(email=email)
+            if user:
+                user = user.first()
+            if not user:
+                raise serializers.ValidationError('کاربری با این اطلاعات موجود نیست!', code='authorization')
+        else:
+            raise serializers.ValidationError('ایمیل نمی تواند خالی باشد!', code='authorization')
+        return attrs
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='ایمیل', write_only=True)
+    otp = serializers.CharField(label=_("کد تایید"), write_only=True)
+    password1 = serializers.CharField(label=_("رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    password2 = serializers.CharField(label=_("تایید رمز عبور"), min_length=6, max_length=30,
+                                      write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+
+
+def validate(self, attrs):
+    email = attrs.get('email')
+    password1 = attrs.get('password1')
+    password2 = attrs.get('password2')
+    user = User.objects.filter(email=email).first()
+    if User.objects.filter(email=email).exists():
+        if password1 != password2:
+            msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+            raise serializers.ValidationError(msg, code='conflict')
+        otp = attrs.get('otp')
+        pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+        time_now = timezone.now()
+        if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+            if int(otp) == pending_verify_obj.otp:
+                return attrs
+            else:
+                raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+        else:
+            raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+    else:
+        msg = _("کاربری با این اطلاعات وجود ندارد")
+        raise serializers.ValidationError(msg, code='authorization')
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'name']
+        read_only_fields = ['id']
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'bio']
+        read_only_fields = ['email']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(label='رمز عبور قبلی', max_length=128, required=True,
+                                         write_only=True)
+    new_password = serializers.CharField(label=_("رمز عبور جدید"), min_length=6, max_length=30,
+                                         write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    new_password_confirmation = serializers.CharField(label=_("تایید رمز عبور جدید"), min_length=6, max_length=30,
+                                                      write_only=True,
+                                                      help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('رمز عبور قبلی اشتباه است!')
+        return value
+
+    def validate(self, data):
+        if data['new_password'] == data['old_password']:
+            raise serializers.ValidationError('رمز عبور قبلی و جدید یکسان است!', code='conflict')
+        if data['new_password'] != data['new_password_confirmation']:
+            raise serializers.ValidationError('رمز عبور با تکرارش یکسان نیست!', code='conflict')
+        return data
+
+    def save(self, **kwargs):
+        password = self.validated_data['new_password']
+        user = self.context['request'].user
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class Support(serializers.ModelSerializer):
+    date = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Support
+        fields = ['id', 'email', 'description', 'date']
+
+
+class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
+    class Meta:
+        model = Patogh
+        fields = "__all__"
+
+
+class PatoghMembersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatoghMembers
+        fields = "__all__"
+
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(source='sender.username')
+    receiver = serializers.ReadOnlyField(source='receiver.username')
+
+    class Meta:
+        model = FriendRequest
+        fields = ('sender', 'receiver', 'datetime')
+
+
+class FriendSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField()
+    bio = serializers.ReadOnlyField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'bio')
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ('id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members')
+
+    def get_num_of_members(self, company):
+        return company.members.count()
+
+
+class LeaveCompanySerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField()
+    description = serializers.ReadOnlyField()
+    photo = serializers.ReadOnlyField()
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ('id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members')
+
+    def get_num_of_members(self, company):
+        return company.members.count()
+
+
+class CompanyRUDSerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    name = serializers.ReadOnlyField()
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ['id', 'name', 'description', 'photo', 'date', 'creator', 'num_of_members']
+
+    def get_num_of_members(self, company):
+        return company.members.count()
