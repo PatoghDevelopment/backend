@@ -32,7 +32,6 @@ class SignupSendOTP(generics.CreateAPIView):
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
-
         msg_html = render_to_string('Email.html', {'Verification_Code': otp})
         mail = '{0}'.format(str(serializer.validated_data['email']))
         send_mail('پاتوق',
@@ -93,12 +92,12 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
+        msg_html = render_to_string('Email.html', {'Verification_Code': otp})
         mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = '{0}'.format(otp)
         send_mail('پاتوق',
-                  data,
+                  msg_html,
                   'patogh@markop.ir',
-                  [mail])
+                  [mail], html_message=msg_html)
         return Response(user_email, status=status.HTTP_200_OK)
 
 
