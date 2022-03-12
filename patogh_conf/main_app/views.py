@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions, generics, status
@@ -31,12 +32,13 @@ class SignupSendOTP(generics.CreateAPIView):
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
+
+        msg_html = render_to_string('Email.html', {'Verification_Code': otp})
         mail = '{0}'.format(str(serializer.validated_data['email']))
-        data = '{0}'.format(otp)
         send_mail('پاتوق',
-                  data,
+                  msg_html,
                   'patogh@markop.ir',
-                  [mail])
+                  [mail], html_message=msg_html)
         return Response(user_email, status=status.HTTP_200_OK)
 
 
