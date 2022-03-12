@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d0df4996-ada4-4ab5-be82-875bdf03f0b6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/patogh_conf/main_app/migrations/0001_initial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/views.py" afterDir="false" />
-    </list>
+    <list default="true" id="d0df4996-ada4-4ab5-be82-875bdf03f0b6" name="Default Changelist" comment="" />
+    <list id="1858929e-6acb-40fc-9389-36df57b2eb08" name="Revert &quot;debug&quot;" comment="Revert &quot;debug&quot;&#10;&#10;This reverts commit aed945dc" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,6 +10,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="ProjectId" id="265orYSyHyO0GYGVfi8xgUogebl" />
   <component name="ProjectViewState">
@@ -26,6 +22,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="d0df4996-ada4-4ab5-be82-875bdf03f0b6" name="Default Changelist" comment="" />
@@ -34,7 +31,22 @@
       <option name="presentableId" value="Default" />
       <updated>1646723008318</updated>
       <workItem from="1646723011408" duration="2000" />
+      <workItem from="1647114879645" duration="782000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
