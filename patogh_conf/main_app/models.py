@@ -78,8 +78,6 @@ def patogh_image_directory_path(instance, filename):
 
 
 class City(models.Model):
-    id = models.UUIDField(verbose_name=_("شناسه"), primary_key=True, default=uuid.uuid4,
-                          help_text="Unique Id for this Tag")
     name = models.CharField(max_length=50, verbose_name=_("شهر"))
 
     class Meta:
@@ -99,8 +97,9 @@ class User(AbstractUser):
     birth_date = models.DateField(verbose_name=_("تاریخ تولد"), null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.PROTECT, null=True, verbose_name=_("شهر"), blank=True)
     gender_status = (
-        ('0', 'female'),
-        ('1', 'male')
+        ('female', 'female'),
+        ('male', 'male'),
+        ('other', 'other')
     )
     gender = models.CharField(verbose_name=_("جنسیت"), max_length=6, choices=gender_status, default='1', null=True,
                               blank=True)
@@ -273,5 +272,3 @@ class Company(models.Model):
         ordering = ['-date']
         verbose_name = 'اکیپ'
         verbose_name_plural = 'اکیپ ها'
-
-

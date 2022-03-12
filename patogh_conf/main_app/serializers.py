@@ -50,7 +50,7 @@ class SignupSerializer(serializers.Serializer):
                 otp = attrs.get('otp')
                 pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
                 time_now = timezone.now()
-                if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=2):
+                if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
                     if int(otp) == pending_verify_obj.otp:
                         return attrs
                     else:
@@ -124,30 +124,30 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 def validate(self, attrs):
-        email = attrs.get('email')
-        password1 = attrs.get('password1')
-        password2 = attrs.get('password2')
-        user = User.objects.filter(email=email).first()
-        if User.objects.filter(email=email).exists():
-            if password1 != password2:
-                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
-                raise serializers.ValidationError(msg, code='conflict')
-            otp = attrs.get('otp')
-            pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
-            time_now = timezone.now()
-            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=2):
-                if int(otp) == pending_verify_obj.otp:
-                    return attrs
-                else:
-                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+    email = attrs.get('email')
+    password1 = attrs.get('password1')
+    password2 = attrs.get('password2')
+    user = User.objects.filter(email=email).first()
+    if User.objects.filter(email=email).exists():
+        if password1 != password2:
+            msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+            raise serializers.ValidationError(msg, code='conflict')
+        otp = attrs.get('otp')
+        pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+        time_now = timezone.now()
+        if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+            if int(otp) == pending_verify_obj.otp:
+                return attrs
             else:
-                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+                raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
         else:
-            msg = _("کاربری با این اطلاعات وجود ندارد")
-            raise serializers.ValidationError(msg, code='authorization')
+            raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+    else:
+        msg = _("کاربری با این اطلاعات وجود ندارد")
+        raise serializers.ValidationError(msg, code='authorization')
 
 
-class CityListSerializer(serializers.ModelSerializer):
+class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = ['id', 'name']
@@ -155,7 +155,6 @@ class CityListSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), many=True, required=False)
 
     class Meta:
         model = User
@@ -166,9 +165,9 @@ class UserSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(label='رمز عبور قبلی', max_length=128, required=True,
                                          write_only=True)
-    new_password = serializers.CharField(label=_("1رمز عبور"), min_length=6, max_length=30,
+    new_password = serializers.CharField(label=_("رمز عبور جدید"), min_length=6, max_length=30,
                                          write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
-    new_password_confirmation = serializers.CharField(label=_("2رمز عبور"), min_length=6, max_length=30,
+    new_password_confirmation = serializers.CharField(label=_("تایید رمز عبور جدید"), min_length=6, max_length=30,
                                                       write_only=True,
                                                       help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
 
