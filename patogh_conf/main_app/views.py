@@ -11,8 +11,8 @@ from rest_framework.views import APIView
 from .serializers import *
 
 
-class SignupSendOTP(generics.CreateAPIView):
-    serializer_class = SignupSendOTPSerializer
+class SignupOTP(generics.CreateAPIView):
+    serializer_class = SignupOTPSerializer
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -161,8 +161,49 @@ class ChangePassword(generics.UpdateAPIView):
         return Response({'token': token.key}, status=status.HTTP_200_OK)
 
 
+class ChangeEmailOTP(generics.CreateAPIView):
+    serializer_class = ChangeEmailOTPSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_email = serializer.validated_data['new_email']
+        pending_verify_obj = PendingVerify.objects.filter(receptor=user_email).first()
+        otp = get_random_string(length=5, allowed_chars='1234567890')
+        if pending_verify_obj:
+            time_now = timezone.now()
+            if time_now > pending_verify_obj.send_time + datetime.timedelta(seconds=60):
+                pending_verify_obj.otp = otp
+                pending_verify_obj.send_time = time_now
+                pending_verify_obj.save()
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            instance = PendingVerify(receptor=user_email, otp=otp)
+            instance.save()
+        msg_html = render_to_string('Email.html', {'Verification_Code': otp})
+        mail = '{0}'.format(str(serializer.validated_data['new_email']))
+        send_mail('پاتوق',
+                  msg_html,
+                  'patogh@markop.ir',
+                  [mail], html_message=msg_html)
+        return Response(user_email, status=status.HTTP_200_OK)
+
+
+class ChangeEmail(generics.UpdateAPIView):
+    serializer_class = ChangeEmailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 class Support(generics.CreateAPIView):
-    serializer_class = Support
+    serializer_class = SupportSerializer
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
