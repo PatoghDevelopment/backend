@@ -107,6 +107,7 @@ class User(AbstractUser):
                                , null=True, blank=True, help_text=_("JPG, JPEG or PNG is validate"),
                                validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size]
                                )
+    friends = models.ManyToManyField('User', verbose_name='دوستان', blank=True)
     bio = models.CharField(verbose_name=_("بیو"), max_length=1000, null=True, blank=True)
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
