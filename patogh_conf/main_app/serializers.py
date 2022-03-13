@@ -72,7 +72,7 @@ class SignupSerializer(serializers.Serializer):
 
 
 class SigninSerializer(serializers.Serializer):
-    email = serializers.EmailField(label=_("ایمیل"), write_only=True)
+    email = serializers.CharField(label=_("ایمیل"), write_only=True)
     password = serializers.CharField(label=_("رمز عبور"), min_length=6, write_only=True,
                                      help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
     token = serializers.CharField(label=_("توکن"), read_only=True)
@@ -81,10 +81,17 @@ class SigninSerializer(serializers.Serializer):
         email = attrs.get('email')
         password = attrs.get('password')
         if email and password:
-            user = authenticate(request=self.context.get('request'),
-                                email=email, password=password)
-            if not user:
-                raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
+            if User.objects.filter(email=email):
+                user = authenticate(request=self.context.get('request'),
+                                    email=email, password=password)
+                if not user:
+                    raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
+            elif User.objects.filter(username=email):
+                user1 = User.objects.filter(username=email).first()
+                user = authenticate(request=self.context.get('request'),
+                                    username=user1.email, password=password)
+                if not user:
+                    raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
         else:
             raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
 
