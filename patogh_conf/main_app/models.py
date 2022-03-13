@@ -101,13 +101,13 @@ class User(AbstractUser):
         ('male', 'male'),
         ('other', 'other')
     )
-    gender = models.CharField(verbose_name=_("جنسیت"), max_length=6, choices=gender_status, default='1', null=True,
+    gender = models.CharField(verbose_name=_("جنسیت"), max_length=6, choices=gender_status, null=True,
                               blank=True)
     avatar = models.ImageField(verbose_name=_("عکس پروفایل"), upload_to=user_image_profile_directory_path
                                , null=True, blank=True, help_text=_("JPG, JPEG or PNG is validate"),
                                validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size]
                                )
-    bio = models.CharField(verbose_name=_("درباره"), max_length=1000, null=True, blank=True)
+    bio = models.CharField(verbose_name=_("بیو"), max_length=1000, null=True, blank=True)
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
 
