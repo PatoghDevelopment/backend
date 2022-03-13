@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 
 
-class SignupSendOTPSerializer(serializers.Serializer):
+class SignupOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(label='ایمیل', write_only=True)
 
     def validate(self, attrs):
@@ -199,7 +199,54 @@ class ChangePasswordSerializer(serializers.Serializer):
         return user
 
 
-class Support(serializers.ModelSerializer):
+class ChangeEmailOTPSerializer(serializers.Serializer):
+    new_email = serializers.EmailField(label='ایمیل جدید', write_only=True)
+
+    def validate(self, attrs):
+        new_email = attrs.get('new_email')
+        if new_email:
+            user = User.objects.filter(email=new_email)
+            if user:
+                raise serializers.ValidationError('ایمیل جدید از قبل موجود است!', code='conflict')
+        else:
+            raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
+        return attrs
+
+
+class ChangeEmailSerializer(serializers.Serializer):
+    new_email = serializers.EmailField(label='ایمیل جدید', write_only=True)
+    otp = serializers.CharField(label='کد تایید', min_length=5, write_only=True)
+
+    def validate(self, attrs):
+        new_email = attrs.get('new_email')
+        otp = attrs.get('otp')
+        if new_email and otp:
+            user = self.context['request'].user
+            user1 = User.objects.filter(email=new_email)
+            if user1:
+                raise serializers.ValidationError('ایمیل جدید از قبل موجود است!', code='conflict')
+            pending_verify_obj = PendingVerify.objects.filter(receptor=new_email).first()
+            time_now = timezone.now()
+            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+                if int(otp) == pending_verify_obj.otp:
+                    return attrs
+                else:
+                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+            else:
+                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+
+        else:
+            raise serializers.ValidationError('این فیلد نمی تواند خالی باشد!', code='authorization')
+
+    def save(self, **kwargs):
+        new_email = self.validated_data['new_email']
+        user = self.context['request'].user
+        user.email = new_email
+        user.save()
+        return user
+
+
+class SupportSerializer(serializers.ModelSerializer):
     date = serializers.ReadOnlyField()
 
     class Meta:
