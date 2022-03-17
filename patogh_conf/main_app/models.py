@@ -73,6 +73,10 @@ def party_image_profile_directory_path(instance, filename):
     return 'party/{0}/prof_image/{1}'.format(str(instance.id), filename)
 
 
+def hangout_image_profile_directory_path(instance, filename):
+    return 'hangout/{0}/hangout_image/{1}'.format(str(instance.id), filename)
+
+
 def patogh_image_directory_path(instance, filename):
     return 'patogh/{0}/patogh_image/{1}'.format(str(instance.id), filename)
 
@@ -89,6 +93,13 @@ class City(models.Model):
         return self.name
 
 
+gender_status = (
+    ('female', 'female'),
+    ('male', 'male'),
+    ('other', 'other')
+)
+
+
 class User(AbstractUser):
     username = models.CharField(verbose_name=_("نام کاربری"), max_length=100, unique=True)
     first_name = models.CharField(verbose_name=_("نام"), max_length=100, null=True, blank=True)
@@ -96,11 +107,7 @@ class User(AbstractUser):
     email = models.EmailField(verbose_name=_("ایمیل"), max_length=50, unique=True)
     birth_date = models.DateField(verbose_name=_("تاریخ تولد"), null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.PROTECT, null=True, verbose_name=_("شهر"), blank=True)
-    gender_status = (
-        ('female', 'female'),
-        ('male', 'male'),
-        ('other', 'other')
-    )
+
     gender = models.CharField(verbose_name=_("جنسیت"), max_length=6, choices=gender_status, null=True,
                               blank=True)
     avatar = models.ImageField(verbose_name=_("عکس پروفایل"), upload_to=user_image_profile_directory_path
@@ -273,3 +280,105 @@ class Company(models.Model):
         ordering = ['-date']
         verbose_name = 'اکیپ'
         verbose_name_plural = 'اکیپ ها'
+
+
+status_choices = [
+    ('pr', 'خصوصی'),
+    ('pu', 'عمومی')
+]
+
+province_choices = [
+    ('ea', 'آذربایجان شرقی'),
+    ('wa', 'آذربایجان غربی'),
+    ('ard', 'اردبیل'),
+    ('esf', 'اصفهان'),
+    ('alb', 'البرز'),
+    ('ila', 'ایلام'),
+    ('bus', 'بوشهر'),
+    ('teh', 'تهران'),
+    ('cha', 'چهارمحال و بختیاری'),
+    ('khs', 'خراسان جنوبی'),
+    ('khn', 'خراسان شمالی'),
+    ('khr', 'خراسان رضوی'),
+    ('khu', 'خوزستان'),
+    ('zan', 'زنجان'),
+    ('sem', 'سمنان'),
+    ('sis', 'سیستان و بلوچستان'),
+    ('far', 'فارس'),
+    ('qaz', 'قزوین'),
+    ('qom', 'قم'),
+    ('kor', 'کردستان'),
+    ('ker', 'کرمان'),
+    ('kermanshah', 'کرمانشاه'),
+    ('koh', 'کهگیلویه و بویر احمد'),
+    ('gol', 'گلستان'),
+    ('gil', 'گیلان'),
+    ('lor', 'لرستان'),
+    ('maz', 'مازندران'),
+    ('mar', 'مرکزی'),
+    ('hor', 'هرمزگان'),
+    ('ham', 'همدان'),
+    ('yazd', 'یزد')
+
+]
+
+type_choices = [
+    ('e', 'علمی'),
+    ('v', 'ورزشی'),
+    ('a', 'هنری')
+]
+
+place_choices = [
+    ('p', 'پارک'),
+    ('m', 'موزه'),
+    ('c', 'کافه'),
+    ('r', 'رستوران '),
+    ('c', 'سینما')
+]
+
+repeat_choices = [
+    ('n', 'هیچکدام'),
+    ('w', 'هر هفته'),
+    ('m', 'هر ماه')
+]
+
+
+class Hangout(models.Model):
+    name = models.CharField(max_length=30, verbose_name='نام')
+    datetime = models.DateTimeField(verbose_name='زمان برگذاری')
+    description = models.CharField(max_length=100, verbose_name='توضیحات')
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='سازنده', related_name='hangout_creator')
+    # photo
+    address = models.CharField(verbose_name='آدرس', max_length=300)
+    gender = models.CharField(max_length=10, choices=gender_status, verbose_name='جنسیت')
+    province = models.CharField(max_length=20, choices=province_choices, verbose_name='استان')
+    members = models.ManyToManyField(User, verbose_name='اعضا')
+    status = models.CharField(max_length=2, choices=status_choices, verbose_name='وضعیت')
+    min_age = models.PositiveIntegerField(validators=[MinValueValidator(12), MaxValueValidator(50)],
+                                          verbose_name='حداقل سن', null=True, blank=True)
+    max_age = models.PositiveIntegerField(validators=[MinValueValidator(16), MaxValueValidator(70)],
+                                          verbose_name='حداکثر سن', null=True, blank=True)
+    price = models.PositiveIntegerField(verbose_name='هزینه', null=True, blank=True)
+    type = models.CharField(verbose_name='نوع پاتوق', max_length=30, choices=type_choices, null=True, blank=True)
+    place = models.CharField(verbose_name='مکان', choices=place_choices, max_length=40, null=True, blank=True)
+    is_over = models.BooleanField(verbose_name='تمام شده', default=False
+                                  )
+    duration = models.PositiveIntegerField(verbose_name='مدت برگزاری',
+                                           validators=[MinValueValidator(1), MaxValueValidator(10)], blank=True,
+                                           null=True)
+    repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='n', max_length=1, null=True,
+                              blank=True)
+
+    class Meta:
+        verbose_name = 'پاتوق'
+        verbose_name_plural = 'پاتوق ها'
+
+
+"""class HangoutImages(models.Model):
+    Hangout = models.ForeignKey(Hangout, on_delete=models.CASCADE, verbose_name='پاتوق')
+    image = models.ImageField(verbose_name='عکس', upload_to=hangout_image_profile_directory_path(),
+                              validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size])
+
+    class Meta:
+        verbose_name = 'عکس پاتوق'
+        verbose_name_plural = 'عکس های پاتوق'"""

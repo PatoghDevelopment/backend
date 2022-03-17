@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -9,6 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
+from django.db.models import Q
 
 
 class SignupOTP(generics.CreateAPIView):
@@ -421,3 +424,37 @@ class CompanySearch(generics.ListAPIView):
 
     def get_queryset(self):
         return Company.objects.filter(name=self.kwargs['name'], members__in=[self.request.user])
+
+
+class HangoutCreate(generics.CreateAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        obj = serializer.save(creator=self.request.user, is_over=False)
+        obj.members.add(self.request.user)
+
+
+class HangoutList(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.hangout_set.all()
+
+
+class HangoutMembers(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[self.request.user]).members.all()
+
+
+class FollowingHangoutList(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.hangout_set.filter(is_over=False)
+

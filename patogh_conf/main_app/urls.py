@@ -4,14 +4,13 @@ from .views import *
 urlpatterns = [
     # athentication paths
 
-
     # Patogh paths
-    #path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
-    #path('patogh/detail/limit/<uuid:pk>/', PatoghDetailLimitedColumn.as_view(), name="patogh_detail_limited_column"),
-    #path('patogh/create/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghCreate'),
-    #path('patogh/update/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghUpdate'),
-    #path('patogh/delete/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghDelete'),
-    #path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
+    # path('patogh/detail/<uuid:pk>/', PatoghDetail.as_view(), name="patogh_detail"),
+    # path('patogh/detail/limit/<uuid:pk>/', PatoghDetailLimitedColumn.as_view(), name="patogh_detail_limited_column"),
+    # path('patogh/create/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghCreate'),
+    # path('patogh/update/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghUpdate'),
+    # path('patogh/delete/', PatoghCreateAndUpdateAndDelete.as_view(), name='patoghDelete'),
+    # path('patogh/list/', PatoghDetailWithSearch.as_view(), name="patogh_list_with_search"),
 
     path('newfriendrequest/<str:username>', FriendRequestListCreate.as_view()),
     path('friendrequests/', FriendRequestListCreate.as_view()),
@@ -28,4 +27,11 @@ urlpatterns = [
     path('company/<int:pk>/members/', CompanyMembers.as_view()),
     path('company-rud/<int:pk>/', CompanyRUD.as_view()),
     path('searchcompany/<str:name>/', CompanySearch.as_view()),
+    path('newhangout/', HangoutCreate.as_view()),
+    path('allhangouts/', HangoutList.as_view()),
+    path('hangout/<int:pk>/members/', HangoutMembers.as_view()),
+
+    path('followinghangouts/', FollowingHangoutList.as_view()),
+
+
 ]
