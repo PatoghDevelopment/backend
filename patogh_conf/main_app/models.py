@@ -94,9 +94,8 @@ class City(models.Model):
 
 
 gender_status = (
-    ('female', 'female'),
-    ('male', 'male'),
-    ('other', 'other')
+    ('f', 'female'),
+    ('m', 'male'),
 )
 
 
@@ -281,6 +280,11 @@ class Company(models.Model):
         verbose_name = 'اکیپ'
         verbose_name_plural = 'اکیپ ها'
 
+hangout_gender_choices = [
+    ('m', 'پسر'),
+    ('f', 'دختر'),
+    ('b', 'مختلط')
+]
 
 status_choices = [
     ('pr', 'خصوصی'),
@@ -350,7 +354,7 @@ class Hangout(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='سازنده', related_name='hangout_creator')
     # photo
     address = models.CharField(verbose_name='آدرس', max_length=300)
-    gender = models.CharField(max_length=10, choices=gender_status, verbose_name='جنسیت')
+    gender = models.CharField(max_length=10, choices=hangout_gender_choices, verbose_name='جنسیت')
     province = models.CharField(max_length=20, choices=province_choices, verbose_name='استان')
     members = models.ManyToManyField(User, verbose_name='اعضا')
     status = models.CharField(max_length=2, choices=status_choices, verbose_name='وضعیت')
@@ -368,17 +372,14 @@ class Hangout(models.Model):
                                            null=True)
     repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='n', max_length=1, null=True,
                               blank=True)
+    maximum_members = models.PositiveIntegerField(verbose_name='حداکثر تعداد اعضا', null=True, blank=True)
 
     class Meta:
         verbose_name = 'پاتوق'
         verbose_name_plural = 'پاتوق ها'
 
 
-"""class HangoutImages(models.Model):
-    Hangout = models.ForeignKey(Hangout, on_delete=models.CASCADE, verbose_name='پاتوق')
-    image = models.ImageField(verbose_name='عکس', upload_to=hangout_image_profile_directory_path(),
-                              validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size])
-
-    class Meta:
-        verbose_name = 'عکس پاتوق'
-        verbose_name_plural = 'عکس های پاتوق'"""
+class HangoutInvitation(models.Model):
+    hangout = models.ForeignKey(Hangout, verbose_name='پاتوق', on_delete=models.CASCADE)
+    datetime = models.DateField(verbose_name='زمان ارسال', auto_now_add=True)
+    user = models.ForeignKey(User, verbose_name='کاربر', on_delete=models.CASCADE)

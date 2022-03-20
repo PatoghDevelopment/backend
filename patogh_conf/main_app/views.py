@@ -451,10 +451,127 @@ class HangoutMembers(generics.ListAPIView):
         return get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[self.request.user]).members.all()
 
 
-class FollowingHangoutList(generics.ListAPIView):
+class FollowingHangoutsList(generics.ListAPIView):
     serializer_class = HangoutSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return self.request.user.hangout_set.filter(is_over=False)
 
+
+class FinishHangout(generics.CreateAPIView):
+    serializer_class = FinishHangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Hangout.objects.filter(creator=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user, is_over=False)
+        hangout.is_over = True
+        hangout.save()
+        return Response('Done', status=200)
+
+
+class FinishedHangouts(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Hangout.objects.filter(members__in=[self.request.user], is_over=True)
+
+
+class InviteHangoutMember(generics.CreateAPIView):
+    serializer_class = HangoutInvitationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        age = (date.today() - user.birth_date) // timedelta(days=365.2425)
+        if hangout.gender != 'b' and hangout.gender != user.gender:
+            return Response("user gender doesn't match", status=403)
+        if hangout.min_age and hangout.max_age and (age < hangout.min_age or age > hangout.max_age):
+            return Response("user age doesn't match", status=403)
+        if user in hangout.members.all():
+            return Response('Already a member', status=400)
+        if hangout.maximum_members and hangout.maximum_members == hangout.members.count():
+            return Response('ظرفیت پاتوق تکمیل است', status=403)
+        if HangoutInvitation.objects.filter(user=user, hangout=hangout).exists():
+            return Response('The user already has an invitation', status=400)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+    def perform_create(self, serializer):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+
+        serializer.save(user=user, hangout=hangout)
+
+
+class HangoutInvitations(generics.ListAPIView):
+    serializer_class = HangoutInvitationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return HangoutInvitation.objects.filter(user=self.request.user)
+
+
+class AcceptHangoutInvitation(generics.CreateAPIView):
+    serializer_class = HangoutInvitationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        invite = get_object_or_404(HangoutInvitation, pk=self.kwargs['pk'], user=self.request.user)
+        invite.hangout.members.add(self.request.user)
+        invite.delete()
+        return Response('Accepted', status=200)
+
+
+class RejectHangoutInvitation(generics.CreateAPIView):
+    serializer_class = HangoutInvitationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        invite = get_object_or_404(HangoutInvitation, pk=self.kwargs['pk'], user=self.request.user)
+        invite.delete()
+        return Response('Deleted', status=200)
+
+
+class HangoutRUD(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = HangoutRUDSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Hangout.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        return self.destroy(self, request, *args, **kwargs)
+
+
+class LeaveHangout(generics.CreateAPIView):
+    serializer_class = FinishHangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[self.request.user])
+        if hangout.creator == self.request.user:
+            hangout.delete()
+            return Response('Hangout deleted')
+        hangout.members.remove(self.request.user)
+        return Response('You left the hangout')
+
+
+class RemoveHangoutMember(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[user], creator=self.request.user)
+        hangout.members.remove(user)
+        return Response('Removed')
