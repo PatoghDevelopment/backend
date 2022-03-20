@@ -379,3 +379,9 @@ class HangoutRUDSerializer(serializers.ModelSerializer):
                   'price', 'type', 'place', 'duration', 'maximum_members', 'repeat']
 
 
+class HangoutImageSerializer(serializers.ModelSerializer):
+    hangout = serializers.ReadOnlyField(source='hangout.name')
+
+    class Meta:
+        model = HangoutImage
+        fields = ['id', 'hangout', 'image']

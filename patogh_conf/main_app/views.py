@@ -575,3 +575,35 @@ class RemoveHangoutMember(generics.CreateAPIView):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[user], creator=self.request.user)
         hangout.members.remove(user)
         return Response('Removed')
+
+
+class AddHangoutImage(generics.CreateAPIView):
+    serializer_class = HangoutImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        serializer.save(hangout=hangout)
+
+
+class HangoutImagesList(generics.ListAPIView):
+    serializer_class = HangoutImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], members__in=[self.request.user])
+        return HangoutImage.objects.filter(hangout=hangout)
+
+
+class RemoveHangoutImage(generics.DestroyAPIView):
+    serializer_class = HangoutImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        return HangoutImage.objects.filter(hangout=hangout)
+
+    def delete(self, request, *args, **kwargs):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        return self.destroy(self, request, *args, **kwargs)
+

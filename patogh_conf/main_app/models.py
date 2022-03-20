@@ -280,6 +280,7 @@ class Company(models.Model):
         verbose_name = 'اکیپ'
         verbose_name_plural = 'اکیپ ها'
 
+
 hangout_gender_choices = [
     ('m', 'پسر'),
     ('f', 'دختر'),
@@ -352,7 +353,6 @@ class Hangout(models.Model):
     datetime = models.DateTimeField(verbose_name='زمان برگذاری')
     description = models.CharField(max_length=100, verbose_name='توضیحات')
     creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='سازنده', related_name='hangout_creator')
-    # photo
     address = models.CharField(verbose_name='آدرس', max_length=300)
     gender = models.CharField(max_length=10, choices=hangout_gender_choices, verbose_name='جنسیت')
     province = models.CharField(max_length=20, choices=province_choices, verbose_name='استان')
@@ -377,6 +377,13 @@ class Hangout(models.Model):
     class Meta:
         verbose_name = 'پاتوق'
         verbose_name_plural = 'پاتوق ها'
+
+
+class HangoutImage(models.Model):
+    image = models.ImageField(verbose_name='عکس', upload_to=hangout_image_profile_directory_path,
+                              validators=[FileExtensionValidator(VALID_IMAGE_FORMAT), validate_image_size])
+    hangout = models.ForeignKey(Hangout, verbose_name='پاتوق', on_delete=models.CASCADE)
+
 
 
 class HangoutInvitation(models.Model):
