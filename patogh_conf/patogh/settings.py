@@ -81,7 +81,6 @@ CORS_ALLOWED_ORIGINS = [
     # 'https://patogh.markop.ir/backuppassword2',
     # 'https://patogh.markop.ir/backuppassword1',
     # 'https://patogh.markop.ir/profile'
-
 ]
 
 ROOT_URLCONF = 'patogh.urls'

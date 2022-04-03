@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -11,7 +10,6 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
-from django.db.models import Q
 
 
 class SignupOTP(generics.CreateAPIView):
@@ -211,50 +209,6 @@ class Support(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-
-
-# Patogh
-
-"""class PatoghDetail(APIView):
-    permission_classes = (AllowAny,)
-
-    def get(self, request, pk, format=None):
-        queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
-        serializer = PatoghSerializer()
-
-        return Response(serializer.data)"""
-
-"""class PatoghDetailLimitedColumn(APIView):
-    permission_classes = (AllowAny,)
-
-    def get(self, request, pk, format=None):
-        queryset = Patogh.objects.all().select_related('patogh__patoghinfo').filter(pk=pk)
-        serializer = PatoghLimitSerializer()
-
-        return Response(serializer.data)"""
-
-"""class PatoghCreateAndUpdateAndDelete(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = PatoghAndOtherModelSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        patoghInfo = self.get_object(pk)
-        patoghInfo.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def put(self, request, pk, format=None):
-        patoghinfo = self.get_object(pk)
-        serializer = PatoghAndOtherModelSerializer(patoghinfo, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
 
 class FriendRequestListCreate(generics.ListCreateAPIView):

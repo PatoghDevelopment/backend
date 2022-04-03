@@ -154,17 +154,10 @@ def validate(self, attrs):
         raise serializers.ValidationError(msg, code='authorization')
 
 
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = ['id', 'name']
-        read_only_fields = ['id']
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'bio']
+        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio']
         read_only_fields = ['email']
 
 
@@ -251,18 +244,6 @@ class SupportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Support
         fields = ['id', 'email', 'description', 'date']
-
-
-class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
-    class Meta:
-        model = Patogh
-        fields = "__all__"
-
-
-class PatoghMembersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatoghMembers
-        fields = "__all__"
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):

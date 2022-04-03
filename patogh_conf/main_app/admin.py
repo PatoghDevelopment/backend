@@ -14,10 +14,9 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'email')
     search_fields = ['username', 'first_name', 'last_name', 'email']
     list_filter = ['gender']
-    autocomplete_fields = ['city']
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
-        (_("اصل"), {'fields': ('birth_date', 'first_name', 'last_name', 'city')}),
+        (_("اصل"), {'fields': ('birth_date', 'first_name', 'last_name', 'province')}),
         (_("اطلاعت دیگر"), {'fields': ('gender', 'avatar', 'bio')}),
     )
 
@@ -33,9 +32,6 @@ class SupportAdmin(admin.ModelAdmin):
     list_display = ['id', 'email']
 
 
-
-
-
 class UsersHaveFriendsAdmin(admin.ModelAdmin):
     ordering = ['id']
     list_display = ('id', 'sender', 'receiver', 'state', 'time')
@@ -44,14 +40,8 @@ class UsersHaveFriendsAdmin(admin.ModelAdmin):
     autocomplete_fields = ['sender', 'receiver']
 
 
-
-
-
-admin.site.register(City, CityAdmin)
-
 admin.site.register(User, UserAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
-
 admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
 admin.site.register(Support, SupportAdmin)
 admin.site.register(Hangout)
