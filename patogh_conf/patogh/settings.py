@@ -66,22 +66,21 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    # 'https://api.patogh.markop.ir',
-    # "http://localhost:3000/enteremail",
-    # "http://localhost:3000/signup",
-    # "http://localhost:8000",
-    # "http://127.0.0.1:8000",
-    # 'https://patogh.markop.ir/enteremail',
-    # 'https://patogh.markop.ir/signup',
-    # 'http://localhost:3000/signin',
-    # 'http://localhost:3000/backuppassword2',
-    # 'http://localhost:3000/backuppassword1',
-    # 'http://localhost:3000/profile',
-    # 'https://patogh.markop.ir/signin',
-    # 'https://patogh.markop.ir/backuppassword2',
-    # 'https://patogh.markop.ir/backuppassword1',
-    # 'https://patogh.markop.ir/profile'
-
+    'https://api.patogh.markop.ir',
+    "http://localhost:3000/enteremail",
+    "http://localhost:3000/signup",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    'https://patogh.markop.ir/enteremail',
+    'https://patogh.markop.ir/signup',
+    'http://localhost:3000/signin',
+    'http://localhost:3000/backuppassword2',
+    'http://localhost:3000/backuppassword1',
+    'http://localhost:3000/profile',
+    'https://patogh.markop.ir/signin',
+    'https://patogh.markop.ir/backuppassword2',
+    'https://patogh.markop.ir/backuppassword1',
+    'https://patogh.markop.ir/profile'
 ]
 
 ROOT_URLCONF = 'patogh.urls'
@@ -107,9 +106,9 @@ DATABASES = {
     'default': {
         'ENGINE': os.environ.get('SQL_ENGINE', 'django.db.backends.mysql'),
         'NAME': os.environ.get('SQL_DATABASE', 'patogh_db'),
-        'USER': os.environ.get('SQL_USER', 'user'),
-        'PASSWORD': os.environ.get('SQL_PASSWORD', 'User4321!'),
-        'HOST': os.environ.get('SQL_HOST', 'localhost'),
+        'USER': os.environ.get('SQL_USER', 'patogh'),
+        'PASSWORD': os.environ.get('SQL_PASSWORD', 'qnq0XTA3pex*exp5hfd'),
+        'HOST': os.environ.get('SQL_HOST', '5.161.44.200'),
     }
 }
 

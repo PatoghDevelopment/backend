@@ -154,18 +154,10 @@ def validate(self, attrs):
         raise serializers.ValidationError(msg, code='authorization')
 
 
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = ['id', 'name']
-        read_only_fields = ['id']
-
-
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'city', 'avatar', 'bio']
+        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio']
         read_only_fields = ['email']
 
 
@@ -254,18 +246,6 @@ class SupportSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'description', 'date']
 
 
-class PatoghSerializerCalledByInfo(serializers.ModelSerializer):
-    class Meta:
-        model = Patogh
-        fields = "__all__"
-
-
-class PatoghMembersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatoghMembers
-        fields = "__all__"
-
-
 class FriendRequestSerializer(serializers.ModelSerializer):
     sender = serializers.ReadOnlyField(source='sender.username')
     receiver = serializers.ReadOnlyField(source='receiver.username')
@@ -278,10 +258,14 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 class FriendSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField()
     bio = serializers.ReadOnlyField()
+    hangouts_in_common = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'bio')
+        fields = ('username', 'bio', 'hangouts_in_common')
+
+    def get_hangouts_in_common(self, friend):
+        return friend.hangout_set.filter(members__in=[self.context['request'].user]).count()
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -322,3 +306,63 @@ class CompanyRUDSerializer(serializers.ModelSerializer):
 
     def get_num_of_members(self, company):
         return company.members.count()
+
+
+class HangoutSerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+    is_over = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Hangout
+        fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator', 'datetime',
+                  'gender', 'province', 'status', 'min_age',
+                  'max_age', 'type',
+                  'price', 'place', 'maximum_members', 'num_of_members']
+
+    def get_num_of_members(self, hangout):
+        return hangout.members.count()
+
+
+class FinishHangoutSerializer(serializers.ModelSerializer):
+    creator = serializers.ReadOnlyField(source='creator.username')
+    num_of_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Hangout
+        fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator', 'datetime',
+                  'gender', 'province', 'status', 'min_age',
+                  'max_age', 'type',
+                  'price', 'place', 'num_of_members']
+        read_only_fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator',
+                            'datetime',
+                            'gender', 'province', 'status', 'min_age',
+                            'max_age', 'type',
+                            'price', 'place', 'num_of_members']
+
+    def get_num_of_members(self, hangout):
+        return hangout.members.count()
+
+
+class HangoutInvitationSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='username')
+    hangout = serializers.ReadOnlyField(source='hangout.name')
+
+    class Meta:
+        model = HangoutInvitation
+        fields = ['id', 'user', 'hangout', 'datetime']
+
+
+class HangoutRUDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hangout
+        fields = ['id', 'name', 'datetime', 'description', 'address', 'gender', 'status', 'min_age', 'max_age',
+                  'price', 'type', 'place', 'duration', 'maximum_members', 'repeat']
+
+
+class HangoutImageSerializer(serializers.ModelSerializer):
+    hangout = serializers.ReadOnlyField(source='hangout.name')
+
+    class Meta:
+        model = HangoutImage
+        fields = ['id', 'hangout', 'image']
