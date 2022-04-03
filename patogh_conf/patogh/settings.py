@@ -67,20 +67,9 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://api.patogh.markop.ir',
-    "http://localhost:3000/enteremail",
-    "http://localhost:3000/signup",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    'https://patogh.markop.ir/enteremail',
-    'https://patogh.markop.ir/signup',
-    'http://localhost:3000/signin',
-    'http://localhost:3000/backuppassword2',
-    'http://localhost:3000/backuppassword1',
-    'http://localhost:3000/profile',
-    'https://patogh.markop.ir/signin',
-    'https://patogh.markop.ir/backuppassword2',
-    'https://patogh.markop.ir/backuppassword1',
-    'https://patogh.markop.ir/profile'
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://patogh.markop.ir',
 ]
 
 ROOT_URLCONF = 'patogh.urls'
