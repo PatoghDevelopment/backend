@@ -70,6 +70,12 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://patogh.markop.ir',
+    'https://patogh.markop.ir/enteremail',
+    'https://patogh.markop.ir/signup',
+    'https://patogh.markop.ir/signin',
+    'https://patogh.markop.ir/backuppassword1',
+    'https://patogh.markop.ir/backuppassword2',
+    'https://patogh.markop.ir/profile'
 ]
 
 ROOT_URLCONF = 'patogh.urls'
