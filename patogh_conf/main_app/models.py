@@ -82,9 +82,8 @@ def patogh_image_directory_path(instance, filename):
 
 
 gender_status = (
-    ('f', 'female'),
-    ('m', 'male'),
-    ('o', 'other')
+    ('f', 'زن'),
+    ('m', 'مرد'),
 )
 
 province_choices = [
@@ -182,14 +181,16 @@ class Support(models.Model):
         ordering = ['-id']
 
 
-class UsersHaveFriends(models.Model):
-    sender = models.ForeignKey(User, related_name='sender_set', on_delete=models.PROTECT, verbose_name=_("فرستنده"))
-    receiver = models.ForeignKey(User, related_name='reciver_set', on_delete=models.PROTECT, verbose_name=_("گیرنده"))
-    status = (
+status = (
         (0, 'rejected'),
         (1, 'pending answer'),
         (2, 'accepted')
     )
+
+
+class UsersHaveFriends(models.Model):
+    sender = models.ForeignKey(User, related_name='sender_set', on_delete=models.PROTECT, verbose_name=_("فرستنده"))
+    receiver = models.ForeignKey(User, related_name='reciver_set', on_delete=models.PROTECT, verbose_name=_("گیرنده"))
     state = models.SmallIntegerField(verbose_name=_("وضعیت دوستی"), default=1, choices=status)
     time = models.DateTimeField(verbose_name=_("زمان درخواست دوستی"), auto_now_add=True, null=True, blank=True)
 
@@ -199,8 +200,8 @@ class UsersHaveFriends(models.Model):
     class Meta:
         ordering = ['time']
         unique_together = ('sender', 'receiver')
-        verbose_name = _('وضعیت درخواست')
-        verbose_name_plural = _('وضعیت درخواست ها')
+        verbose_name = _('وضعیت درخواست دوستی')
+        verbose_name_plural = _('وضعیت درخواست های دوستی')
 
 
 STATUS_CHOICES = [
@@ -310,3 +311,20 @@ class HangoutInvitation(models.Model):
     hangout = models.ForeignKey(Hangout, verbose_name='پاتوق', on_delete=models.CASCADE)
     datetime = models.DateField(verbose_name='زمان ارسال', auto_now_add=True)
     user = models.ForeignKey(User, verbose_name='کاربر', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'درخواست افزودن به پاتوق'
+        verbose_name_plural = 'درخواست های افزودن به پاتوق'
+
+
+class HangoutRequests(models.Model):
+    hangout = models.ForeignKey(Hangout, verbose_name='پاتوق', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, verbose_name='فرستنده', on_delete=models.CASCADE)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, verbose_name='وضعیت', null=True, blank=True)
+    datetime = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
+
+    class Meta:
+        ordering = ['datetime']
+        unique_together = ('hangout', 'sender')
+        verbose_name = _('درخواست اضافه شدن به پاتوق')
+        verbose_name_plural = _('درخواست های اضافه شدن به پاتوق')
