@@ -27,14 +27,6 @@ class SupportAdmin(admin.ModelAdmin):
     search_fields = ['email']
 
 
-class UsersHaveFriendsAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'sender', 'receiver', 'state', 'time')
-    search_fields = ['sender', 'receiver', 'state']
-    list_filter = ['state']
-    autocomplete_fields = ['sender', 'receiver']
-
-
 class HangoutAdmin(admin.ModelAdmin):
     ordering = ['id']
     list_display = ('id', 'name', 'description')
@@ -44,7 +36,6 @@ class HangoutAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
-admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
 admin.site.register(Support, SupportAdmin)
 admin.site.register(Hangout, HangoutAdmin)
 admin.site.register(HangoutInvitation)

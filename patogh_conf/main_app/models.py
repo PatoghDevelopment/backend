@@ -1,6 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
-import uuid
 from django.db.models.base import Model
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -181,39 +180,9 @@ class Support(models.Model):
         ordering = ['-id']
 
 
-status = (
-        (0, 'rejected'),
-        (1, 'pending answer'),
-        (2, 'accepted')
-    )
-
-
-class UsersHaveFriends(models.Model):
-    sender = models.ForeignKey(User, related_name='sender_set', on_delete=models.PROTECT, verbose_name=_("فرستنده"))
-    receiver = models.ForeignKey(User, related_name='reciver_set', on_delete=models.PROTECT, verbose_name=_("گیرنده"))
-    state = models.SmallIntegerField(verbose_name=_("وضعیت دوستی"), default=1, choices=status)
-    time = models.DateTimeField(verbose_name=_("زمان درخواست دوستی"), auto_now_add=True, null=True, blank=True)
-
-    def __str__(self):
-        return self.sender + " requested to: " + self.receiver
-
-    class Meta:
-        ordering = ['time']
-        unique_together = ('sender', 'receiver')
-        verbose_name = _('وضعیت درخواست دوستی')
-        verbose_name_plural = _('وضعیت درخواست های دوستی')
-
-
-STATUS_CHOICES = [
-    ('a', 'پاسخ داده شده'),
-    ('w', 'در انتظار')
-]
-
-
 class FriendRequest(models.Model):
     sender = models.ForeignKey(User, verbose_name='فرستنده', related_name='sender', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, verbose_name='گیرنده', related_name='receiver', on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, verbose_name='وضعیت', null=True, blank=True)
     datetime = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
 
     class Meta:
@@ -320,7 +289,6 @@ class HangoutInvitation(models.Model):
 class HangoutRequests(models.Model):
     hangout = models.ForeignKey(Hangout, verbose_name='پاتوق', on_delete=models.CASCADE)
     sender = models.ForeignKey(User, verbose_name='فرستنده', on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, verbose_name='وضعیت', null=True, blank=True)
     datetime = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
 
     class Meta:
