@@ -498,6 +498,9 @@ class HangoutRUD(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Hangout.objects.all()
 
+    def perform_authentication(self, request):
+        get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+
     def delete(self, request, *args, **kwargs):
         get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
         return self.destroy(self, request, *args, **kwargs)
