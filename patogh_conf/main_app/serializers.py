@@ -134,24 +134,24 @@ class ForgotPasswordSerializer(serializers.Serializer):
         email = attrs.get('email')
         password1 = attrs.get('password1')
         password2 = attrs.get('password2')
-        user = User.objects.filter(email=email).first()
-        if User.objects.filter(email=email).exists():
-            if password1 != password2:
-                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
-                raise serializers.ValidationError(msg, code='conflict')
-            otp = attrs.get('otp')
-            pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
-            time_now = timezone.now()
-            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
-                if int(otp) == pending_verify_obj.otp:
-                    return attrs
+        if email and password1 and password2:
+            if User.objects.filter(email=email):
+                if password1 != password2:
+                    raise serializers.ValidationError('لطفا هردو گذرواژه را یکسان وارد نمایید', code='conflict')
+                otp = attrs.get('otp')
+                pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+                time_now = timezone.now()
+                if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+                    if int(otp) == pending_verify_obj.otp:
+                        return attrs
+                    else:
+                        raise serializers.ValidationError("کد تایید وارد شده اشتباه است.")
                 else:
-                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+                    raise serializers.ValidationError("کد تایید منقضی شده است.")
             else:
-                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
+                raise serializers.ValidationError('کاربری با این اطلاعات وجود ندارد', code='authorization')
         else:
-            msg = _("کاربری با این اطلاعات وجود ندارد")
-            raise serializers.ValidationError(msg, code='authorization')
+            raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
 
 
 class UserSerializer(serializers.ModelSerializer):
