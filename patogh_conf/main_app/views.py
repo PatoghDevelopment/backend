@@ -108,17 +108,12 @@ class ForgotPasswordView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         email = serializer.validated_data.get('email')
         user = User.objects.filter(email=email).first()
-        user.password = make_password(serializer.validated_data.get('password1'))
-        user.save()
-        ok_response = {
-            'status': 'موفقیت آمیز',
-            'code': status.HTTP_200_OK,
-            'message': 'پسورد با موفقیت بروز شد',
-            'data': []
-        }
+        if user:
+            user.password = make_password(serializer.validated_data.get('password1'))
+            user.save()
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key})
 
