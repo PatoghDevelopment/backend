@@ -57,7 +57,7 @@ class Signup(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=201)
+        return Response('Done!', status=201)
 
 
 class Signin(generics.GenericAPIView):
@@ -120,7 +120,7 @@ class ForgotPasswordView(generics.UpdateAPIView):
             'data': []
         }
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, ok_response)
+        return Response({'token': token.key})
 
 
 class Profile(generics.RetrieveUpdateAPIView):
@@ -201,7 +201,7 @@ class ChangeEmail(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        return Response('Done!', status=201)
 
 
 class Support(generics.CreateAPIView):
