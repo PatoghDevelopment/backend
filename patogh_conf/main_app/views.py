@@ -569,8 +569,8 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        hangout = get_object_or_404(Hangout, creator=user)
-        return HangoutRequests.objects.filter(hangout=hangout)
+        hangouts = Hangout.objects.filter(creator=user)
+        return HangoutRequests.objects.filter(hangout__in=hangouts)
 
     def perform_create(self, serializer):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
