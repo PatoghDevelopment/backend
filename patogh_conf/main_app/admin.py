@@ -3,12 +3,6 @@ from django.utils.translation import gettext as _
 from .models import *
 
 
-class CityAdmin(admin.ModelAdmin):
-    ordering = ['id']
-    list_display = ('id', 'name')
-    search_fields = ['name']
-
-
 class UserAdmin(admin.ModelAdmin):
     ordering = ['id']
     list_display = ('id', 'username', 'email')
@@ -30,19 +24,18 @@ class PendingVerifyAdmin(admin.ModelAdmin):
 
 class SupportAdmin(admin.ModelAdmin):
     list_display = ['id', 'email']
+    search_fields = ['email']
 
 
-class UsersHaveFriendsAdmin(admin.ModelAdmin):
+class HangoutAdmin(admin.ModelAdmin):
     ordering = ['id']
-    list_display = ('id', 'sender', 'receiver', 'state', 'time')
-    search_fields = ['sender', 'receiver', 'state']
-    list_filter = ['state']
-    autocomplete_fields = ['sender', 'receiver']
+    list_display = ('id', 'name', 'description')
+    search_fields = ['name', 'province', 'gender', 'status', 'price', 'place', 'type']
+    list_filter = ['gender']
 
 
 admin.site.register(User, UserAdmin)
 admin.site.register(PendingVerify, PendingVerifyAdmin)
-admin.site.register(UsersHaveFriends, UsersHaveFriendsAdmin)
 admin.site.register(Support, SupportAdmin)
-admin.site.register(Hangout)
+admin.site.register(Hangout, HangoutAdmin)
 admin.site.register(HangoutInvitation)

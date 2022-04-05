@@ -32,6 +32,9 @@ urlpatterns = [
     path('hangout/<int:pk>/removemember/<str:username>/', RemoveHangoutMember.as_view()),
     path('hangout/<int:pk>/addimage/', AddHangoutImage.as_view()),
     path('hangout/<int:pk>/images/', HangoutImagesList.as_view()),
-    path('removehangoutimage/<int:pk>/', RemoveHangoutImage.as_view())
-
+    path('removehangoutimage/<int:pk>/', RemoveHangoutImage.as_view()),
+    # path('hangoutrequests/', HangoutRequestsListCreate.as_view()),
+    path('requesttohangout/<int:pk>/', HangoutRequestsListCreate.as_view()),
+    path('hangout/<int:pk>/acceptrequest/<str:username>/', AcceptHangoutRequest.as_view()),
+    path('hangout/<int:pk>/rejectrequest/<str:username>/', RemoveHangoutRequest.as_view()),
 ]

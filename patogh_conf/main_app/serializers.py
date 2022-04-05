@@ -39,13 +39,12 @@ class SignupSerializer(serializers.Serializer):
             if User.objects.filter(email=email).exists():
                 msg = _("کاربر با این مشخصات وجود دارد")
                 raise serializers.ValidationError(msg, code='conflict')
-            if User.objects.filter(username=username).exists():
+            elif User.objects.filter(username=username).exists():
                 msg = _("این نام کاربری موجود است")
                 raise serializers.ValidationError(msg, code='conflict')
-            if password1 != password2:
+            elif password1 != password2:
                 msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
                 raise serializers.ValidationError(msg, code='conflict')
-
             else:
                 otp = attrs.get('otp')
                 pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
@@ -57,7 +56,6 @@ class SignupSerializer(serializers.Serializer):
                         raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
                 else:
                     raise serializers.ValidationError(_("کد تایید منقضی شده است."))
-
         else:
             msg = _("اطلاعات کابر باید به درستی و کامل وارد شود")
             raise serializers.ValidationError(msg, code='authorization')
@@ -75,7 +73,7 @@ class SigninSerializer(serializers.Serializer):
     email = serializers.CharField(label=_("ایمیل یا نام کاربری"), write_only=True)
     password = serializers.CharField(label=_("رمز عبور"), min_length=6, write_only=True,
                                      help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
-    token = serializers.CharField(label=_("توکن"), read_only=True)
+    token = serializers.CharField(label="توکن", read_only=True)
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -85,17 +83,19 @@ class SigninSerializer(serializers.Serializer):
                 user = authenticate(request=self.context.get('request'),
                                     email=email, password=password)
                 if not user:
-                    raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
+                    raise serializers.ValidationError('ایمیل ،نام کاربری یا رمز عبور اشتباه است!')
+                attrs['user'] = user
             elif User.objects.filter(username=email):
                 user1 = User.objects.filter(username=email).first()
                 user = authenticate(request=self.context.get('request'),
                                     username=user1.email, password=password)
                 if not user:
-                    raise serializers.ValidationError('ایمیل یا رمز عبور اشتباه است!', code='authorization')
+                    raise serializers.ValidationError('ایمیل ،نام کاربری یا رمز عبور اشتباه است!')
+                attrs['user'] = user
+            else:
+                raise serializers.ValidationError('ایمیل ،نام کاربری یا رمز عبور اشتباه است!')
         else:
             raise serializers.ValidationError('اطلاعات را به درستی وارد کنید!', code='authorization')
-
-        attrs['user'] = user
         return attrs
 
 
@@ -128,30 +128,30 @@ class ForgotPasswordSerializer(serializers.Serializer):
                                       write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
     password2 = serializers.CharField(label=_("تایید رمز عبور"), min_length=6, max_length=30,
                                       write_only=True, help_text=_("رمز عبور باید حداقل 6 کاراکتر باشد"))
+    token = serializers.CharField(label="توکن", read_only=True)
 
-
-def validate(self, attrs):
-    email = attrs.get('email')
-    password1 = attrs.get('password1')
-    password2 = attrs.get('password2')
-    user = User.objects.filter(email=email).first()
-    if User.objects.filter(email=email).exists():
-        if password1 != password2:
-            msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
-            raise serializers.ValidationError(msg, code='conflict')
-        otp = attrs.get('otp')
-        pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
-        time_now = timezone.now()
-        if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
-            if int(otp) == pending_verify_obj.otp:
-                return attrs
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password1 = attrs.get('password1')
+        password2 = attrs.get('password2')
+        user = User.objects.filter(email=email).first()
+        if User.objects.filter(email=email).exists():
+            if password1 != password2:
+                msg = _("لطفا هردو گذرواژه را یکسان وارد نمایید")
+                raise serializers.ValidationError(msg, code='conflict')
+            otp = attrs.get('otp')
+            pending_verify_obj = PendingVerify.objects.filter(receptor=email).first()
+            time_now = timezone.now()
+            if time_now < pending_verify_obj.send_time + datetime.timedelta(minutes=5):
+                if int(otp) == pending_verify_obj.otp:
+                    return attrs
+                else:
+                    raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
             else:
-                raise serializers.ValidationError(_("کد تایید وارد شده اشتباه است."))
+                raise serializers.ValidationError(_("کد تایید منقضی شده است."))
         else:
-            raise serializers.ValidationError(_("کد تایید منقضی شده است."))
-    else:
-        msg = _("کاربری با این اطلاعات وجود ندارد")
-        raise serializers.ValidationError(msg, code='authorization')
+            msg = _("کاربری با این اطلاعات وجود ندارد")
+            raise serializers.ValidationError(msg, code='authorization')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -366,3 +366,13 @@ class HangoutImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HangoutImage
         fields = ['id', 'hangout', 'image']
+
+
+class HangoutRequestsSerializer(serializers.ModelSerializer):
+    hangout = serializers.ReadOnlyField(source='hangout.name')
+    sender = serializers.ReadOnlyField(source='sender.username')
+
+    class Meta:
+        model = HangoutRequests
+        fields = ('hangout', 'sender', 'datetime')
+

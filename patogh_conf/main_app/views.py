@@ -29,7 +29,7 @@ class SignupOTP(generics.CreateAPIView):
                 pending_verify_obj.send_time = time_now
                 pending_verify_obj.save()
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response('یک دقیقه دیگر امتحان کنید')
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
@@ -39,7 +39,7 @@ class SignupOTP(generics.CreateAPIView):
                   msg_html,
                   'patogh@markop.ir',
                   [mail], html_message=msg_html)
-        return Response(user_email, status=status.HTTP_200_OK)
+        return Response(user_email)
 
 
 class Signup(generics.CreateAPIView):
@@ -53,11 +53,11 @@ class Signup(generics.CreateAPIView):
             400: OpenApiResponse(description="bad request."),
         },
     )
-    def post(self, request):
-        serializer = SignupSerializer(data=request.data)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user_obj = serializer.save()
-        return Response(data={"email": user_obj.email, "password": user_obj.password}, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response('Done!', status=201)
 
 
 class Signin(generics.GenericAPIView):
@@ -89,7 +89,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
                 pending_verify_obj.send_time = time_now
                 pending_verify_obj.save()
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response('یک دقیقه دیگر امتحان کنید')
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
@@ -99,7 +99,7 @@ class ForgotPasswordSendOTP(generics.CreateAPIView):
                   msg_html,
                   'patogh@markop.ir',
                   [mail], html_message=msg_html)
-        return Response(user_email, status=status.HTTP_200_OK)
+        return Response(user_email)
 
 
 class ForgotPasswordView(generics.UpdateAPIView):
@@ -119,7 +119,8 @@ class ForgotPasswordView(generics.UpdateAPIView):
             'message': 'پسورد با موفقیت بروز شد',
             'data': []
         }
-        return Response(ok_response)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
 
 
 class Profile(generics.RetrieveUpdateAPIView):
@@ -159,7 +160,7 @@ class ChangePassword(generics.UpdateAPIView):
         if hasattr(user, 'auth_token'):
             user.auth_token.delete()
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'token': token.key})
 
 
 class ChangeEmailOTP(generics.CreateAPIView):
@@ -179,7 +180,7 @@ class ChangeEmailOTP(generics.CreateAPIView):
                 pending_verify_obj.send_time = time_now
                 pending_verify_obj.save()
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response('یک دقیقه دیگر امتحان کنید')
         else:
             instance = PendingVerify(receptor=user_email, otp=otp)
             instance.save()
@@ -189,7 +190,7 @@ class ChangeEmailOTP(generics.CreateAPIView):
                   msg_html,
                   'patogh@markop.ir',
                   [mail], html_message=msg_html)
-        return Response(user_email, status=status.HTTP_200_OK)
+        return Response(user_email)
 
 
 class ChangeEmail(generics.UpdateAPIView):
@@ -200,7 +201,7 @@ class ChangeEmail(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        return Response('Done!', status=201)
 
 
 class Support(generics.CreateAPIView):
@@ -561,3 +562,56 @@ class RemoveHangoutImage(generics.DestroyAPIView):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
         return self.destroy(self, request, *args, **kwargs)
 
+
+class HangoutRequestsListCreate(generics.ListCreateAPIView):
+    serializer_class = HangoutRequestsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        hangout = get_object_or_404(Hangout, creator=user)
+        return HangoutRequests.objects.filter(hangout=hangout)
+
+    def perform_create(self, serializer):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
+        user = self.request.user
+        age = (date.today() - user.birth_date) // timedelta(days=365.2425)
+        if hangout.gender != 'b' and hangout.gender != user.gender:
+            return Response("user gender doesn't match", status=403)
+        if hangout.min_age and hangout.max_age and (age < hangout.min_age or age > hangout.max_age):
+            return Response("user age doesn't match", status=403)
+        if user in hangout.members.all():
+            return Response('این کاربر عضو پاتوق است', status=400)
+        if hangout.maximum_members and hangout.maximum_members == hangout.members.count():
+            return Response('ظرفیت پاتوق تکمیل است', status=403)
+        if hangout.status == 'pu':
+            hangout.members.add(user)
+        elif hangout.status == 'pr':
+            if HangoutRequests.objects.filter(hangout=hangout, sender=self.request.user).exists():
+                return Response('شما قبلا به این پاتوق درخواست داده اید', status=400)
+            serializer.save(hangout=hangout, sender=self.request.user)
+
+
+class AcceptHangoutRequest(generics.CreateAPIView):
+    serializer_class = HangoutRequestsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        req = get_object_or_404(HangoutRequests, hangout=hangout, sender=user)
+        hangout.members.add(user)
+        req.delete()
+        return Response('Accepted', status=201)
+
+
+class RemoveHangoutRequest(generics.DestroyAPIView):
+    serializer_class = HangoutRequestsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        req = get_object_or_404(HangoutRequests, hangout=hangout, sender=user)
+        req.delete()
+        return Response('Deleted', status=200)
