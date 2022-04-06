@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+from django.http.response import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from rest_framework.generics import get_object_or_404
@@ -498,6 +499,9 @@ class HangoutRUD(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Hangout.objects.all()
 
+    def perform_authentication(self, request):
+        get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
+
     def delete(self, request, *args, **kwargs):
         get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
         return self.destroy(self, request, *args, **kwargs)
@@ -564,10 +568,10 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        hangout = get_object_or_404(Hangout, creator=user)
-        return HangoutRequests.objects.filter(hangout=hangout)
+        hangouts = Hangout.objects.filter(creator=user)
+        return HangoutRequests.objects.filter(hangout__in=hangouts)
 
-    def perform_create(self, serializer):
+    def post(self, request, *args, **kwargs):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
         user = self.request.user
         age = (date.today() - user.birth_date) // timedelta(days=365.2425)
@@ -584,7 +588,17 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
         elif hangout.status == 'pr':
             if HangoutRequests.objects.filter(hangout=hangout, sender=self.request.user).exists():
                 return Response('شما قبلا به این پاتوق درخواست داده اید', status=400)
-            serializer.save(hangout=hangout, sender=self.request.user)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+    def perform_create(self, serializer):
+        hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
+        user = self.request.user
+        serializer.save(hangout=hangout, sender=self.request.user)
 
 
 class AcceptHangoutRequest(generics.CreateAPIView):
