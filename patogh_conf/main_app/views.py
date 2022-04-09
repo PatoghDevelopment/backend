@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from rest_framework.generics import get_object_or_404
@@ -395,7 +395,7 @@ class HangoutList(generics.ListAPIView):
 
 
 class HangoutMembers(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = HangoutMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -521,7 +521,7 @@ class LeaveHangout(generics.CreateAPIView):
 
 
 class RemoveHangoutMember(generics.CreateAPIView):
-    serializer_class = RemoveHangoutMemberSerializer
+    serializer_class = HangoutMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):

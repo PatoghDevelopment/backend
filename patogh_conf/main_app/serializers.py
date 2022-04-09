@@ -377,7 +377,7 @@ class HangoutRequestsSerializer(serializers.ModelSerializer):
         fields = ('hangout', 'sender', 'datetime')
 
 
-class RemoveHangoutMemberSerializer(serializers.ModelSerializer):
+class HangoutMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
