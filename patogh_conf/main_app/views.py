@@ -521,7 +521,7 @@ class LeaveHangout(generics.CreateAPIView):
 
 
 class RemoveHangoutMember(generics.CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = RemoveHangoutMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
