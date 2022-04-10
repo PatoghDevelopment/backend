@@ -376,3 +376,11 @@ class HangoutRequestsSerializer(serializers.ModelSerializer):
         model = HangoutRequests
         fields = ('hangout', 'sender', 'datetime')
 
+
+class HangoutMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
+                  'bio']
+        read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
+                  'bio']

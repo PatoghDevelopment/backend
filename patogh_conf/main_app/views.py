@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
-from django.http.response import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from rest_framework.generics import get_object_or_404
@@ -11,6 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
+import django_filters.rest_framework
 
 
 class SignupOTP(generics.CreateAPIView):
@@ -395,7 +395,7 @@ class HangoutList(generics.ListAPIView):
 
 
 class HangoutMembers(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = HangoutMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -521,7 +521,7 @@ class LeaveHangout(generics.CreateAPIView):
 
 
 class RemoveHangoutMember(generics.CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = HangoutMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -624,3 +624,11 @@ class RemoveHangoutRequest(generics.DestroyAPIView):
         req = get_object_or_404(HangoutRequests, hangout=hangout, sender=user)
         req.delete()
         return Response('Deleted', status=200)
+
+
+class HangoutSearch(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = Hangout.objects.all()
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_fields = ['province', 'gender', 'min_age', 'max_age', 'place', 'type']
