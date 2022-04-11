@@ -81,23 +81,23 @@ def patogh_image_directory_path(instance, filename):
 
 
 gender_status = (
-    ('f', 'زن'),
-    ('m', 'مرد'),
+    ('female', 'زن'),
+    ('male', 'مرد'),
 )
 
 province_choices = [
-    ('ea', 'آذربایجان شرقی'),
-    ('wa', 'آذربایجان غربی'),
+    ('azr-e', 'آذربایجان شرقی'),
+    ('azr-w', 'آذربایجان غربی'),
     ('ardabil', 'اردبیل'),
     ('esfahan', 'اصفهان'),
     ('alborz', 'البرز'),
     ('ilam', 'ایلام'),
     ('bushehr', 'بوشهر'),
     ('tehran', 'تهران'),
-    ('cha', 'چهارمحال و بختیاری'),
-    ('khs', 'خراسان جنوبی'),
-    ('khn', 'خراسان شمالی'),
-    ('khr', 'خراسان رضوی'),
+    ('charmahal', 'چهارمحال و بختیاری'),
+    ('khor-s', 'خراسان جنوبی'),
+    ('khor-n', 'خراسان شمالی'),
+    ('khor-r', 'خراسان رضوی'),
     ('khuzestan', 'خوزستان'),
     ('zanjan', 'زنجان'),
     ('semnan', 'سمنان'),
@@ -108,7 +108,7 @@ province_choices = [
     ('kordestan', 'کردستان'),
     ('kerman', 'کرمان'),
     ('kermanshah', 'کرمانشاه'),
-    ('koh', 'کهگیلویه و بویر احمد'),
+    ('kohgiloye', 'کهگیلویه و بویر احمد'),
     ('golestan', 'گلستان'),
     ('gilan', 'گیلان'),
     ('lorestan', 'لرستان'),
@@ -209,34 +209,34 @@ class Company(models.Model):
 
 
 hangout_gender_choices = [
-    ('m', 'پسر'),
-    ('f', 'دختر'),
-    ('b', 'مختلط')
+    ('male', 'پسر'),
+    ('female', 'دختر'),
+    ('both', 'مختلط')
 ]
 
 status_choices = [
-    ('pr', 'خصوصی'),
-    ('pu', 'عمومی')
+    ('private', 'خصوصی'),
+    ('public', 'عمومی')
 ]
 
 type_choices = [
-    ('e', 'علمی'),
-    ('v', 'ورزشی'),
-    ('a', 'هنری')
+    ('scientific', 'علمی'),
+    ('athletic', 'ورزشی'),
+    ('artistic', 'هنری')
 ]
 
 place_choices = [
-    ('p', 'پارک'),
-    ('m', 'موزه'),
-    ('c', 'کافه'),
-    ('r', 'رستوران '),
-    ('c', 'سینما')
+    ('park', 'پارک'),
+    ('museum', 'موزه'),
+    ('cafe', 'کافه'),
+    ('restaurant', 'رستوران '),
+    ('cinema', 'سینما')
 ]
 
 repeat_choices = [
-    ('n', 'هیچکدام'),
-    ('w', 'هر هفته'),
-    ('m', 'هر ماه')
+    ('none', 'هیچکدام'),
+    ('weekly', 'هر هفته'),
+    ('monthly', 'هر ماه')
 ]
 
 
