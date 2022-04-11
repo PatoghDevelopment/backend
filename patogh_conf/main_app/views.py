@@ -440,7 +440,7 @@ class InviteHangoutMember(generics.CreateAPIView):
         user = get_object_or_404(User, username=self.kwargs['username'])
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'], creator=self.request.user)
         age = (date.today() - user.birth_date) // timedelta(days=365.2425)
-        if hangout.gender != 'b' and hangout.gender != user.gender:
+        if hangout.gender != 'both' and hangout.gender != user.gender:
             return Response("user gender doesn't match", status=403)
         if hangout.min_age and hangout.max_age and (age < hangout.min_age or age > hangout.max_age):
             return Response("user age doesn't match", status=403)
@@ -575,7 +575,7 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
         user = self.request.user
         age = (date.today() - user.birth_date) // timedelta(days=365.2425)
-        if hangout.gender != 'b' and hangout.gender != user.gender:
+        if hangout.gender != 'both' and hangout.gender != user.gender:
             return Response("user gender doesn't match", status=403)
         if hangout.min_age and hangout.max_age and (age < hangout.min_age or age > hangout.max_age):
             return Response("user age doesn't match", status=403)
@@ -583,9 +583,9 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
             return Response('این کاربر عضو پاتوق است', status=400)
         if hangout.maximum_members and hangout.maximum_members == hangout.members.count():
             return Response('ظرفیت پاتوق تکمیل است', status=403)
-        if hangout.status == 'pu':
+        if hangout.status == 'public':
             hangout.members.add(user)
-        elif hangout.status == 'pr':
+        elif hangout.status == 'private':
             if HangoutRequests.objects.filter(hangout=hangout, sender=self.request.user).exists():
                 return Response('شما قبلا به این پاتوق درخواست داده اید', status=400)
         serializer = self.get_serializer(data=request.data)
