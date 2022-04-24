@@ -249,7 +249,7 @@ class Hangout(models.Model):
     gender = models.CharField(max_length=10, choices=hangout_gender_choices, verbose_name='جنسیت')
     province = models.CharField(max_length=20, choices=province_choices, verbose_name='استان')
     members = models.ManyToManyField(User, verbose_name='اعضا')
-    status = models.CharField(max_length=2, choices=status_choices, verbose_name='وضعیت')
+    status = models.CharField(max_length=20, choices=status_choices, verbose_name='وضعیت')
     min_age = models.PositiveIntegerField(validators=[MinValueValidator(12), MaxValueValidator(50)],
                                           verbose_name='حداقل سن', null=True, blank=True)
     max_age = models.PositiveIntegerField(validators=[MinValueValidator(16), MaxValueValidator(70)],
@@ -261,7 +261,7 @@ class Hangout(models.Model):
     duration = models.PositiveIntegerField(verbose_name='مدت برگزاری',
                                            validators=[MinValueValidator(1), MaxValueValidator(10)], blank=True,
                                            null=True)
-    repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='n', max_length=1, null=True,
+    repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='n', max_length=20, null=True,
                               blank=True)
     maximum_members = models.PositiveIntegerField(verbose_name='حداکثر تعداد اعضا', null=True, blank=True)
 
