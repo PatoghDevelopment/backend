@@ -10,6 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
+
 import django_filters.rest_framework
 
 
@@ -631,4 +632,12 @@ class HangoutSearch(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Hangout.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['province', 'gender', 'place', 'type', 'datetime']
+    filterset_fields = ['province', 'gender', 'min_age', 'max_age', 'place', 'type']
+
+
+class MyHangouts(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permissions = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Hangout.objects.filter(creator=self.request.user)
