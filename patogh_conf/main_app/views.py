@@ -633,3 +633,11 @@ class HangoutSearch(generics.ListAPIView):
     queryset = Hangout.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['province', 'gender', 'min_age', 'max_age', 'place', 'type']
+
+
+class MyHangouts(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permissions = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Hangout.objects.filter(creator=self.request.user)

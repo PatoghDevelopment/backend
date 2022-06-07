@@ -312,16 +312,23 @@ class HangoutSerializer(serializers.ModelSerializer):
     creator = serializers.ReadOnlyField(source='creator.username')
     num_of_members = serializers.SerializerMethodField()
     is_over = serializers.ReadOnlyField()
+    is_creator = serializers.SerializerMethodField()
 
     class Meta:
         model = Hangout
-        fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator', 'datetime',
+        fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'is_creator', 'repeat', 'creator',
+                  'datetime',
                   'gender', 'province', 'status', 'min_age',
                   'max_age', 'type',
                   'price', 'place', 'maximum_members', 'num_of_members']
 
     def get_num_of_members(self, hangout):
         return hangout.members.count()
+
+    def get_is_creator(self, hangout):
+        if hangout.creator == self.context.get('request').user:
+            return True
+        return False
 
 
 class FinishHangoutSerializer(serializers.ModelSerializer):
@@ -382,5 +389,6 @@ class HangoutMemberSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
                   'bio']
-        read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
-                  'bio']
+        read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province',
+                            'avatar',
+                            'bio']
