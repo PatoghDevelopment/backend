@@ -631,4 +631,4 @@ class HangoutSearch(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Hangout.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['province', 'gender', 'min_age', 'max_age', 'place', 'type']
+    filterset_fields = ['province', 'gender', 'place', 'type', 'datetime']
