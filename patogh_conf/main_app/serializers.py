@@ -156,15 +156,33 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_friend = serializers.SerializerMethodField()
+    num_of_friends = serializers.SerializerMethodField()
+    num_of_companies = serializers.SerializerMethodField()
+    hangouts_in_common = serializers.SerializerMethodField()
+    num_of_hangouts = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio', 'is_friend']
+        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio',
+                  'is_friend', 'num_of_friends', 'num_of_companies', 'hangouts_in_common', 'num_of_hangouts']
         read_only_fields = ['email']
 
     def get_is_friend(self, user):
         if self.context.get('request').user.friends.filter(email=user.email).exists():
             return True
         return False
+
+    def get_hangouts_in_common(self, user):
+        return user.hangout_set.filter(members__in=[self.context['request'].user]).count()
+
+    def get_num_of_friends(self, user):
+        return user.friends.count()
+
+    def get_num_of_companies(self, user):
+        return user.company_set.count()
+
+    def get_num_of_hangouts(self, user):
+        return user.hangout_set.count()
 
 
 class ChangePasswordSerializer(serializers.Serializer):
