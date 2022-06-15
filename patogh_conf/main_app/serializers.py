@@ -155,10 +155,16 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_friend = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio']
+        fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar', 'bio', 'is_friend']
         read_only_fields = ['email']
+
+    def get_is_friend(self, user):
+        if self.context.get('request').user.friends.filter(email=user.email).exists():
+            return True
+        return False
 
 
 class ChangePasswordSerializer(serializers.Serializer):
