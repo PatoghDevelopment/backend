@@ -185,6 +185,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user.hangout_set.count()
 
 
+
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(label='رمز عبور قبلی', max_length=128, required=True,
                                          write_only=True)
