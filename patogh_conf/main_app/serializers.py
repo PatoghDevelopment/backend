@@ -416,3 +416,4 @@ class HangoutMemberSerializer(serializers.ModelSerializer):
         read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province',
                             'avatar',
                             'bio']
+
