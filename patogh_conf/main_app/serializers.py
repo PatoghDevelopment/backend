@@ -405,7 +405,7 @@ class HangoutRequestsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HangoutRequests
-        fields = ('hangout', 'sender', 'datetime')
+        fields = ('id', 'hangout', 'sender', 'datetime')
 
 
 class HangoutMemberSerializer(serializers.ModelSerializer):
