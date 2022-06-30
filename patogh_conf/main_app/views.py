@@ -625,13 +625,21 @@ class RemoveHangoutRequest(generics.DestroyAPIView):
         req.delete()
         return Response('Deleted', status=200)
 
+class Filter(django_filters.FilterSet):
+    date = django_filters.DateFilter(label='date', field_name='datetime__date', lookup_expr="exact")
+
+    class Meta:
+        model = Hangout
+        fields = ['province', 'gender', 'place', 'type', 'status', 'date']
+
 
 class HangoutSearch(generics.ListAPIView):
     serializer_class = HangoutSerializer
     permission_classes = [permissions.AllowAny]
     queryset = Hangout.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['province', 'gender', 'place', 'type', 'datetime']
+    filterset_class = Filter
+
 
 
 class MyHangouts(generics.ListAPIView):
