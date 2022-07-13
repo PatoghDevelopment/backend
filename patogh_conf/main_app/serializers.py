@@ -417,3 +417,17 @@ class HangoutMemberSerializer(serializers.ModelSerializer):
                             'avatar',
                             'bio']
 
+
+class HangoutTimeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hangout
+        fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator', 'datetime',
+                  'gender', 'province', 'status', 'min_age',
+                  'max_age', 'type',
+                  'price', 'place']
+        read_only_fields = ['id', 'name', 'description', 'address', 'is_over', 'duration', 'repeat', 'creator',
+                            'datetime',
+                            'gender', 'province', 'status', 'min_age',
+                            'max_age', 'type',
+                            'price', 'place']
+
