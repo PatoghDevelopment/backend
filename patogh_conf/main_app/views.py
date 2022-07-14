@@ -11,8 +11,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
 import django_filters.rest_framework
-import dateutil
-from dateutil.relativedelta import relativedelta
 
 
 class SignupOTP(generics.CreateAPIView):
@@ -666,6 +664,6 @@ class HangoutTimeUpdate(generics.CreateAPIView):
                 i.datetime = i.datetime + timedelta(weeks=1)
                 i.save()
             if (i.datetime < datetime.datetime.now()) and (i.repeat == 'monthly') and i.is_over == False:
-                i.datetime = i.datetime + relativedelta(months=1)
+                i.datetime = i.datetime + timedelta(days=31)
                 i.save()
         return Response('Hangouts updated.', status=200)
