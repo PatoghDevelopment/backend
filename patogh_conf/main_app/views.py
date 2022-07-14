@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
 import django_filters.rest_framework
+from dateutil.relativedelta import relativedelta
 
 
 class SignupOTP(generics.CreateAPIView):
@@ -625,6 +626,7 @@ class RemoveHangoutRequest(generics.DestroyAPIView):
         req.delete()
         return Response('Deleted', status=200)
 
+
 class Filter(django_filters.FilterSet):
     date = django_filters.DateFilter(label='date', field_name='datetime__date', lookup_expr="exact")
 
@@ -641,10 +643,28 @@ class HangoutSearch(generics.ListAPIView):
     filterset_class = Filter
 
 
-
 class MyHangouts(generics.ListAPIView):
     serializer_class = HangoutSerializer
     permissions = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Hangout.objects.filter(creator=self.request.user)
+
+
+class HangoutTimeUpdate(generics.CreateAPIView):
+    serializer_class = HangoutTimeUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        for i in Hangout.objects.all():
+            if (i.datetime < datetime.datetime.now()) and (
+                    i.repeat == 'none' or i.repeat == '' or i.repeat == 'n') and i.is_over == False:
+                i.is_over = True
+                i.save()
+            if (i.datetime < datetime.datetime.now()) and (i.repeat == 'weekly') and i.is_over == False:
+                i.datetime = i.datetime + timedelta(weeks=1)
+                i.save()
+            if (i.datetime < datetime.datetime.now()) and (i.repeat == 'monthly') and i.is_over == False:
+                i.datetime = i.datetime + relativedelta(months=1)
+                i.save()
+        return Response('Hangouts updated.', status=200)

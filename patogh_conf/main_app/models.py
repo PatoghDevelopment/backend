@@ -261,7 +261,7 @@ class Hangout(models.Model):
     duration = models.PositiveIntegerField(verbose_name='مدت برگزاری',
                                            validators=[MinValueValidator(1), MaxValueValidator(10)], blank=True,
                                            null=True)
-    repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='n', max_length=20, null=True,
+    repeat = models.CharField(verbose_name='تکرار', choices=repeat_choices, default='none', max_length=20, null=True,
                               blank=True)
     maximum_members = models.PositiveIntegerField(verbose_name='حداکثر تعداد اعضا', null=True, blank=True)
 
