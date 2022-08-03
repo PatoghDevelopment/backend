@@ -39,5 +39,6 @@ urlpatterns = [
     path('hangout/<int:pk>/rejectrequest/<str:username>/', RemoveHangoutRequest.as_view()),
     path('hangoutsearch/', HangoutSearch.as_view()),
     path('myhangouts/', MyHangouts.as_view()),
-    path('updatehangoutstime/', HangoutTimeUpdate.as_view())
+    path('updatehangoutstime/', HangoutTimeUpdate.as_view()),
+    path('hangoutsincommon/<str:username>/', HangoutsInCommon.as_view()),
 ]
