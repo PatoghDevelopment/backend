@@ -667,3 +667,12 @@ class HangoutTimeUpdate(generics.CreateAPIView):
                 i.datetime = i.datetime + timedelta(days=31)
                 i.save()
         return Response('Hangouts updated.', status=200)
+
+
+class HangoutsInCommon(generics.ListAPIView):
+    serializer_class = HangoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        return user.hangout_set.filter(members__in=[self.request.user])
