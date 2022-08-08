@@ -675,4 +675,12 @@ class HangoutsInCommon(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return user.hangout_set.filter(members__in=[self.request.user])
+        a = Hangout.objects.filter(members__in=[user])
+        b = Hangout.objects.filter(members__in=[self.request.user])
+        c = []
+        for i in a:
+            for j in b:
+                if j == i:
+                    c.append(j)
+        return c
+

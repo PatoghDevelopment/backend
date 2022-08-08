@@ -172,8 +172,18 @@ class UserSerializer(serializers.ModelSerializer):
             return True
         return False
 
-    def get_hangouts_in_common(self, user):
-        return user.hangout_set.filter(members__in=[self.context['request'].user]).count()
+    def get_hangouts_in_common(self, friend):
+        a = Hangout.objects.filter(members__in=[friend])
+        b = Hangout.objects.filter(members__in=[self.context['request'].user])
+        c = []
+        for i in a:
+            for j in b:
+                if j == i:
+                    c.append(j)
+        k = 0
+        for i in c:
+            k += 1
+        return k
 
     def get_num_of_friends(self, user):
         return user.friends.count()
@@ -289,7 +299,18 @@ class FriendSerializer(serializers.ModelSerializer):
         fields = ('username', 'bio', 'hangouts_in_common')
 
     def get_hangouts_in_common(self, friend):
-        return friend.hangout_set.filter(members__in=[self.context['request'].user]).count()
+        a = Hangout.objects.filter(members__in=[friend])
+        b = Hangout.objects.filter(members__in=[self.context['request'].user])
+        c = []
+        for i in a:
+            for j in b:
+                if j == i:
+                    c.append(j)
+        k = 0
+        for i in c:
+            k += 1
+        return k
+
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -430,4 +451,3 @@ class HangoutTimeUpdateSerializer(serializers.ModelSerializer):
                             'gender', 'province', 'status', 'min_age',
                             'max_age', 'type',
                             'price', 'place']
-
