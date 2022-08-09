@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d0df4996-ada4-4ab5-be82-875bdf03f0b6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/migrations/0001_initial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/patogh_conf/main_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/patogh_conf/main_app/views.py" afterDir="false" />
-    </list>
+    <list default="true" id="d0df4996-ada4-4ab5-be82-875bdf03f0b6" name="Default Changelist" comment="" />
     <list id="1858929e-6acb-40fc-9389-36df57b2eb08" name="Revert &quot;debug&quot;" comment="Revert &quot;debug&quot;&#10;&#10;This reverts commit aed945dc" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +37,7 @@
       <workItem from="1647722429394" duration="1000" />
       <workItem from="1647725605511" duration="11000" />
       <workItem from="1647768181556" duration="7000" />
+      <workItem from="1659442637569" duration="59000" />
     </task>
     <servers />
   </component>
