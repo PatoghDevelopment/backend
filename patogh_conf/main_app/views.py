@@ -574,6 +574,8 @@ class HangoutRequestsListCreate(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         hangout = get_object_or_404(Hangout, pk=self.kwargs['pk'])
         user = self.request.user
+        if not user.gender and user.birth_date and user.province:
+            return Response('اطلاعات کاربری شما تکمیل نشده است', status=403)
         age = (date.today() - user.birth_date) // timedelta(days=365.2425)
         if hangout.gender != 'both' and hangout.gender != user.gender:
             return Response("user gender doesn't match", status=403)
@@ -683,4 +685,3 @@ class HangoutsInCommon(generics.ListAPIView):
                 if j == i:
                     c.append(j)
         return c
-
