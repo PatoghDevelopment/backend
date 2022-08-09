@@ -41,4 +41,5 @@ urlpatterns = [
     path('myhangouts/', MyHangouts.as_view()),
     path('updatehangoutstime/', HangoutTimeUpdate.as_view()),
     path('hangoutsincommon/<str:username>/', HangoutsInCommon.as_view()),
+
 ]
