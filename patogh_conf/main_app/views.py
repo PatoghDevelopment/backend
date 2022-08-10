@@ -282,6 +282,17 @@ class CompanyCreate(generics.CreateAPIView):
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.gender and self.request.user.birth_date and self.request.user.province:
+            return Response('اطلاعات کاربری شما تکمیل نشده است', status=403)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
     def perform_create(self, serializer):
         obj = serializer.save(creator=self.request.user)
         obj.members.add(self.request.user)
@@ -380,6 +391,17 @@ class CompanySearch(generics.ListAPIView):
 class HangoutCreate(generics.CreateAPIView):
     serializer_class = HangoutSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.gender and self.request.user.birth_date and self.request.user.province:
+            return Response('اطلاعات کاربری شما تکمیل نشده است', status=403)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
 
     def perform_create(self, serializer):
         obj = serializer.save(creator=self.request.user, is_over=False)
