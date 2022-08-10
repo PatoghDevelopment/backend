@@ -312,7 +312,6 @@ class FriendSerializer(serializers.ModelSerializer):
         return k
 
 
-
 class CompanySerializer(serializers.ModelSerializer):
     creator = serializers.ReadOnlyField(source='creator.username')
     num_of_members = serializers.SerializerMethodField()
@@ -423,10 +422,11 @@ class HangoutImageSerializer(serializers.ModelSerializer):
 class HangoutRequestsSerializer(serializers.ModelSerializer):
     hangout = serializers.ReadOnlyField(source='hangout.name')
     sender = serializers.ReadOnlyField(source='sender.username')
+    hangout_id = serializers.ReadOnlyField(source='hangout.id')
 
     class Meta:
         model = HangoutRequests
-        fields = ('id', 'hangout', 'sender', 'datetime')
+        fields = ('id', 'hangout', 'hangout_id', 'sender', 'datetime')
 
 
 class HangoutMemberSerializer(serializers.ModelSerializer):
