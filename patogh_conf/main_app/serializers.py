@@ -371,11 +371,10 @@ class HangoutImageSerializer(serializers.ModelSerializer):
 class HangoutRequestsSerializer(serializers.ModelSerializer):
     hangout = serializers.ReadOnlyField(source='hangout.name')
     sender = serializers.ReadOnlyField(source='sender.username')
-    hangout_id = serializers.ReadOnlyField(source='hangout.id')
 
     class Meta:
         model = HangoutRequests
-        fields = ('hangout', 'hangout_id', 'sender', 'datetime')
+        fields = ('hangout', 'sender', 'datetime')
 
 
 class HangoutMemberSerializer(serializers.ModelSerializer):
@@ -383,6 +382,5 @@ class HangoutMemberSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
                   'bio']
-        read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province',
-                            'avatar',
-                            'bio']
+        read_only_fields = ['username', 'first_name', 'last_name', 'gender', 'email', 'birth_date', 'province', 'avatar',
+                  'bio']
